@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>21_NL</title>
+  <style>* { margin: 0; padding: 0; } body { background: #000; overflow: hidden; }</style>
+</head>
+<body>
+  <script src="node_modules/phaser/dist/phaser.min.js"></script>
+  <!-- Systems (순수 로직) -->
+  <script src="src/systems/StatSystem.js"></script>
+  <script src="src/systems/CharacterManager.js"></script>
+  <script src="src/systems/MapGenerator.js"></script>
+  <script src="src/systems/PursuerAI.js"></script>
+  <!-- Entities -->
+  <script src="src/entities/BaseCharacter.js"></script>
+  <script src="src/entities/ElectricCharacter.js"></script>
+  <script src="src/entities/MechaArmCharacter.js"></script>
+  <script src="src/entities/Enemy.js"></script>
+  <script src="src/entities/Pursuer.js"></script>
+  <!-- UI -->
+  <script src="src/ui/HUD.js"></script>
+  <!-- Scenes -->
+  <script src="src/scenes/BootScene.js"></script>
+  <script src="src/scenes/MainMenuScene.js"></script>
+  <script src="src/scenes/GameScene.js"></script>
+  <script src="src/scenes/GameOverScene.js"></script>
+  <!-- Game 초기화 -->
+  <script src="src/game.js"></script>
+</body>
+</html>
