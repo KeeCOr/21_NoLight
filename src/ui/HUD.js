@@ -22,6 +22,7 @@ class HUD {
     // 캐릭터 아이콘 (우측 하단)
     this.charIcons = [];
     this._buildCharIcons();
+    this._lastActiveIndex = -1;
   }
 
   _buildCharIcons() {
@@ -34,6 +35,7 @@ class HUD {
         .setScrollFactor(0).setDepth(10);
       this.charIcons.push(icon);
     });
+    this._lastActiveIndex = this.cm.activeIndex;
   }
 
   update() {
@@ -49,6 +51,8 @@ class HUD {
     const sec = String(totalSec % 60).padStart(2, '0');
     this.scoreText.setText(`${min}:${sec}  ${this.stat.score}점`);
 
-    this._buildCharIcons();
+    if (this.cm.activeIndex !== this._lastActiveIndex) {
+      this._buildCharIcons();
+    }
   }
 }
