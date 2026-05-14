@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
+    "build": "electron-builder --config electron-builder.config.js",
     "test": "jest"
   },
   "dependencies": {
@@ -20,25 +20,5 @@
   "jest": {
     "testEnvironment": "node",
     "testMatch": ["**/tests/**/*.test.js"]
-  },
-  "build": {
-    "appId": "com.21nl.game",
-    "productName": "21NL",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "main.js",
-      "index.html",
-      "src/**/*",
-      "assets/**/*",
-      "node_modules/phaser/dist/phaser.min.js"
-    ],
-    "win": {
-      "target": ["portable"]
-    },
-    "portable": {
-      "artifactName": "21NL_v${version}_portable.exe"
-    }
   }
 }
