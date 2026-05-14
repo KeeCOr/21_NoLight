@@ -73,6 +73,7 @@ class GameScene extends Phaser.Scene {
         proj.damage = 30;
         // 반사 후 추격자에 닿으면 대미지
         this.physics.add.overlap(proj, pursuer, () => {
+          if (!proj.active) return;
           pursuer.onHit(proj.damage, proj);
           proj.destroy();
           this.projectiles = this.projectiles.filter(p => p !== proj);
