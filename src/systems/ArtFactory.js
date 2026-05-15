@@ -17,6 +17,7 @@ class ArtFactory {
 
   static _buildCharacters(scene) {
     this._texture(scene, 'electric_char', 52, 68, (g) => {
+      g.fillStyle(0x57e8ff, 0.16).fillCircle(26, 38, 23);
       g.fillStyle(0x07131f, 1).fillRoundedRect(13, 12, 26, 50, 8);
       g.fillStyle(0x16395f, 1).fillRoundedRect(16, 15, 20, 42, 6);
       g.fillStyle(0x64e7ff, 1).fillRoundedRect(18, 19, 16, 8, 3);
@@ -26,7 +27,6 @@ class ArtFactory {
       g.lineStyle(2, 0x7ff9ff, 0.85).beginPath().moveTo(7, 42).lineTo(16, 36).lineTo(12, 48).lineTo(22, 43).strokePath();
       g.lineStyle(2, 0xffffff, 0.5).beginPath().moveTo(45, 25).lineTo(35, 35).lineTo(43, 35).lineTo(32, 50).strokePath();
       g.fillStyle(0x06101a, 1).fillRoundedRect(15, 56, 8, 10, 3).fillRoundedRect(29, 56, 8, 10, 3);
-      g.fillStyle(0x57e8ff, 0.65).fillCircle(26, 38, 23);
     });
 
     this._texture(scene, 'mecha_char', 56, 70, (g) => {
@@ -100,6 +100,12 @@ class ArtFactory {
       g.fillStyle(0x61f5ff, 0.06);
       for (let i = 0; i < 16; i++) g.fillEllipse((i * 73) % w, 50 + ((i * 31) % 150), 150, 34);
     });
+
+    this._texture(scene, 'bg_scanline', 8, 8, (g, w) => {
+      g.fillStyle(0x000000, 0).fillRect(0, 0, w, 8);
+      g.fillStyle(0x9ff7ff, 0.16).fillRect(0, 0, w, 1);
+      g.fillStyle(0x000000, 0.18).fillRect(0, 5, w, 1);
+    });
   }
 
   static _buildEffects(scene) {
@@ -111,6 +117,12 @@ class ArtFactory {
 
     this._texture(scene, 'spark', 20, 20, (g) => {
       g.lineStyle(2, 0x92fbff, 1).beginPath().moveTo(10, 0).lineTo(10, 20).moveTo(0, 10).lineTo(20, 10).moveTo(3, 3).lineTo(17, 17).moveTo(17, 3).lineTo(3, 17).strokePath();
+    });
+
+    this._texture(scene, 'afterimage_glow', 64, 64, (g) => {
+      g.fillStyle(0xffffff, 0.12).fillCircle(32, 32, 30);
+      g.fillStyle(0xffffff, 0.18).fillCircle(32, 32, 18);
+      g.fillStyle(0xffffff, 0.35).fillCircle(32, 32, 6);
     });
   }
 

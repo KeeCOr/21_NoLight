@@ -59,6 +59,10 @@ class GameScene extends Phaser.Scene {
     this.bgMid = this.add.tileSprite(640, 360, 1280, 720, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.85);
     this.bgFog = this.add.tileSprite(640, 360, 1280, 720, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.85);
     this.add.rectangle(640, 360, 1280, 720, 0x07131f, 0.18).setScrollFactor(0).setDepth(-5);
+    this.scanlines = this.add.tileSprite(640, 360, 1280, 720, 'bg_scanline')
+      .setScrollFactor(0)
+      .setDepth(19)
+      .setAlpha(0.22);
   }
 
   _syncBackground() {
@@ -67,6 +71,7 @@ class GameScene extends Phaser.Scene {
     this.bgMid.tilePositionY = cam.scrollY * 0.24;
     this.bgFog.tilePositionY = cam.scrollY * 0.42;
     this.bgFog.tilePositionX += 0.12;
+    this.scanlines.tilePositionY += 0.08;
   }
 
   _handlePursuerAttack(pursuer, type, player) {
@@ -163,6 +168,10 @@ class GameScene extends Phaser.Scene {
       .setTint(color)
       .setFlipX(target.flipX)
       .setDepth(1);
+    const glow = this.add.image(target.x, target.y, 'afterimage_glow')
+      .setTint(color)
+      .setAlpha(0.24)
+      .setDepth(0);
     this.tweens.add({
       targets: ghost,
       alpha: 0,
@@ -170,6 +179,13 @@ class GameScene extends Phaser.Scene {
       scaleY: 1.12,
       duration: 240,
       onComplete: () => ghost.destroy(),
+    });
+    this.tweens.add({
+      targets: glow,
+      alpha: 0,
+      scale: 1.8,
+      duration: 300,
+      onComplete: () => glow.destroy(),
     });
   }
 
