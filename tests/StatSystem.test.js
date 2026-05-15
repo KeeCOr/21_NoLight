@@ -76,6 +76,16 @@ describe('StatSystem', () => {
     expect(stat.score).toBe(50);
   });
 
+  test('onKill: enemy kills restore some HP without exceeding max', () => {
+    stat.hp = 70;
+    stat.onKill();
+    expect(stat.hp).toBe(82);
+
+    stat.hp = 96;
+    stat.onKill();
+    expect(stat.hp).toBe(100);
+  });
+
   test('isDead: HP 0일 때 true', () => {
     stat.hp = 0;
     expect(stat.isDead()).toBe(true);

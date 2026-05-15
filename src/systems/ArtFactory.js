@@ -19,7 +19,7 @@ class ArtFactory {
   static _palette() {
     return {
       paper: 0xf2efe3,
-      paperShade: 0xd8d0bd,
+      paperShade: 0xcfc5ad,
       ink: 0x05070b,
       inkSoft: 0x101820,
       inkBlue: 0x172431,
@@ -72,7 +72,8 @@ class ArtFactory {
     const p = this._palette();
 
     this._texture(scene, 'electric_char', 58, 74, (g) => {
-      this._wash(g, 58, 74, p.cyan, 0.09, 7, 1);
+      this._wash(g, 58, 74, p.ink, 0.12, 9, 1);
+      this._wash(g, 58, 74, p.cyan, 0.06, 5, 1);
       this._jaggedFill(g, [[27, 5], [39, 13], [43, 32], [38, 64], [25, 72], [14, 58], [12, 25], [19, 10]], p.ink, 0.96);
       this._jaggedFill(g, [[23, 14], [36, 18], [36, 54], [27, 62], [18, 53], [18, 20]], p.inkBlue, 0.9);
       g.fillStyle(p.paper, 0.82).fillRoundedRect(18, 18, 22, 9, 4);
@@ -87,7 +88,8 @@ class ArtFactory {
     });
 
     this._texture(scene, 'mecha_char', 62, 76, (g) => {
-      this._wash(g, 62, 76, p.orange, 0.08, 7, 4);
+      this._wash(g, 62, 76, p.ink, 0.11, 9, 4);
+      this._wash(g, 62, 76, p.orange, 0.055, 5, 4);
       this._jaggedFill(g, [[28, 6], [44, 15], [45, 54], [37, 70], [22, 70], [13, 55], [14, 17]], p.ink, 0.98);
       this._jaggedFill(g, [[21, 16], [39, 16], [40, 56], [31, 63], [21, 57]], 0x414850, 0.92);
       g.fillStyle(p.orange, 0.96).fillRoundedRect(18, 22, 26, 8, 2);
@@ -106,7 +108,8 @@ class ArtFactory {
     const p = this._palette();
 
     this._texture(scene, 'enemy', 52, 52, (g) => {
-      this._wash(g, 52, 52, p.magenta, 0.08, 5, 2);
+      this._wash(g, 52, 52, p.ink, 0.14, 7, 2);
+      this._wash(g, 52, 52, p.magenta, 0.06, 4, 2);
       this._jaggedFill(g, [[9, 18], [18, 8], [35, 10], [44, 22], [39, 42], [25, 49], [11, 40]], p.ink, 0.96);
       this._jaggedFill(g, [[14, 20], [22, 14], [33, 15], [37, 27], [32, 37], [20, 38], [13, 30]], p.inkPurple, 0.9);
       this._neonCore(g, 20, 25, 4, p.magenta, 1);
@@ -118,7 +121,8 @@ class ArtFactory {
     });
 
     this._texture(scene, 'pursuer', 108, 122, (g) => {
-      this._wash(g, 108, 122, p.red, 0.1, 14, 8);
+      this._wash(g, 108, 122, p.ink, 0.15, 18, 8);
+      this._wash(g, 108, 122, p.red, 0.075, 10, 8);
       this._jaggedFill(g, [[50, 7], [78, 20], [88, 65], [69, 105], [43, 116], [21, 90], [17, 35]], p.ink, 0.98);
       this._jaggedFill(g, [[50, 19], [70, 28], [75, 65], [62, 91], [45, 96], [31, 75], [31, 33]], 0x340811, 0.94);
       this._jaggedFill(g, [[46, 29], [65, 36], [66, 70], [53, 82], [38, 68], [36, 39]], 0x7f1222, 0.9);
@@ -138,7 +142,8 @@ class ArtFactory {
     const p = this._palette();
 
     this._texture(scene, 'platform', 190, 36, (g, w, h) => {
-      g.fillStyle(p.paper, 0.18).fillRoundedRect(0, 4, w, h - 6, 7);
+      this._wash(g, w, h, p.paper, 0.08, 4, 6);
+      g.fillStyle(p.paper, 0.2).fillRoundedRect(0, 4, w, h - 6, 7);
       this._jaggedFill(g, [[0, 10], [22, 3], [58, 7], [92, 0], [139, 5], [190, 1], [190, 28], [163, 34], [119, 29], [74, 36], [32, 31], [0, 35]], p.inkSoft, 0.98);
       this._jaggedFill(g, [[0, 8], [43, 7], [84, 4], [128, 8], [190, 5], [190, 18], [137, 17], [89, 20], [42, 17], [0, 20]], p.paperShade, 0.24);
       this._dryBrush(g, [[5, 6], [50, 8], [96, 4], [143, 8], [186, 5]], p.paper, 0.28, 2);
@@ -148,25 +153,27 @@ class ArtFactory {
     });
 
     this._texture(scene, 'bg_far', 512, 512, (g, w, h) => {
-      g.fillGradientStyle(p.paper, p.paper, 0xb8c5c2, 0x33404a, 1);
+      g.fillGradientStyle(p.paper, p.paper, 0xe0dac9, 0x76818a, 1);
       g.fillRect(0, 0, w, h);
-      this._wash(g, w, h, p.ink, 0.07, 38, 3);
-      this._wash(g, w, h, p.inkBlue, 0.08, 22, 12);
-      this._dryBrush(g, [[0, 430], [95, 380], [160, 415], [245, 355], [325, 392], [410, 342], [512, 384]], p.ink, 0.16, 11);
-      g.fillStyle(p.cyan, 0.34);
-      for (let i = 0; i < 80; i++) g.fillCircle((i * 83) % w, (i * 47) % h, (i % 3) + 0.7);
-      g.fillStyle(p.orange, 0.22);
-      for (let i = 0; i < 24; i++) g.fillCircle((i * 137 + 19) % w, (i * 71 + 43) % h, 1.4);
+      this._wash(g, w, h, p.paperShade, 0.12, 44, 3);
+      this._wash(g, w, h, p.ink, 0.09, 46, 3);
+      this._wash(g, w, h, p.inkBlue, 0.055, 18, 12);
+      this._dryBrush(g, [[-20, 424], [65, 384], [128, 418], [205, 360], [282, 410], [360, 348], [445, 388], [540, 354]], p.ink, 0.2, 15);
+      this._dryBrush(g, [[0, 462], [90, 430], [184, 468], [285, 418], [386, 456], [512, 426]], p.ink, 0.12, 22);
+      g.fillStyle(p.cyan, 0.2);
+      for (let i = 0; i < 52; i++) g.fillCircle((i * 83) % w, (i * 47) % h, (i % 2) + 0.55);
+      g.fillStyle(p.orange, 0.13);
+      for (let i = 0; i < 14; i++) g.fillCircle((i * 137 + 19) % w, (i * 71 + 43) % h, 1.2);
     });
 
     this._texture(scene, 'bg_mid', 512, 512, (g, w, h) => {
       g.fillStyle(0x000000, 0).fillRect(0, 0, w, h);
-      this._wash(g, w, h, p.ink, 0.08, 16, 9);
+      this._wash(g, w, h, p.ink, 0.1, 24, 9);
       for (let x = -30; x < w; x += 68) {
         const bh = 150 + ((x * 17) % 150);
         const roof = 18 + ((x * 5) % 22);
-        this._jaggedFill(g, [[x - 7, h - bh + roof], [x + 16, h - bh], [x + 49, h - bh + 8], [x + 56, h], [x - 2, h]], p.ink, 0.55);
-        g.fillStyle(p.inkBlue, 0.55).fillRect(x + 5, h - bh + 25, 45, bh - 25);
+        this._jaggedFill(g, [[x - 7, h - bh + roof], [x + 16, h - bh], [x + 49, h - bh + 8], [x + 56, h], [x - 2, h]], p.ink, 0.66);
+        g.fillStyle(p.inkBlue, 0.48).fillRect(x + 5, h - bh + 25, 45, bh - 25);
         g.lineStyle(1, p.cyan, 0.22);
         for (let y = h - bh + 42; y < h - 20; y += 38) {
           g.beginPath().moveTo(x + 12, y).lineTo(x + 21, y + 2).moveTo(x + 34, y + 12).lineTo(x + 45, y + 11).strokePath();
@@ -177,9 +184,10 @@ class ArtFactory {
 
     this._texture(scene, 'bg_fog', 512, 256, (g, w, h) => {
       g.fillStyle(0x000000, 0).fillRect(0, 0, w, h);
-      this._wash(g, w, h, p.paper, 0.08, 14, 5);
-      this._wash(g, w, h, p.cyan, 0.045, 18, 14);
-      g.lineStyle(7, p.paper, 0.06);
+      this._wash(g, w, h, p.paper, 0.12, 18, 5);
+      this._wash(g, w, h, p.ink, 0.04, 10, 11);
+      this._wash(g, w, h, p.cyan, 0.03, 12, 14);
+      g.lineStyle(9, p.paper, 0.09);
       for (let y = 48; y < h; y += 58) {
         g.beginPath().moveTo(-20, y).quadraticCurveTo(120, y - 30, 250, y + 6).quadraticCurveTo(390, y + 42, 532, y - 8).strokePath();
       }

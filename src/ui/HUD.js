@@ -43,7 +43,7 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(21);
 
-    this.helpText = scene.add.text(640, 684, '← → MOVE   ↑ JUMP   Z ATTACK   X SKILL   C GUARD   TAB SWAP', {
+    this.helpText = scene.add.text(640, 684, TutorialCopy.controls, {
       fontSize: '14px',
       color: '#a9b8c7',
       fontFamily: 'Arial',
@@ -51,9 +51,51 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(20);
 
+    this._buildTutorialPanel();
     this.charIcons = [];
     this._buildCharIcons();
     this._lastActiveIndex = -1;
+  }
+
+  _buildTutorialPanel() {
+    const scene = this.scene;
+    const inkShadow = scene.add.rectangle(640, 124, 586, 118, 0x05070b, 0.22)
+      .setScrollFactor(0)
+      .setDepth(23);
+    const panel = scene.add.rectangle(640, 112, 560, 116, 0xf2efe3, 0.86)
+      .setStrokeStyle(2, 0x101820, 0.88)
+      .setScrollFactor(0)
+      .setDepth(24);
+    const title = scene.add.text(640, 67, TutorialCopy.title, {
+      fontSize: '18px',
+      color: '#05070b',
+      fontFamily: 'Arial Black',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+    const goal = scene.add.text(640, 98, TutorialCopy.goal, {
+      fontSize: '16px',
+      color: '#101820',
+      fontFamily: 'Arial',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+    const heal = scene.add.text(640, 124, TutorialCopy.heal, {
+      fontSize: '15px',
+      color: '#172431',
+      fontFamily: 'Arial',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+    const controls = scene.add.text(640, 151, TutorialCopy.controls, {
+      fontSize: '13px',
+      color: '#05070b',
+      fontFamily: 'Arial',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+
+    this.tutorialNodes = [inkShadow, panel, title, goal, heal, controls];
+    scene.time.delayedCall(6800, () => {
+      scene.tweens.add({
+        targets: this.tutorialNodes.filter(node => node.active),
+        alpha: 0,
+        duration: 700,
+        onComplete: () => this.tutorialNodes.forEach(node => node.destroy()),
+      });
+    });
   }
 
   _buildCharIcons() {
