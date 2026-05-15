@@ -103,5 +103,14 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     if (cursors.up.isDown && this.body.blocked.down) {
       this.setVelocityY(-550);
     }
+
+    // 좌우 경계 제한
+    if (this.x < this.width / 2) {
+      this.x = this.width / 2;
+      this.setVelocityX(0);
+    } else if (this.x > 1280 - this.width / 2) {
+      this.x = 1280 - this.width / 2;
+      this.setVelocityX(0);
+    }
   }
 }
