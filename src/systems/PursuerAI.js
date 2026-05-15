@@ -1,5 +1,6 @@
 const PURSUER_STATE = {
   CHASING: 'CHASING',
+  RUSHING: 'RUSHING',
   STUNNED: 'STUNNED',
 };
 
@@ -26,6 +27,11 @@ class PursuerAI {
     // 난이도
     this.survivalTime = 0;
     this.speedMultiplier = 1.0;
+    this.rushTimer = 0;
+    this.rushIntervalTimer = 0;
+    this.RUSH_INTERVAL = 18000;
+    this.RUSH_DURATION = 2400;
+    this.RUSH_MULTIPLIER = 5.5;
   }
 
   onDamage(amount) {
@@ -40,7 +46,8 @@ class PursuerAI {
   }
 
   getSpeed(baseSpeed) {
-    return baseSpeed * this.speedMultiplier;
+    const rush = this.state === PURSUER_STATE.RUSHING ? this.RUSH_MULTIPLIER : 1;
+    return baseSpeed * this.speedMultiplier * rush;
   }
 
   isStunned() {
@@ -57,6 +64,20 @@ class PursuerAI {
       this.stunTimer -= delta;
       if (this.stunTimer <= 0) this.state = PURSUER_STATE.CHASING;
       return null;
+    }
+
+    if (this.state === PURSUER_STATE.RUSHING) {
+      this.rushTimer -= delta;
+      if (this.rushTimer <= 0) this.state = PURSUER_STATE.CHASING;
+      return null;
+    }
+
+    this.rushIntervalTimer += delta;
+    if (this.rushIntervalTimer >= this.RUSH_INTERVAL) {
+      this.rushIntervalTimer = 0;
+      this.rushTimer = this.RUSH_DURATION;
+      this.state = PURSUER_STATE.RUSHING;
+      return 'rush';
     }
 
     const current = this.attackQueue[this.attackIndex];

@@ -5,7 +5,7 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.ai = new PursuerAI();
-    this.BASE_SPEED = 120;
+    this.BASE_SPEED = 115;
     this.CONTACT_DAMAGE = 5;
     this.contactTimer = 0;
     this.CONTACT_INTERVAL = 500;
@@ -39,7 +39,8 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    this.clearTint();
+    if (this.ai.state === PURSUER_STATE.RUSHING) this.setTint(0xff273d);
+    else this.clearTint();
 
     // 플레이어 추격
     const speed = this.ai.getSpeed(this.BASE_SPEED);

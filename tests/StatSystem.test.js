@@ -76,14 +76,20 @@ describe('StatSystem', () => {
     expect(stat.score).toBe(50);
   });
 
-  test('onKill: enemy kills restore some HP without exceeding max', () => {
+  test('restoreHp: healing pickups restore HP without exceeding max', () => {
     stat.hp = 70;
-    stat.onKill();
+    stat.restoreHp(12);
     expect(stat.hp).toBe(82);
 
     stat.hp = 96;
-    stat.onKill();
+    stat.restoreHp(12);
     expect(stat.hp).toBe(100);
+  });
+
+  test('onKill: kills do not restore HP until the player collects a drop', () => {
+    stat.hp = 70;
+    stat.onKill();
+    expect(stat.hp).toBe(70);
   });
 
   test('isDead: HP 0일 때 true', () => {

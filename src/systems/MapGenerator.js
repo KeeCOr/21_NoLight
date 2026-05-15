@@ -26,12 +26,17 @@ class MapGenerator {
 
   generateChunk(chunkIndex, enemyFactory) {
     const yTop = chunkIndex * this.CHUNK_HEIGHT;
+    const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width || 900;
+    const margin = Math.max(70, Math.floor(worldWidth * 0.09));
+    const laneLeft = Math.floor(worldWidth * 0.22);
+    const laneCenter = Math.floor(worldWidth * 0.5);
+    const laneRight = Math.floor(worldWidth * 0.78);
 
     // 항상 이동 가능한 경로 보장: 좌/중/우 각 1개
     const guaranteed = [
-      { x: 200,  y: yTop + 150, w: 120 },
-      { x: 640,  y: yTop + 80,  w: 120 },
-      { x: 1080, y: yTop + 200, w: 120 },
+      { x: laneLeft,   y: yTop + 150, w: 120 },
+      { x: laneCenter, y: yTop + 80,  w: 120 },
+      { x: laneRight,  y: yTop + 200, w: 120 },
     ];
 
     const platforms = guaranteed.map(p => {
@@ -42,7 +47,7 @@ class MapGenerator {
 
     const extra = Phaser.Math.Between(2, 4);
     for (let i = 0; i < extra; i++) {
-      const x = Phaser.Math.Between(100, 1180);
+      const x = Phaser.Math.Between(margin, worldWidth - margin);
       const y = yTop + Phaser.Math.Between(30, 260);
       const w = Phaser.Math.Between(60, 150);
       const plat = this.platformGroup.create(x, y, 'platform');
@@ -54,7 +59,7 @@ class MapGenerator {
     if (enemyFactory && chunkIndex !== 0) {
       const count = Phaser.Math.Between(1, 3);
       for (let i = 0; i < count; i++) {
-        const x = Phaser.Math.Between(100, 1180);
+        const x = Phaser.Math.Between(margin, worldWidth - margin);
         const y = yTop + 50;
         const e = enemyFactory(x, y);
         if (e) enemies.push(e);

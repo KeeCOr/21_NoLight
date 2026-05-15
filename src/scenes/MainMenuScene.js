@@ -29,6 +29,8 @@ class MainMenuScene extends Phaser.Scene {
       fontFamily: 'Arial',
       stroke: '#05070b',
       strokeThickness: 4,
+      align: 'center',
+      wordWrap: { width: 720 },
     }).setOrigin(0.5).setDepth(2);
 
     const inkShadow = this.add.rectangle(width / 2, height - 120, 680, 130, 0x05070b, 0.24);
@@ -46,11 +48,15 @@ class MainMenuScene extends Phaser.Scene {
       fontSize: '16px',
       color: '#172431',
       fontFamily: 'Arial',
+      align: 'center',
+      wordWrap: { width: 590 },
     }).setOrigin(0.5).setDepth(5);
     this.add.text(width / 2, height - 118, TutorialCopy.controls, {
       fontSize: '14px',
       color: '#05070b',
       fontFamily: 'Arial',
+      align: 'center',
+      wordWrap: { width: 590 },
     }).setOrigin(0.5).setDepth(5);
 
     const start = this.add.text(width / 2, height - 70, TutorialCopy.start, {

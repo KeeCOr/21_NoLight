@@ -59,6 +59,7 @@ describe('ArtFactory', () => {
       'projectile',
       'spark',
       'afterimage_glow',
+      'life_orb',
       'portrait_electric',
       'portrait_mecha',
     ]);

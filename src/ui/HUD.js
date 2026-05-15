@@ -3,6 +3,8 @@ class HUD {
     this.scene = scene;
     this.stat = stat;
     this.cm = characterManager;
+    const width = scene.scale?.width || scene.cameras.main.width;
+    const height = scene.scale?.height || scene.cameras.main.height;
 
     this.panel = scene.add.rectangle(18, 16, 286, 76, 0x050912, 0.72)
       .setOrigin(0, 0)
@@ -31,11 +33,11 @@ class HUD {
       .setScrollFactor(0)
       .setDepth(22);
 
-    this.scorePanel = scene.add.rectangle(640, 18, 260, 46, 0x050912, 0.68)
+    this.scorePanel = scene.add.rectangle(width / 2, 18, 190, 46, 0x050912, 0.68)
       .setStrokeStyle(1, 0x26465a, 0.9)
       .setScrollFactor(0)
       .setDepth(20);
-    this.scoreText = scene.add.text(640, 28, '00:00   SCORE 0', {
+    this.scoreText = scene.add.text(width / 2, 28, 'SCORE 0', {
       fontSize: '20px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -43,7 +45,17 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(21);
 
-    this.helpText = scene.add.text(640, 684, TutorialCopy.controls, {
+    this.comboText = scene.add.text(width / 2, 92, '', {
+      fontSize: '24px',
+      color: '#ffcf63',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 5,
+    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(22).setAlpha(0);
+
+    scene.events.on('comboChanged', ({ step, max }) => this.showCombo(step, max));
+
+    this.helpText = scene.add.text(width / 2, height - 42, TutorialCopy.controls, {
       fontSize: '14px',
       color: '#a9b8c7',
       fontFamily: 'Arial',
@@ -59,42 +71,66 @@ class HUD {
 
   _buildTutorialPanel() {
     const scene = this.scene;
-    const inkShadow = scene.add.rectangle(640, 124, 586, 118, 0x05070b, 0.22)
+    const width = scene.scale?.width || scene.cameras.main.width;
+    const inkShadow = scene.add.rectangle(width / 2, 188, 650, 148, 0x05070b, 0.22)
       .setScrollFactor(0)
       .setDepth(23);
-    const panel = scene.add.rectangle(640, 112, 560, 116, 0xf2efe3, 0.86)
+    const panel = scene.add.rectangle(width / 2, 174, 620, 144, 0xf2efe3, 0.88)
       .setStrokeStyle(2, 0x101820, 0.88)
       .setScrollFactor(0)
       .setDepth(24);
-    const title = scene.add.text(640, 67, TutorialCopy.title, {
+    const title = scene.add.text(width / 2, 120, TutorialCopy.title, {
       fontSize: '18px',
       color: '#05070b',
       fontFamily: 'Arial Black',
     }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
-    const goal = scene.add.text(640, 98, TutorialCopy.goal, {
-      fontSize: '16px',
+    const goal = scene.add.text(width / 2, 158, '', {
+      fontSize: '18px',
       color: '#101820',
       fontFamily: 'Arial',
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
-    const heal = scene.add.text(640, 124, TutorialCopy.heal, {
-      fontSize: '15px',
-      color: '#172431',
-      fontFamily: 'Arial',
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
-    const controls = scene.add.text(640, 151, TutorialCopy.controls, {
-      fontSize: '13px',
-      color: '#05070b',
-      fontFamily: 'Arial',
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+      align: 'center',
+      wordWrap: { width: 560 },
+    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(25);
 
-    this.tutorialNodes = [inkShadow, panel, title, goal, heal, controls];
-    scene.time.delayedCall(6800, () => {
-      scene.tweens.add({
+    this.tutorialNodes = [inkShadow, panel, title, goal];
+    this.tutorialTitle = title;
+    this.tutorialBody = goal;
+    this.tutorialStep = -1;
+    this._advanceTutorial();
+  }
+
+  _advanceTutorial() {
+    this.tutorialStep++;
+    const step = TutorialCopy.steps[this.tutorialStep];
+    if (!step) {
+      this.scene.tweens.add({
         targets: this.tutorialNodes.filter(node => node.active),
         alpha: 0,
-        duration: 700,
+        duration: 520,
         onComplete: () => this.tutorialNodes.forEach(node => node.destroy()),
       });
+      return;
+    }
+
+    this.tutorialTitle.setText(step.title);
+    this.tutorialBody.setText(step.body);
+    this.scene.time.delayedCall(3100, () => this._advanceTutorial());
+  }
+
+  showCombo(step, max) {
+    this.comboText.setText(`COMBO ${step}/${max}`);
+    this.comboText.setAlpha(1);
+    this.scene.tweens.killTweensOf(this.comboText);
+    this.scene.tweens.add({
+      targets: this.comboText,
+      y: 82,
+      scale: 1.12,
+      duration: 70,
+      yoyo: true,
+      onComplete: () => {
+        this.comboText.setY(92).setScale(1);
+        this.scene.tweens.add({ targets: this.comboText, alpha: 0, duration: 520, delay: 380 });
+      },
     });
   }
 
@@ -105,7 +141,7 @@ class HUD {
 
     this.cm.characters.forEach((_, i) => {
       const isActive = i === this.cm.activeIndex;
-      const x = 1185 + i * 62;
+      const x = (this.scene.scale?.width || this.scene.cameras.main.width) - 112 + i * 62;
       const frame = this.scene.add.rectangle(x, 54, 58, 58, isActive ? 0x102a36 : 0x070910, 0.92)
         .setStrokeStyle(2, isActive ? 0x7ff9ff : 0x4b5867, isActive ? 1 : 0.75)
         .setScrollFactor(0)
@@ -128,10 +164,7 @@ class HUD {
     const stRatio = Math.max(0, this.stat.stamina / this.stat.maxStamina);
     this.stBar.setDisplaySize(210 * stRatio, 10);
 
-    const totalSec = Math.floor(this.stat.survivalTime);
-    const min = String(Math.floor(totalSec / 60)).padStart(2, '0');
-    const sec = String(totalSec % 60).padStart(2, '0');
-    this.scoreText.setText(`${min}:${sec}   SCORE ${this.stat.score}`);
+    this.scoreText.setText(`SCORE ${this.stat.score}`);
 
     if (this.cm.activeIndex !== this._lastActiveIndex) {
       this._buildCharIcons();

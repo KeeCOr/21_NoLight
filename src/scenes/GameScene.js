@@ -4,6 +4,8 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.worldWidth = this.scale?.width || this.cameras.main.width;
+    this.worldHeight = this.scale?.height || this.cameras.main.height;
     this._createBackground();
 
     this.physics.world.setBounds(-50000, -50000, 100000, 100000);
@@ -12,12 +14,13 @@ class GameScene extends Phaser.Scene {
     this.stat = new StatSystem();
     this.mapGen = new MapGenerator(this);
 
-    const electric = new ElectricCharacter(this, 640, 300, this.stat);
-    const mecha = new MechaArmCharacter(this, 640, 300, this.stat);
+    const startX = this.worldWidth / 2;
+    const electric = new ElectricCharacter(this, startX, 300, this.stat);
+    const mecha = new MechaArmCharacter(this, startX, 300, this.stat);
     mecha.setVisible(false);
 
     this.charManager = new CharacterManager([electric, mecha]);
-    this.pursuer = new Pursuer(this, 640, 700);
+    this.pursuer = new Pursuer(this, startX, 860);
     this.hud = new HUD(this, this.stat, this.charManager);
 
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -30,15 +33,23 @@ class GameScene extends Phaser.Scene {
 
     this.cameras.main.startFollow(this.charManager.getActive(), true, 0.1, 0.1);
     this.projectiles = [];
+    this.healthDrops = this.physics.add.group({ allowGravity: false });
 
     this.physics.add.collider(electric, this.mapGen.getPlatformGroup());
     this.physics.add.collider(mecha, this.mapGen.getPlatformGroup());
+    this.physics.add.overlap(electric, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
+    this.physics.add.overlap(mecha, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
 
     this.events.on('enemyKilled', (enemy) => {
       this.stat.onKill();
       this._impactBurst(enemy.x, enemy.y, 0xff4f9a, 12);
+      this._spawnHealthDrop(enemy.x, enemy.y);
     });
-    this.events.on('enemyHit', (enemy) => this._impactBurst(enemy.x, enemy.y, 0x92fbff, 6));
+    this.events.on('enemyHit', (enemy) => {
+      this._impactBurst(enemy.x, enemy.y, 0x92fbff, 8);
+      this._hitStop(42);
+      this.cameras.main.shake(70, 0.0025);
+    });
     this.events.on('mechaDashStart', (char) => this._dashTrail(char, 0xff8a2a));
 
     this.events.on('electricSwapIn', (char) => {
@@ -55,14 +66,17 @@ class GameScene extends Phaser.Scene {
   }
 
   _createBackground() {
-    this.bgFar = this.add.tileSprite(640, 360, 1280, 720, 'bg_far').setScrollFactor(0).setDepth(-30);
-    this.bgMid = this.add.tileSprite(640, 360, 1280, 720, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.85);
-    this.bgFog = this.add.tileSprite(640, 360, 1280, 720, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.85);
-    this.add.rectangle(640, 360, 1280, 720, 0x07131f, 0.18).setScrollFactor(0).setDepth(-5);
-    this.scanlines = this.add.tileSprite(640, 360, 1280, 720, 'bg_scanline')
+    const cx = this.worldWidth / 2;
+    const cy = this.worldHeight / 2;
+    this.bgFar = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_far').setScrollFactor(0).setDepth(-30);
+    this.bgMid = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.72);
+    this.bgFog = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.95);
+    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0xf2efe3, 0.13).setScrollFactor(0).setDepth(-6);
+    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0x05070b, 0.11).setScrollFactor(0).setDepth(-5);
+    this.scanlines = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_scanline')
       .setScrollFactor(0)
       .setDepth(19)
-      .setAlpha(0.22);
+      .setAlpha(0.12);
   }
 
   _syncBackground() {
@@ -131,7 +145,59 @@ class GameScene extends Phaser.Scene {
       pursuer.setVelocity(Math.cos(angle) * 500, Math.sin(angle) * 500);
       this._dashTrail(pursuer, 0xff263e);
       this.time.delayedCall(400, () => pursuer.setVelocity(0, 0));
+    } else if (type === 'rush') {
+      this._showAlert('THE HUNTER SURGES');
+      this.cameras.main.shake(260, 0.004);
     }
+  }
+
+  _showAlert(text) {
+    const alert = this.add.text(this.worldWidth / 2, 260, text, {
+      fontSize: '30px',
+      color: '#ff273d',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 6,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30);
+    this.tweens.add({
+      targets: alert,
+      alpha: 0,
+      y: 232,
+      duration: 900,
+      ease: 'Cubic.easeOut',
+      onComplete: () => alert.destroy(),
+    });
+  }
+
+  _spawnHealthDrop(x, y) {
+    const drop = this.healthDrops.create(x, y - 14, 'life_orb')
+      .setDepth(5)
+      .setScale(1.05);
+    drop.body.allowGravity = false;
+    drop.healAmount = this.stat.HEAL_DROP_RESTORE;
+    this.tweens.add({ targets: drop, y: y - 34, duration: 620, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.time.delayedCall(8500, () => {
+      if (drop.active) drop.destroy();
+    });
+  }
+
+  _collectHealthDrop(player, drop) {
+    if (!player.visible) return;
+    if (!drop || !drop.active) return;
+    this.stat.restoreHp(drop.healAmount);
+    this._impactBurst(drop.x, drop.y, 0xff4f9a, 10);
+    this._skillBurst(drop.x, drop.y, 0xff4f9a, 44);
+    drop.destroy();
+  }
+
+  _hitStop(duration) {
+    if (this._hitStopActive) return;
+    this._hitStopActive = true;
+    this.physics.world.timeScale = 0.18;
+    this.time.delayedCall(duration, () => {
+      this.physics.world.timeScale = 1;
+      this._hitStopActive = false;
+    });
   }
 
   _slashArc(char, color) {

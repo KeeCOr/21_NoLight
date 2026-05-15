@@ -114,11 +114,12 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     }
 
     // 좌우 경계 제한
+    const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width;
     if (this.x < this.width / 2) {
       this.x = this.width / 2;
       this.setVelocityX(0);
-    } else if (this.x > 1280 - this.width / 2) {
-      this.x = 1280 - this.width / 2;
+    } else if (this.x > worldWidth - this.width / 2) {
+      this.x = worldWidth - this.width / 2;
       this.setVelocityX(0);
     }
   }

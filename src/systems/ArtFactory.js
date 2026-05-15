@@ -224,6 +224,16 @@ class ArtFactory {
       g.fillStyle(0xffffff, 0.17).fillCircle(36, 36, 20);
       g.fillStyle(0xffffff, 0.35).fillCircle(36, 36, 6);
     });
+
+    this._texture(scene, 'life_orb', 34, 34, (g) => {
+      this._wash(g, 34, 34, p.magenta, 0.1, 5, 9);
+      g.fillStyle(p.paper, 0.18).fillCircle(17, 17, 16);
+      g.fillStyle(p.ink, 0.72).fillCircle(17, 17, 11);
+      g.fillStyle(p.magenta, 0.46).fillCircle(17, 17, 9);
+      g.fillStyle(0xffffff, 0.92).fillCircle(14, 13, 3);
+      g.lineStyle(2, p.magenta, 0.9).strokeCircle(17, 17, 12);
+      this._dryBrush(g, [[6, 22], [14, 17], [21, 20], [28, 12]], p.paper, 0.42, 2);
+    });
   }
 
   static _buildUi(scene) {

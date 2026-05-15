@@ -18,7 +18,7 @@ class StatSystem {
     this.STAMINA_SKILL_COST = 30;   // 스킬 발동 소모
     this.STAMINA_MECHA_HIT_GAIN = 20; // 메카 팔 가드 피격 시 획득
 
-    this.KILL_HP_RESTORE = 12;
+    this.HEAL_DROP_RESTORE = 18;
     this.lastKillTime = -999;
   }
 
@@ -55,7 +55,10 @@ class StatSystem {
   onKill() {
     this.kills++;
     this.lastKillTime = this.survivalTime;
-    this.hp = Math.min(this.maxHp, this.hp + this.KILL_HP_RESTORE);
+  }
+
+  restoreHp(amount = this.HEAL_DROP_RESTORE) {
+    this.hp = Math.min(this.maxHp, this.hp + amount);
   }
 
   takeDamage(amount) {

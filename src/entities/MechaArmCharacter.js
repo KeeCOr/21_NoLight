@@ -29,6 +29,7 @@ class MechaArmCharacter extends BaseCharacter {
       }
     });
 
+    this.scene.events.emit('comboChanged', { step: this.comboStep + 1, max: this.COMBO_COUNT, source: this });
     this.comboStep = (this.comboStep + 1) % this.COMBO_COUNT;
     this.comboResetTimer = 0;
   }
