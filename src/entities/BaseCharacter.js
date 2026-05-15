@@ -6,6 +6,9 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
     this.stat = stat;
     this.setCollideWorldBounds(false);
+    this.setDepth(3);
+    this.body.setSize(28, 52);
+    this.body.setOffset((this.width - 28) / 2, this.height - 54);
 
     // 패링
     this.PARRY_WINDOW = 100; // ms
@@ -50,6 +53,12 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
     this.stat.takeDamage(damage);
     this.setInvincible(500);
+    this.scene.tweens.add({
+      targets: this,
+      y: this.y - 6,
+      duration: 60,
+      yoyo: true,
+    });
     return true;
   }
 

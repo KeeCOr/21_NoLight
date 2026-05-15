@@ -42,7 +42,9 @@ class ElectricCharacter extends BaseCharacter {
   startGuard(currentTime) {
     super.startGuard(currentTime);
     if (!this.shieldGraphic) {
-      this.shieldGraphic = this.scene.add.circle(this.x, this.y, this.SHIELD_RADIUS, 0x4488ff, 0.15);
+      this.shieldGraphic = this.scene.add.circle(this.x, this.y, this.SHIELD_RADIUS, 0x64e7ff, 0.08)
+        .setStrokeStyle(2, 0x7ff9ff, 0.7)
+        .setDepth(2);
     }
   }
 
