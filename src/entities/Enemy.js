@@ -4,10 +4,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.maxHp = 50;
-    this.hp = 50;
-    this.speed = 80;
-    this.ATTACK_DAMAGE = 10;
+    this.maxHp = 72;
+    this.hp = 72;
+    this.sharkPower = 18 + (Math.abs(Math.floor(x / 120)) % 4) * 3;
+    this.speed = 96;
+    this.ATTACK_DAMAGE = this.sharkPower;
     this.attackRange = 60;
     this.attackCooldown = 1500;
     this.attackTimer = 0;
@@ -18,6 +19,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(3);
     this.body.setSize(28, 34);
     this.body.setOffset(9, 12);
+    this.statLabel = scene.add.text(x, y - 42, '', {
+      fontSize: '13px',
+      color: '#ffffff',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(6);
   }
 
   onHit(damage, attacker) {
@@ -40,8 +48,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   onDeath() {
+    if (this.statLabel) this.statLabel.destroy();
     this.scene.events.emit('enemyKilled', this);
     this.destroy();
+  }
+
+  destroy(fromScene) {
+    if (this.statLabel && this.statLabel.active) this.statLabel.destroy();
+    super.destroy(fromScene);
   }
 
   update(delta, player) {
@@ -63,8 +77,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
       if (dist <= this.attackRange) {
         this.attackTimer = 0;
-        player.onHit(this.ATTACK_DAMAGE, this);
+        SharkCombat.resolveFrontContest(this, player);
       }
+    }
+
+    if (this.statLabel && this.statLabel.active) {
+      this.statLabel.setPosition(this.x, this.y - 42);
+      this.statLabel.setText(`${this.sharkPower}/${Math.ceil(this.hp)}`);
     }
   }
 }

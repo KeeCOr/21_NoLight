@@ -24,8 +24,14 @@ class ElectricCharacter extends BaseCharacter {
     enemies.forEach(enemy => {
       const dx = enemy.x - this.x;
       if (Math.sign(dx) === facing && Math.abs(dx) <= range) {
-        enemy.onHit(this.ATTACK_DAMAGE * multiplier * comboMult, this);
-        enemy.applyStun(420 + this.comboStep * 90);
+        const result = SharkCombat.resolveAttack(this, enemy, { apply: false });
+        const comboDamage = Math.max(result.damage, Math.round(this.ATTACK_DAMAGE * multiplier * comboMult));
+        if (result.winner === this) {
+          enemy.onHit(comboDamage, this);
+          enemy.applyStun(420 + this.comboStep * 90);
+        } else {
+          this.onHit(result.damage, enemy);
+        }
       }
     });
     this.scene.events.emit('comboChanged', { step: this.comboStep + 1, max: this.COMBO_COUNT, source: this });

@@ -6,7 +6,8 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
 
     this.ai = new PursuerAI();
     this.BASE_SPEED = 115;
-    this.CONTACT_DAMAGE = 5;
+    this.sharkPower = 42;
+    this.CONTACT_DAMAGE = this.sharkPower;
     this.contactTimer = 0;
     this.CONTACT_INTERVAL = 500;
 
@@ -52,7 +53,7 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
     if (this.contactTimer >= this.CONTACT_INTERVAL) {
       this.contactTimer = 0;
       const dist = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
-      if (dist < 60) player.onHit(this.CONTACT_DAMAGE, this);
+      if (dist < 60) SharkCombat.resolveFrontContest(this, player);
     }
 
     // 공격 패턴 이벤트

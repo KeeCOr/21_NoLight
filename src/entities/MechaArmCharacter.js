@@ -25,7 +25,13 @@ class MechaArmCharacter extends BaseCharacter {
     enemies.forEach(enemy => {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
       if (dist <= range) {
-        enemy.onHit(this.ATTACK_DAMAGE * multiplier * comboMult, this);
+        const result = SharkCombat.resolveAttack(this, enemy, { apply: false });
+        const comboDamage = Math.max(result.damage, Math.round(this.ATTACK_DAMAGE * multiplier * comboMult));
+        if (result.winner === this) {
+          enemy.onHit(comboDamage, this);
+        } else {
+          this.onHit(result.damage, enemy);
+        }
       }
     });
 

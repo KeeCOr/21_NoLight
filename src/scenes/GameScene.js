@@ -172,7 +172,7 @@ class GameScene extends Phaser.Scene {
   _spawnHealthDrop(x, y) {
     const drop = this.healthDrops.create(x, y - 14, 'life_orb')
       .setDepth(5)
-      .setScale(1.05);
+      .setScale(1.35);
     drop.body.allowGravity = false;
     drop.healAmount = this.stat.HEAL_DROP_RESTORE;
     this.tweens.add({ targets: drop, y: y - 34, duration: 620, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -185,6 +185,7 @@ class GameScene extends Phaser.Scene {
     if (!player.visible) return;
     if (!drop || !drop.active) return;
     this.stat.restoreHp(drop.healAmount);
+    SharkCombat.eatFish(this.stat);
     this._impactBurst(drop.x, drop.y, 0xff4f9a, 10);
     this._skillBurst(drop.x, drop.y, 0xff4f9a, 44);
     drop.destroy();

@@ -6,7 +6,7 @@ class HUD {
     const width = scene.scale?.width || scene.cameras.main.width;
     const height = scene.scale?.height || scene.cameras.main.height;
 
-    this.panel = scene.add.rectangle(18, 16, 286, 76, 0x050912, 0.72)
+    this.panel = scene.add.rectangle(18, 16, 340, 76, 0x050912, 0.72)
       .setOrigin(0, 0)
       .setStrokeStyle(1, 0x26465a, 0.9)
       .setScrollFactor(0)
@@ -32,6 +32,13 @@ class HUD {
     scene.add.text(246, 59, 'ST', { fontSize: '12px', color: '#a9ecff', fontFamily: 'Arial' })
       .setScrollFactor(0)
       .setDepth(22);
+    this.powerText = scene.add.text(286, 38, 'PWR 24', {
+      fontSize: '16px',
+      color: '#ffcf63',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 3,
+    }).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
 
     this.scorePanel = scene.add.rectangle(width / 2, 18, 190, 46, 0x050912, 0.68)
       .setStrokeStyle(1, 0x26465a, 0.9)
@@ -165,6 +172,7 @@ class HUD {
     this.stBar.setDisplaySize(210 * stRatio, 10);
 
     this.scoreText.setText(`SCORE ${this.stat.score}`);
+    this.powerText.setText(`PWR ${Math.round(this.stat.sharkPower || 0)}`);
 
     if (this.cm.activeIndex !== this._lastActiveIndex) {
       this._buildCharIcons();

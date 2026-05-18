@@ -7,6 +7,8 @@ class StatSystem {
     this.score = 0;
     this.kills = 0;
     this.survivalTime = 0;
+    this.sharkPower = 24;
+    this.fishEaten = 0;
 
     // 밸런스 상수
     this.DECAY_RATE = 2;            // HP/초 감소
