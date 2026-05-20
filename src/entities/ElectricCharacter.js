@@ -17,13 +17,14 @@ class ElectricCharacter extends BaseCharacter {
 
   // 전방 범위 전기 방출
   attack(enemies) {
-    if (!enemies) return;
+    if (!this.stat.useStamina(this.stat.STAMINA_ATTACK_COST)) return null;
+    const targets = enemies || [];
     const multiplier = this.stat.getAttackMultiplier();
     const comboMult = [1.0, 1.18, 1.42][this.comboStep] || 1.0;
     const currentStep = this.comboStep;
     const range = this.ATTACK_RANGE + currentStep * this.COMBO_RANGE_STEP;
     const facing = this.flipX ? -1 : 1;
-    enemies.forEach(enemy => {
+    targets.forEach(enemy => {
       const dx = enemy.x - this.x;
       if (Math.sign(dx) === facing && Math.abs(dx) <= range) {
         const result = SharkCombat.resolveAttack(this, enemy, { apply: false });

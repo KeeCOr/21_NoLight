@@ -6,6 +6,7 @@ class MechaArmCharacter extends BaseCharacter {
     this.comboStep = 0;
     this.comboResetTimer = 0;
     this.COMBO_RESET_TIME = 600; // ms
+    this.COMBO_LUNGE_DISTANCES = [34, 52, 76];
 
     this.DASH_SPEED = 800;
     this.DASH_DURATION = 200; // ms
@@ -17,13 +18,16 @@ class MechaArmCharacter extends BaseCharacter {
 
   // 빠른 3단 콤보
   attack(enemies) {
-    if (!enemies || this.isDashing) return;
+    if (this.isDashing) return null;
+    if (!this.stat.useStamina(this.stat.STAMINA_ATTACK_COST)) return null;
+    const targets = enemies || [];
     const multiplier = this.stat.getAttackMultiplier();
     const currentStep = this.comboStep;
     const comboMult = [1.0, 1.2, 1.5][currentStep] || 1.0;
     const range = 80 + currentStep * 20;
+    this._comboLunge(currentStep);
 
-    enemies.forEach(enemy => {
+    targets.forEach(enemy => {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
       if (dist <= range) {
         const result = SharkCombat.resolveAttack(this, enemy, { apply: false });
@@ -40,6 +44,23 @@ class MechaArmCharacter extends BaseCharacter {
     this.comboStep = (this.comboStep + 1) % this.COMBO_COUNT;
     this.comboResetTimer = 0;
     return currentStep;
+  }
+
+  _comboLunge(currentStep) {
+    const facing = this.flipX ? -1 : 1;
+    const distance = this.COMBO_LUNGE_DISTANCES[currentStep] || this.COMBO_LUNGE_DISTANCES[0];
+    const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width;
+    const minX = this.PLAY_AREA_MARGIN || 0;
+    const maxX = worldWidth - (this.PLAY_AREA_MARGIN || 0);
+    const targetX = Phaser.Math.Clamp(this.x + facing * distance, minX, maxX);
+    this.scene.tweens.killTweensOf(this);
+    this.scene.tweens.add({
+      targets: this,
+      x: targetX,
+      duration: 80 + currentStep * 18,
+      ease: 'Cubic.easeOut',
+    });
+    this.scene.events.emit('mechaDashStart', this);
   }
 
   // 메카 팔 대시 돌진 (스태미나 소모)

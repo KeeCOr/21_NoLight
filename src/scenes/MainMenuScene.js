@@ -6,10 +6,10 @@ class MainMenuScene extends Phaser.Scene {
   create() {
     const { width, height } = this.cameras.main;
     this.add.tileSprite(width / 2, height / 2, width, height, 'bg_far').setDepth(-30);
-    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_mid').setAlpha(0.7).setDepth(-20);
-    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_fog').setAlpha(0.92).setDepth(-15);
-    this.add.rectangle(width / 2, height / 2, width, height, 0xf2efe3, 0.16).setDepth(-12);
-    this.add.rectangle(width / 2, height / 2, width, height, 0x05070b, 0.24).setDepth(-10);
+    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_mid').setAlpha(0.38).setDepth(-20);
+    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_fog').setAlpha(0.68).setDepth(-15);
+    this.add.rectangle(width / 2, height / 2, width, height, 0xffffff, 0.22).setDepth(-12);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x05070b, 0.08).setDepth(-10);
 
     this.add.image(width / 2 - 210, height / 2 + 22, 'electric_char').setScale(2.2).setAlpha(0.95).setDepth(1);
     this.add.image(width / 2 + 210, height / 2 + 22, 'mecha_char').setScale(2.05).setAlpha(0.95).setDepth(1);

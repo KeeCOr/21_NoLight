@@ -16,6 +16,7 @@ class StatSystem {
     this.KILL_DECAY_GRACE = 3;
     this.STAMINA_REGEN_BASE = 10;
     this.STAMINA_REGEN_LOW_HP = 20;
+    this.STAMINA_ATTACK_COST = 8;
     this.STAMINA_GUARD_DRAIN = 15;
     this.STAMINA_SKILL_COST = 30;
     this.STAMINA_MECHA_HIT_GAIN = 20;

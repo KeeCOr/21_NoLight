@@ -44,11 +44,12 @@ class GameScene extends Phaser.Scene {
       this.stat.onKill();
       this._impactBurst(enemy.x, enemy.y, 0xff4f9a, 12);
       this._spawnHealthDrop(enemy.x, enemy.y);
+      this._cameraPunch('kill', 1.25);
     });
     this.events.on('enemyHit', (enemy) => {
       this._impactBurst(enemy.x, enemy.y, 0x92fbff, 8);
       this._hitStop(42);
-      this.cameras.main.shake(70, 0.0025);
+      this._cameraPunch('hit', 1);
     });
     this.events.on('mechaDashStart', (char) => this._dashTrail(char, 0xff8a2a));
 
@@ -69,10 +70,10 @@ class GameScene extends Phaser.Scene {
     const cx = this.worldWidth / 2;
     const cy = this.worldHeight / 2;
     this.bgFar = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_far').setScrollFactor(0).setDepth(-30);
-    this.bgMid = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.72);
-    this.bgFog = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.95);
-    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0xf2efe3, 0.13).setScrollFactor(0).setDepth(-6);
-    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0x05070b, 0.11).setScrollFactor(0).setDepth(-5);
+    this.bgMid = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.42);
+    this.bgFog = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.72);
+    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0xffffff, 0.18).setScrollFactor(0).setDepth(-6);
+    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0x05070b, 0.03).setScrollFactor(0).setDepth(-5);
     this.scanlines = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_scanline')
       .setScrollFactor(0)
       .setDepth(19)
@@ -147,8 +148,30 @@ class GameScene extends Phaser.Scene {
       this.time.delayedCall(400, () => pursuer.setVelocity(0, 0));
     } else if (type === 'rush') {
       this._showAlert('THE HUNTER SURGES');
-      this.cameras.main.shake(260, 0.004);
+      this._cameraPunch('rush', 1.35);
     }
+  }
+
+  _cameraPunch(kind, power = 1) {
+    const cam = this.cameras.main;
+    const profiles = {
+      hit: { duration: 95, intensity: 0.004, zoom: 1.018, flash: 35, color: 0xffffff },
+      kill: { duration: 150, intensity: 0.006, zoom: 1.035, flash: 65, color: 0xff4f9a },
+      combo: { duration: 105, intensity: 0.0045, zoom: 1.024, flash: 42, color: 0x9dfbff },
+      skill: { duration: 190, intensity: 0.0065, zoom: 1.04, flash: 75, color: 0xffffff },
+      rush: { duration: 320, intensity: 0.009, zoom: 1.055, flash: 95, color: 0xff273d },
+    };
+    const p = profiles[kind] || profiles.hit;
+    cam.shake(Math.round(p.duration * power), p.intensity * power);
+    cam.flash(Math.round(p.flash * power), (p.color >> 16) & 255, (p.color >> 8) & 255, p.color & 255, false);
+    this.tweens.killTweensOf(cam);
+    cam.setZoom(p.zoom);
+    this.tweens.add({
+      targets: cam,
+      zoom: 1,
+      duration: Math.round((p.duration + 80) * power),
+      ease: 'Cubic.easeOut',
+    });
   }
 
   _showAlert(text) {
@@ -169,16 +192,17 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  _spawnHealthDrop(x, y) {
+  _spawnHealthDrop(x, y, lifetime = 8500) {
     const drop = this.healthDrops.create(x, y - 14, 'life_orb')
       .setDepth(5)
       .setScale(1.35);
     drop.body.allowGravity = false;
     drop.healAmount = this.stat.HEAL_DROP_RESTORE;
     this.tweens.add({ targets: drop, y: y - 34, duration: 620, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.time.delayedCall(8500, () => {
+    this.time.delayedCall(lifetime, () => {
       if (drop.active) drop.destroy();
     });
+    return drop;
   }
 
   _collectHealthDrop(player, drop) {
@@ -214,7 +238,7 @@ class GameScene extends Phaser.Scene {
     } else if (comboStep >= 2) {
       arc.setStrokeStyle(7, 0xffffff, 0.75);
       this._impactBurst(char.x + facing * 58, char.y, color, 9);
-      this.cameras.main.shake(80, 0.002);
+      this._cameraPunch('combo', 1.1);
     }
     this.tweens.add({
       targets: arc,
@@ -224,6 +248,43 @@ class GameScene extends Phaser.Scene {
       duration: 135 + comboStep * 35,
       onComplete: () => arc.destroy(),
     });
+  }
+
+  _electricDischarge(char, comboStep) {
+    const facing = char.flipX ? -1 : 1;
+    const boltCount = comboStep + 1;
+    const baseLength = 130 + comboStep * 22;
+    const spread = 18 + comboStep * 9;
+    for (let i = 0; i < boltCount; i++) {
+      const lane = i - (boltCount - 1) / 2;
+      const startX = char.x + facing * 24;
+      const startY = char.y - 4 + lane * 8;
+      const endX = startX + facing * baseLength;
+      const endY = startY + lane * spread;
+      const midX = (startX + endX) / 2 + facing * Phaser.Math.Between(-10, 14);
+      const midY = (startY + endY) / 2 + Phaser.Math.Between(-18, 18);
+      const bolt = this.add.graphics().setDepth(6);
+      bolt.lineStyle(7 - Math.min(comboStep, 2), 0x51f6ff, 0.18).beginPath()
+        .moveTo(startX, startY)
+        .lineTo(midX, midY)
+        .lineTo(endX, endY)
+        .strokePath();
+      bolt.lineStyle(2 + comboStep, 0xffffff, 0.92).beginPath()
+        .moveTo(startX, startY)
+        .lineTo(midX + facing * 8, midY - lane * 5)
+        .lineTo(endX, endY)
+        .strokePath();
+      this.tweens.add({
+        targets: bolt,
+        alpha: 0,
+        duration: 105 + comboStep * 28,
+        onComplete: () => bolt.destroy(),
+      });
+      this._impactBurst(endX, endY, 0x64e7ff, 2 + comboStep);
+    }
+    if (comboStep >= 2) {
+      this._cameraPunch('combo', 1.05);
+    }
   }
 
   _skillBurst(x, y, color, radius) {
@@ -237,6 +298,7 @@ class GameScene extends Phaser.Scene {
       onComplete: () => ring.destroy(),
     });
     this._impactBurst(x, y, color, 14);
+    this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85);
   }
 
   _dashTrail(target, color) {
@@ -307,8 +369,14 @@ class GameScene extends Phaser.Scene {
     const current = this.charManager.getActive();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.attack)) {
-      const comboStep = current.attack(this.mapGen.getAllEnemies()) || 0;
-      this._slashArc(current, current instanceof ElectricCharacter ? 0x64e7ff : 0xff8a2a, comboStep);
+      const comboStep = current.attack(this.mapGen.getAllEnemies());
+      if (comboStep !== null && comboStep !== undefined) {
+        if (current instanceof ElectricCharacter) {
+          this._electricDischarge(current, comboStep);
+        } else {
+          this._slashArc(current, 0xff8a2a, comboStep);
+        }
+      }
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.skill)) {
@@ -331,11 +399,15 @@ class GameScene extends Phaser.Scene {
     this.stat.update(delta, current.isGuarding);
     current.update(delta, this.cursors, this.keys);
 
-    this.mapGen.update(current, (x, y) => {
-      const e = new Enemy(this, x, y);
-      this.physics.add.collider(e, this.mapGen.getPlatformGroup());
-      return e;
-    });
+    this.mapGen.update(
+      current,
+      (x, y) => {
+        const e = new Enemy(this, x, y);
+        this.physics.add.collider(e, this.mapGen.getPlatformGroup());
+        return e;
+      },
+      (x, y) => this._spawnHealthDrop(x, y, 24000)
+    );
 
     this.pursuer.update(delta, current);
     this.mapGen.getAllEnemies().forEach(e => e.update(delta, current));

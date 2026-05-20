@@ -12,11 +12,11 @@ class MapGenerator {
     return Math.floor(y / this.CHUNK_HEIGHT);
   }
 
-  update(player, enemyFactory) {
+  update(player, enemyFactory, pickupFactory) {
     const center = this.getChunkIndex(player.y);
 
     for (let i = center - this.BUFFER; i <= center + this.BUFFER; i++) {
-      if (!this.chunks.has(i)) this.generateChunk(i, enemyFactory);
+      if (!this.chunks.has(i)) this.generateChunk(i, enemyFactory, pickupFactory);
     }
 
     for (const [index] of this.chunks) {
@@ -24,7 +24,7 @@ class MapGenerator {
     }
   }
 
-  generateChunk(chunkIndex, enemyFactory) {
+  generateChunk(chunkIndex, enemyFactory, pickupFactory) {
     const yTop = chunkIndex * this.CHUNK_HEIGHT;
     const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width || 900;
     const margin = Math.max(70, Math.floor(worldWidth * 0.09));
@@ -65,7 +65,20 @@ class MapGenerator {
       }
     }
 
-    this.chunks.set(chunkIndex, { platforms, enemies });
+    const pickups = [];
+    if (pickupFactory && chunkIndex !== 0 && platforms.length > 0 && Phaser.Math.Between(0, 3) === 0) {
+      const platform = platforms[Phaser.Math.Between(0, platforms.length - 1)];
+      const x = Phaser.Math.Clamp(
+        platform.x + Phaser.Math.Between(-Math.floor(platform.displayWidth * 0.3), Math.floor(platform.displayWidth * 0.3)),
+        margin,
+        worldWidth - margin
+      );
+      const y = platform.y - 18;
+      const pickup = pickupFactory(x, y);
+      if (pickup) pickups.push(pickup);
+    }
+
+    this.chunks.set(chunkIndex, { platforms, enemies, pickups });
   }
 
   removeChunk(chunkIndex) {
@@ -73,6 +86,7 @@ class MapGenerator {
     if (!chunk) return;
     chunk.platforms.forEach(p => p.destroy());
     chunk.enemies.forEach(e => { if (e.active) e.destroy(); });
+    (chunk.pickups || []).forEach(p => { if (p.active) p.destroy(); });
     this.chunks.delete(chunkIndex);
   }
 

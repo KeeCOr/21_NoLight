@@ -18,8 +18,8 @@ class ArtFactory {
 
   static _palette() {
     return {
-      paper: 0xf2efe3,
-      paperShade: 0xcfc5ad,
+      paper: 0xffffff,
+      paperShade: 0xf8f7f1,
       ink: 0x05070b,
       inkSoft: 0x101820,
       inkBlue: 0x172431,
@@ -142,52 +142,51 @@ class ArtFactory {
     const p = this._palette();
 
     this._texture(scene, 'platform', 190, 36, (g, w, h) => {
-      this._wash(g, w, h, p.paper, 0.08, 4, 6);
-      g.fillStyle(p.paper, 0.2).fillRoundedRect(0, 4, w, h - 6, 7);
-      this._jaggedFill(g, [[0, 10], [22, 3], [58, 7], [92, 0], [139, 5], [190, 1], [190, 28], [163, 34], [119, 29], [74, 36], [32, 31], [0, 35]], p.inkSoft, 0.98);
-      this._jaggedFill(g, [[0, 8], [43, 7], [84, 4], [128, 8], [190, 5], [190, 18], [137, 17], [89, 20], [42, 17], [0, 20]], p.paperShade, 0.24);
-      this._dryBrush(g, [[5, 6], [50, 8], [96, 4], [143, 8], [186, 5]], p.paper, 0.28, 2);
-      this._dryBrush(g, [[11, 17], [33, 21], [58, 18], [85, 23], [111, 18], [139, 22], [176, 18]], p.ink, 0.42, 3);
+      this._wash(g, w, h, p.ink, 0.08, 5, 6);
+      this._jaggedFill(g, [[0, 9], [22, 3], [58, 7], [92, 0], [139, 5], [190, 1], [190, 30], [163, 35], [119, 31], [74, 36], [32, 32], [0, 35]], p.ink, 0.98);
+      this._jaggedFill(g, [[0, 8], [43, 7], [84, 4], [128, 8], [190, 5], [190, 17], [137, 17], [89, 20], [42, 17], [0, 20]], p.inkSoft, 0.86);
+      this._dryBrush(g, [[5, 6], [50, 8], [96, 4], [143, 8], [186, 5]], p.paper, 0.18, 2);
+      this._dryBrush(g, [[11, 17], [33, 21], [58, 18], [85, 23], [111, 18], [139, 22], [176, 18]], p.paperShade, 0.2, 3);
       g.lineStyle(2, p.cyan, 0.56).beginPath().moveTo(13, 12).lineTo(31, 12).moveTo(73, 10).lineTo(93, 10).moveTo(146, 12).lineTo(169, 12).strokePath();
       g.lineStyle(2, p.orange, 0.42).beginPath().moveTo(108, 27).lineTo(130, 24).moveTo(38, 28).lineTo(58, 25).strokePath();
     });
 
     this._texture(scene, 'bg_far', 512, 512, (g, w, h) => {
-      g.fillGradientStyle(p.paper, p.paper, 0xe0dac9, 0x76818a, 1);
+      g.fillGradientStyle(p.paper, p.paper, p.paperShade, p.paperShade, 1);
       g.fillRect(0, 0, w, h);
-      this._wash(g, w, h, p.paperShade, 0.12, 44, 3);
-      this._wash(g, w, h, p.ink, 0.09, 46, 3);
-      this._wash(g, w, h, p.inkBlue, 0.055, 18, 12);
-      this._dryBrush(g, [[-20, 424], [65, 384], [128, 418], [205, 360], [282, 410], [360, 348], [445, 388], [540, 354]], p.ink, 0.2, 15);
-      this._dryBrush(g, [[0, 462], [90, 430], [184, 468], [285, 418], [386, 456], [512, 426]], p.ink, 0.12, 22);
-      g.fillStyle(p.cyan, 0.2);
+      this._wash(g, w, h, p.paperShade, 0.08, 38, 3);
+      this._wash(g, w, h, p.ink, 0.035, 30, 3);
+      this._wash(g, w, h, p.inkBlue, 0.025, 12, 12);
+      this._dryBrush(g, [[-20, 424], [65, 384], [128, 418], [205, 360], [282, 410], [360, 348], [445, 388], [540, 354]], p.ink, 0.08, 15);
+      this._dryBrush(g, [[0, 462], [90, 430], [184, 468], [285, 418], [386, 456], [512, 426]], p.ink, 0.055, 22);
+      g.fillStyle(p.cyan, 0.11);
       for (let i = 0; i < 52; i++) g.fillCircle((i * 83) % w, (i * 47) % h, (i % 2) + 0.55);
-      g.fillStyle(p.orange, 0.13);
+      g.fillStyle(p.orange, 0.08);
       for (let i = 0; i < 14; i++) g.fillCircle((i * 137 + 19) % w, (i * 71 + 43) % h, 1.2);
     });
 
     this._texture(scene, 'bg_mid', 512, 512, (g, w, h) => {
       g.fillStyle(0x000000, 0).fillRect(0, 0, w, h);
-      this._wash(g, w, h, p.ink, 0.1, 24, 9);
+      this._wash(g, w, h, p.ink, 0.035, 18, 9);
       for (let x = -30; x < w; x += 68) {
         const bh = 150 + ((x * 17) % 150);
         const roof = 18 + ((x * 5) % 22);
-        this._jaggedFill(g, [[x - 7, h - bh + roof], [x + 16, h - bh], [x + 49, h - bh + 8], [x + 56, h], [x - 2, h]], p.ink, 0.66);
-        g.fillStyle(p.inkBlue, 0.48).fillRect(x + 5, h - bh + 25, 45, bh - 25);
-        g.lineStyle(1, p.cyan, 0.22);
+        this._jaggedFill(g, [[x - 7, h - bh + roof], [x + 16, h - bh], [x + 49, h - bh + 8], [x + 56, h], [x - 2, h]], p.ink, 0.2);
+        g.fillStyle(p.inkBlue, 0.14).fillRect(x + 5, h - bh + 25, 45, bh - 25);
+        g.lineStyle(1, p.cyan, 0.12);
         for (let y = h - bh + 42; y < h - 20; y += 38) {
           g.beginPath().moveTo(x + 12, y).lineTo(x + 21, y + 2).moveTo(x + 34, y + 12).lineTo(x + 45, y + 11).strokePath();
         }
       }
-      this._dryBrush(g, [[0, 492], [120, 480], [230, 500], [350, 474], [512, 490]], p.ink, 0.34, 9);
+      this._dryBrush(g, [[0, 492], [120, 480], [230, 500], [350, 474], [512, 490]], p.ink, 0.12, 9);
     });
 
     this._texture(scene, 'bg_fog', 512, 256, (g, w, h) => {
       g.fillStyle(0x000000, 0).fillRect(0, 0, w, h);
-      this._wash(g, w, h, p.paper, 0.12, 18, 5);
-      this._wash(g, w, h, p.ink, 0.04, 10, 11);
-      this._wash(g, w, h, p.cyan, 0.03, 12, 14);
-      g.lineStyle(9, p.paper, 0.09);
+      this._wash(g, w, h, p.paper, 0.16, 18, 5);
+      this._wash(g, w, h, p.ink, 0.018, 8, 11);
+      this._wash(g, w, h, p.cyan, 0.016, 8, 14);
+      g.lineStyle(9, p.paper, 0.12);
       for (let y = 48; y < h; y += 58) {
         g.beginPath()
           .moveTo(-20, y)

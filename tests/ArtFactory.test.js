@@ -64,7 +64,7 @@ describe('ArtFactory', () => {
     ]);
   });
 
-  test('world art uses ink washes and neon accent strokes', () => {
+  test('world art uses white background and dark walkable platforms', () => {
     const scene = makeScene();
 
     ArtFactory._buildWorld(scene);
@@ -76,7 +76,7 @@ describe('ArtFactory', () => {
       .filter(([name]) => name === 'lineStyle')
       .map(([, args]) => args[1]);
 
-    expect(fillColors).toEqual(expect.arrayContaining([0xf2efe3, 0x101820, 0x05070b]));
+    expect(fillColors).toEqual(expect.arrayContaining([0xffffff, 0xf8f7f1, 0x05070b]));
     expect(lineColors).toEqual(expect.arrayContaining([0x51f6ff, 0xff9b3d]));
   });
 });
