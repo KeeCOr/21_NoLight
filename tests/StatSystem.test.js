@@ -33,6 +33,14 @@ describe('StatSystem', () => {
     expect(stat.hp).toBeLessThan(100);
   });
 
+  test('getDecayRate: HP decay gets stronger over survival time', () => {
+    expect(stat.getDecayRate()).toBe(2);
+    stat.survivalTime = 60;
+    expect(stat.getDecayRate()).toBeGreaterThan(2);
+    stat.survivalTime = 180;
+    expect(stat.getDecayRate()).toBeGreaterThan(4);
+  });
+
   test('update: 가드 중 스태미나 감소', () => {
     stat.update(1000, true);
     expect(stat.stamina).toBeLessThan(100);

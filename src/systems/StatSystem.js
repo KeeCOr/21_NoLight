@@ -10,15 +10,15 @@ class StatSystem {
     this.sharkPower = 24;
     this.fishEaten = 0;
 
-    // 밸런스 상수
-    this.DECAY_RATE = 2;            // HP/초 감소
-    this.LOW_HP_THRESHOLD = 30;     // 이 이하 = 저체력
-    this.KILL_DECAY_GRACE = 3;      // 킬 후 HP 감소 유예 (초)
-    this.STAMINA_REGEN_BASE = 10;   // 스태미나 초당 회복
-    this.STAMINA_REGEN_LOW_HP = 20; // 저체력 시 초당 회복
-    this.STAMINA_GUARD_DRAIN = 15;  // 가드 중 초당 소모
-    this.STAMINA_SKILL_COST = 30;   // 스킬 발동 소모
-    this.STAMINA_MECHA_HIT_GAIN = 20; // 메카 팔 가드 피격 시 획득
+    this.DECAY_RATE = 2;
+    this.DECAY_GROWTH_PER_MINUTE = 0.85;
+    this.LOW_HP_THRESHOLD = 30;
+    this.KILL_DECAY_GRACE = 3;
+    this.STAMINA_REGEN_BASE = 10;
+    this.STAMINA_REGEN_LOW_HP = 20;
+    this.STAMINA_GUARD_DRAIN = 15;
+    this.STAMINA_SKILL_COST = 30;
+    this.STAMINA_MECHA_HIT_GAIN = 20;
 
     this.HEAL_DROP_RESTORE = 18;
     this.lastKillTime = -999;
@@ -32,17 +32,19 @@ class StatSystem {
     return this.isLowHp() ? 1.5 : 1.0;
   }
 
+  getDecayRate() {
+    return this.DECAY_RATE + (this.survivalTime / 60) * this.DECAY_GROWTH_PER_MINUTE;
+  }
+
   update(delta, isGuarding) {
     const dt = delta / 1000;
     this.survivalTime += dt;
 
-    // HP 감소 (킬 유예 후)
     const timeSinceKill = this.survivalTime - this.lastKillTime;
     if (timeSinceKill > this.KILL_DECAY_GRACE) {
-      this.hp = Math.max(0, this.hp - this.DECAY_RATE * dt);
+      this.hp = Math.max(0, this.hp - this.getDecayRate() * dt);
     }
 
-    // 스태미나
     if (isGuarding) {
       this.stamina = Math.max(0, this.stamina - this.STAMINA_GUARD_DRAIN * dt);
     } else {
@@ -50,7 +52,6 @@ class StatSystem {
       this.stamina = Math.min(this.maxStamina, this.stamina + regen * dt);
     }
 
-    // 점수
     this.score = Math.floor(this.survivalTime * 10) + this.kills * 50;
   }
 

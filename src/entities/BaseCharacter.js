@@ -19,6 +19,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.isInvincible = false;
     this.invincibleDuration = 0;
     this.invincibleTimer = 0;
+    this.PLAY_AREA_MARGIN = 120;
   }
 
   // 가드 시작
@@ -115,11 +116,13 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
     // 좌우 경계 제한
     const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width;
-    if (this.x < this.width / 2) {
-      this.x = this.width / 2;
+    const minX = this.PLAY_AREA_MARGIN;
+    const maxX = worldWidth - this.PLAY_AREA_MARGIN;
+    if (this.x < minX) {
+      this.x = minX;
       this.setVelocityX(0);
-    } else if (this.x > worldWidth - this.width / 2) {
-      this.x = worldWidth - this.width / 2;
+    } else if (this.x > maxX) {
+      this.x = maxX;
       this.setVelocityX(0);
     }
   }

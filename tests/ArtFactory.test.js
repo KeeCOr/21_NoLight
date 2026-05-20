@@ -16,7 +16,6 @@ function makeGraphics(calls) {
     beginPath: () => { calls.push(['beginPath', []]); return chain; },
     moveTo: (...args) => { calls.push(['moveTo', args]); return chain; },
     lineTo: (...args) => { calls.push(['lineTo', args]); return chain; },
-    quadraticCurveTo: (...args) => { calls.push(['quadraticCurveTo', args]); return chain; },
     closePath: () => { calls.push(['closePath', []]); return chain; },
     strokePath: () => { calls.push(['strokePath', []]); return chain; },
     fillPath: () => { calls.push(['fillPath', []]); return chain; },

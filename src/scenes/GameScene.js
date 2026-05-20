@@ -201,17 +201,27 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  _slashArc(char, color) {
+  _slashArc(char, color, comboStep = 0) {
     const facing = char.flipX ? -1 : 1;
-    const arc = this.add.ellipse(char.x + facing * 44, char.y, 92, 48)
-      .setStrokeStyle(4, color, 0.85)
+    const width = 82 + comboStep * 28;
+    const height = 42 + comboStep * 16;
+    const offset = 36 + comboStep * 10;
+    const arc = this.add.ellipse(char.x + facing * offset, char.y, width, height)
+      .setStrokeStyle(4 + comboStep, color, 0.85)
       .setDepth(5);
+    if (comboStep === 1) {
+      arc.setAngle(facing * -12);
+    } else if (comboStep >= 2) {
+      arc.setStrokeStyle(7, 0xffffff, 0.75);
+      this._impactBurst(char.x + facing * 58, char.y, color, 9);
+      this.cameras.main.shake(80, 0.002);
+    }
     this.tweens.add({
       targets: arc,
       alpha: 0,
-      scaleX: 1.35,
-      scaleY: 1.2,
-      duration: 160,
+      scaleX: 1.3 + comboStep * 0.12,
+      scaleY: 1.16 + comboStep * 0.08,
+      duration: 135 + comboStep * 35,
       onComplete: () => arc.destroy(),
     });
   }
@@ -297,8 +307,8 @@ class GameScene extends Phaser.Scene {
     const current = this.charManager.getActive();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.attack)) {
-      current.attack(this.mapGen.getAllEnemies());
-      this._slashArc(current, current instanceof ElectricCharacter ? 0x64e7ff : 0xff8a2a);
+      const comboStep = current.attack(this.mapGen.getAllEnemies()) || 0;
+      this._slashArc(current, current instanceof ElectricCharacter ? 0x64e7ff : 0xff8a2a, comboStep);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.skill)) {

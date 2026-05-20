@@ -19,8 +19,9 @@ class MechaArmCharacter extends BaseCharacter {
   attack(enemies) {
     if (!enemies || this.isDashing) return;
     const multiplier = this.stat.getAttackMultiplier();
-    const comboMult = [1.0, 1.2, 1.5][this.comboStep] || 1.0;
-    const range = 80 + this.comboStep * 20;
+    const currentStep = this.comboStep;
+    const comboMult = [1.0, 1.2, 1.5][currentStep] || 1.0;
+    const range = 80 + currentStep * 20;
 
     enemies.forEach(enemy => {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
@@ -35,9 +36,10 @@ class MechaArmCharacter extends BaseCharacter {
       }
     });
 
-    this.scene.events.emit('comboChanged', { step: this.comboStep + 1, max: this.COMBO_COUNT, source: this });
+    this.scene.events.emit('comboChanged', { step: currentStep + 1, max: this.COMBO_COUNT, source: this });
     this.comboStep = (this.comboStep + 1) % this.COMBO_COUNT;
     this.comboResetTimer = 0;
+    return currentStep;
   }
 
   // 메카 팔 대시 돌진 (스태미나 소모)

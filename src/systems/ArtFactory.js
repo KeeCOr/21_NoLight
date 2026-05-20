@@ -189,7 +189,16 @@ class ArtFactory {
       this._wash(g, w, h, p.cyan, 0.03, 12, 14);
       g.lineStyle(9, p.paper, 0.09);
       for (let y = 48; y < h; y += 58) {
-        g.beginPath().moveTo(-20, y).quadraticCurveTo(120, y - 30, 250, y + 6).quadraticCurveTo(390, y + 42, 532, y - 8).strokePath();
+        g.beginPath()
+          .moveTo(-20, y)
+          .lineTo(55, y - 14)
+          .lineTo(128, y - 21)
+          .lineTo(205, y + 3)
+          .lineTo(288, y + 21)
+          .lineTo(372, y + 17)
+          .lineTo(455, y - 5)
+          .lineTo(532, y - 8)
+          .strokePath();
       }
     });
 

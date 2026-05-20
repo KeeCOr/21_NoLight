@@ -2,10 +2,10 @@ const { app, BrowserWindow } = require('electron');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1080,
-    height: 1920,
-    minWidth: 540,
-    minHeight: 960,
+    width: 900,
+    height: 1600,
+    minWidth: 450,
+    minHeight: 800,
     resizable: true,
     autoHideMenuBar: true,
     webPreferences: {

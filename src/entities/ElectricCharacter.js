@@ -1,7 +1,7 @@
 class ElectricCharacter extends BaseCharacter {
   constructor(scene, x, y, stat) {
     super(scene, x, y, 'electric_char', stat);
-    this.ATTACK_RANGE = 200;
+    this.ATTACK_RANGE = 125;
     this.ATTACK_DAMAGE = 20;
     this.SKILL_DAMAGE = 50;
     this.SKILL_RANGE = 300;
@@ -9,6 +9,7 @@ class ElectricCharacter extends BaseCharacter {
     this.SLOW_FACTOR = 0.3;
     this.shieldGraphic = null;
     this.COMBO_COUNT = 3;
+    this.COMBO_RANGE_STEP = 14;
     this.comboStep = 0;
     this.comboResetTimer = 0;
     this.COMBO_RESET_TIME = 650;
@@ -19,7 +20,8 @@ class ElectricCharacter extends BaseCharacter {
     if (!enemies) return;
     const multiplier = this.stat.getAttackMultiplier();
     const comboMult = [1.0, 1.18, 1.42][this.comboStep] || 1.0;
-    const range = this.ATTACK_RANGE + this.comboStep * 28;
+    const currentStep = this.comboStep;
+    const range = this.ATTACK_RANGE + currentStep * this.COMBO_RANGE_STEP;
     const facing = this.flipX ? -1 : 1;
     enemies.forEach(enemy => {
       const dx = enemy.x - this.x;
@@ -28,15 +30,16 @@ class ElectricCharacter extends BaseCharacter {
         const comboDamage = Math.max(result.damage, Math.round(this.ATTACK_DAMAGE * multiplier * comboMult));
         if (result.winner === this) {
           enemy.onHit(comboDamage, this);
-          enemy.applyStun(420 + this.comboStep * 90);
+              enemy.applyStun(320 + currentStep * 70);
         } else {
           this.onHit(result.damage, enemy);
         }
       }
     });
-    this.scene.events.emit('comboChanged', { step: this.comboStep + 1, max: this.COMBO_COUNT, source: this });
+    this.scene.events.emit('comboChanged', { step: currentStep + 1, max: this.COMBO_COUNT, source: this });
     this.comboStep = (this.comboStep + 1) % this.COMBO_COUNT;
     this.comboResetTimer = 0;
+    return currentStep;
   }
 
   // 광역 전기 폭발 (스태미나 소모)

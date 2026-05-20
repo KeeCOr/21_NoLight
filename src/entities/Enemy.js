@@ -4,8 +4,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.maxHp = 72;
-    this.hp = 72;
+    this.maxHp = 120;
+    this.hp = 120;
     this.sharkPower = 18 + (Math.abs(Math.floor(x / 120)) % 4) * 3;
     this.speed = 96;
     this.ATTACK_DAMAGE = this.sharkPower;
