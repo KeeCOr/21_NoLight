@@ -43,11 +43,13 @@ class GameScene extends Phaser.Scene {
     this.events.on('enemyKilled', (enemy) => {
       this.stat.onKill();
       this._impactBurst(enemy.x, enemy.y, 0xff4f9a, 12);
+      this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
       this._spawnHealthDrop(enemy.x, enemy.y);
       this._cameraPunch('kill', 1.25);
     });
     this.events.on('enemyHit', (enemy) => {
       this._impactBurst(enemy.x, enemy.y, 0x92fbff, 8);
+      this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', 0.85);
       this._hitStop(42);
       this._cameraPunch('hit', 1);
     });
@@ -230,6 +232,12 @@ class GameScene extends Phaser.Scene {
     const width = 82 + comboStep * 28;
     const height = 42 + comboStep * 16;
     const offset = 36 + comboStep * 10;
+    const slash = this.add.image(char.x + facing * (offset + 28), char.y - 6, 'brush_slash')
+      .setDepth(6)
+      .setAlpha(0.76)
+      .setScale((0.74 + comboStep * 0.16) * facing, 0.68 + comboStep * 0.13)
+      .setAngle(facing * (-10 - comboStep * 6))
+      .setTint(comboStep >= 2 ? 0xffffff : color);
     const arc = this.add.ellipse(char.x + facing * offset, char.y, width, height)
       .setStrokeStyle(4 + comboStep, color, 0.85)
       .setDepth(5);
@@ -247,6 +255,15 @@ class GameScene extends Phaser.Scene {
       scaleY: 1.16 + comboStep * 0.08,
       duration: 135 + comboStep * 35,
       onComplete: () => arc.destroy(),
+    });
+    this.tweens.add({
+      targets: slash,
+      alpha: 0,
+      scaleX: slash.scaleX * 1.28,
+      scaleY: slash.scaleY * 1.12,
+      duration: 150 + comboStep * 34,
+      ease: 'Cubic.easeOut',
+      onComplete: () => slash.destroy(),
     });
   }
 
@@ -299,6 +316,23 @@ class GameScene extends Phaser.Scene {
     });
     this._impactBurst(x, y, color, 14);
     this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85);
+  }
+
+  _inkSplatter(x, y, texture = 'ink_splatter', scale = 1) {
+    const splatter = this.add.image(x, y, texture)
+      .setDepth(4)
+      .setAlpha(0.72)
+      .setScale(scale)
+      .setAngle(Phaser.Math.Between(-35, 35));
+    this.tweens.add({
+      targets: splatter,
+      alpha: 0,
+      scaleX: scale * 1.32,
+      scaleY: scale * 1.12,
+      duration: 420,
+      ease: 'Cubic.easeOut',
+      onComplete: () => splatter.destroy(),
+    });
   }
 
   _dashTrail(target, color) {

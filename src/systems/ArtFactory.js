@@ -28,6 +28,8 @@ class ArtFactory {
       cyanSoft: 0x9dfbff,
       orange: 0xff9b3d,
       amber: 0xffcf63,
+      gold: 0xb88a3a,
+      goldDark: 0x5d421d,
       magenta: 0xff4f9a,
       red: 0xff273d,
     };
@@ -145,8 +147,10 @@ class ArtFactory {
       this._wash(g, w, h, p.ink, 0.08, 5, 6);
       this._jaggedFill(g, [[0, 9], [22, 3], [58, 7], [92, 0], [139, 5], [190, 1], [190, 30], [163, 35], [119, 31], [74, 36], [32, 32], [0, 35]], p.ink, 0.98);
       this._jaggedFill(g, [[0, 8], [43, 7], [84, 4], [128, 8], [190, 5], [190, 17], [137, 17], [89, 20], [42, 17], [0, 20]], p.inkSoft, 0.86);
-      this._dryBrush(g, [[5, 6], [50, 8], [96, 4], [143, 8], [186, 5]], p.paper, 0.18, 2);
-      this._dryBrush(g, [[11, 17], [33, 21], [58, 18], [85, 23], [111, 18], [139, 22], [176, 18]], p.paperShade, 0.2, 3);
+      this._dryBrush(g, [[5, 6], [50, 8], [96, 4], [143, 8], [186, 5]], p.paper, 0.24, 3);
+      this._dryBrush(g, [[11, 17], [33, 21], [58, 18], [85, 23], [111, 18], [139, 22], [176, 18]], p.paperShade, 0.22, 4);
+      this._dryBrush(g, [[18, 24], [20, 36], [28, 29], [39, 37]], p.ink, 0.92, 4);
+      this._dryBrush(g, [[144, 19], [151, 36], [158, 25], [174, 34]], p.ink, 0.86, 4);
       g.lineStyle(2, p.cyan, 0.56).beginPath().moveTo(13, 12).lineTo(31, 12).moveTo(73, 10).lineTo(93, 10).moveTo(146, 12).lineTo(169, 12).strokePath();
       g.lineStyle(2, p.orange, 0.42).beginPath().moveTo(108, 27).lineTo(130, 24).moveTo(38, 28).lineTo(58, 25).strokePath();
     });
@@ -157,6 +161,10 @@ class ArtFactory {
       this._wash(g, w, h, p.paperShade, 0.08, 38, 3);
       this._wash(g, w, h, p.ink, 0.035, 30, 3);
       this._wash(g, w, h, p.inkBlue, 0.025, 12, 12);
+      this._dryBrush(g, [[28, 440], [78, 215], [125, 134], [172, 272], [216, 438]], p.ink, 0.11, 24);
+      this._dryBrush(g, [[315, 452], [354, 255], [406, 128], [462, 310], [526, 420]], p.ink, 0.09, 28);
+      this._dryBrush(g, [[-12, 310], [60, 288], [105, 304], [153, 272], [214, 290]], p.ink, 0.1, 8);
+      this._dryBrush(g, [[328, 256], [371, 232], [422, 248], [474, 224], [540, 242]], p.ink, 0.08, 7);
       this._dryBrush(g, [[-20, 424], [65, 384], [128, 418], [205, 360], [282, 410], [360, 348], [445, 388], [540, 354]], p.ink, 0.08, 15);
       this._dryBrush(g, [[0, 462], [90, 430], [184, 468], [285, 418], [386, 456], [512, 426]], p.ink, 0.055, 22);
       g.fillStyle(p.cyan, 0.11);
@@ -173,6 +181,7 @@ class ArtFactory {
         const roof = 18 + ((x * 5) % 22);
         this._jaggedFill(g, [[x - 7, h - bh + roof], [x + 16, h - bh], [x + 49, h - bh + 8], [x + 56, h], [x - 2, h]], p.ink, 0.2);
         g.fillStyle(p.inkBlue, 0.14).fillRect(x + 5, h - bh + 25, 45, bh - 25);
+        this._dryBrush(g, [[x + 2, h - bh + 16], [x + 28, h - bh - 8], [x + 58, h - bh + 14]], p.ink, 0.23, 3);
         g.lineStyle(1, p.cyan, 0.12);
         for (let y = h - bh + 42; y < h - 20; y += 38) {
           g.beginPath().moveTo(x + 12, y).lineTo(x + 21, y + 2).moveTo(x + 34, y + 12).lineTo(x + 45, y + 11).strokePath();
@@ -226,6 +235,42 @@ class ArtFactory {
       g.fillStyle(0xffffff, 0.9).fillCircle(12, 12, 2);
     });
 
+    this._texture(scene, 'ink_splatter', 96, 96, (g) => {
+      this._wash(g, 96, 96, p.ink, 0.18, 22, 13);
+      g.fillStyle(p.ink, 0.76).fillEllipse(48, 50, 46, 28);
+      g.fillStyle(p.ink, 0.45).fillEllipse(36, 42, 34, 18);
+      g.fillStyle(p.ink, 0.38).fillEllipse(65, 58, 26, 16);
+      this._dryBrush(g, [[10, 51], [27, 39], [45, 45], [67, 31], [89, 37]], p.ink, 0.86, 8);
+      this._dryBrush(g, [[31, 13], [42, 38], [39, 79], [46, 94]], p.ink, 0.62, 5);
+      for (let i = 0; i < 18; i++) {
+        const x = (i * 37 + 11) % 96;
+        const y = (i * 53 + 7) % 96;
+        g.fillStyle(p.ink, 0.34 + (i % 3) * 0.12).fillCircle(x, y, 1 + (i % 4));
+      }
+    });
+
+    this._texture(scene, 'blood_ink', 96, 96, (g) => {
+      this._wash(g, 96, 96, p.red, 0.13, 18, 18);
+      g.fillStyle(p.ink, 0.68).fillEllipse(46, 47, 38, 24);
+      g.fillStyle(p.red, 0.62).fillEllipse(55, 52, 32, 18);
+      this._dryBrush(g, [[12, 61], [33, 47], [49, 54], [70, 34], [91, 39]], p.ink, 0.84, 7);
+      this._dryBrush(g, [[20, 66], [44, 55], [62, 69], [84, 58]], p.red, 0.76, 5);
+      for (let i = 0; i < 22; i++) {
+        const x = (i * 41 + 9) % 96;
+        const y = (i * 29 + 17) % 96;
+        g.fillStyle(i % 2 ? p.red : p.ink, 0.38).fillCircle(x, y, 1 + (i % 3));
+      }
+    });
+
+    this._texture(scene, 'brush_slash', 160, 96, (g) => {
+      this._dryBrush(g, [[8, 64], [30, 45], [61, 31], [100, 27], [150, 11]], p.ink, 0.82, 15);
+      this._dryBrush(g, [[12, 72], [42, 55], [82, 41], [123, 38], [156, 28]], p.ink, 0.48, 9);
+      this._dryBrush(g, [[22, 67], [56, 51], [101, 44], [143, 33]], p.paper, 0.26, 3);
+      this._dryBrush(g, [[64, 82], [82, 59], [104, 43], [132, 18]], p.orange, 0.36, 4);
+      g.fillStyle(p.ink, 0.35).fillEllipse(38, 58, 20, 8);
+      g.fillStyle(p.ink, 0.28).fillEllipse(128, 24, 18, 7);
+    });
+
     this._texture(scene, 'afterimage_glow', 72, 72, (g) => {
       this._wash(g, 72, 72, 0xffffff, 0.08, 10, 6);
       g.fillStyle(0xffffff, 0.11).fillCircle(36, 36, 32);
@@ -266,6 +311,20 @@ class ArtFactory {
       g.fillStyle(p.orange, 0.95).fillRect(18, 22, 24, 5);
       g.lineStyle(2, p.orange, 0.9).strokeRoundedRect(3, 3, 52, 52, 6);
       this._dryBrush(g, [[10, 48], [25, 42], [39, 49], [50, 42]], p.orange, 0.42, 2);
+    });
+
+    this._texture(scene, 'ui_gold_corner', 42, 42, (g) => {
+      g.fillStyle(p.ink, 0.72).fillRoundedRect(3, 3, 34, 34, 4);
+      g.lineStyle(3, p.goldDark, 0.95).strokeRoundedRect(4, 4, 34, 34, 4);
+      g.lineStyle(2, p.gold, 1).beginPath()
+        .moveTo(8, 32)
+        .lineTo(8, 15)
+        .lineTo(15, 8)
+        .lineTo(32, 8)
+        .strokePath();
+      g.lineStyle(2, p.amber, 0.72).strokeCircle(20, 20, 7);
+      this._dryBrush(g, [[13, 28], [21, 20], [29, 13]], p.gold, 0.66, 2);
+      g.fillStyle(p.amber, 0.9).fillCircle(8, 32, 2).fillCircle(32, 8, 2);
     });
   }
 }

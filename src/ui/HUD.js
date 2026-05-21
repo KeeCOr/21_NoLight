@@ -6,20 +6,23 @@ class HUD {
     const width = scene.scale?.width || scene.cameras.main.width;
     const height = scene.scale?.height || scene.cameras.main.height;
 
-    this.panel = scene.add.rectangle(18, 16, 340, 76, 0x050912, 0.72)
+    this.panel = scene.add.rectangle(18, 16, 340, 76, 0x090805, 0.78)
       .setOrigin(0, 0)
-      .setStrokeStyle(1, 0x26465a, 0.9)
+      .setStrokeStyle(2, 0xb88a3a, 0.92)
       .setScrollFactor(0)
       .setDepth(20);
+    this.panelCorner = scene.add.image(22, 20, 'ui_gold_corner').setOrigin(0, 0).setScrollFactor(0).setDepth(21).setScale(0.72);
+    this.panelCornerMirror = scene.add.image(354, 20, 'ui_gold_corner').setOrigin(1, 0).setScrollFactor(0).setDepth(21).setScale(0.72).setFlipX(true);
 
     scene.add.text(28, 22, 'VITAL', {
       fontSize: '11px',
-      color: '#8fdfff',
+      color: '#e8c275',
       fontFamily: 'Arial',
       letterSpacing: 1,
     }).setScrollFactor(0).setDepth(21);
 
-    this.hpBack = scene.add.rectangle(28, 40, 210, 16, 0x1b1117).setOrigin(0, 0).setScrollFactor(0).setDepth(21);
+    this.hpBack = scene.add.rectangle(28, 40, 210, 16, 0x1b1117).setOrigin(0, 0).setScrollFactor(0).setDepth(21)
+      .setStrokeStyle(1, 0x5d421d, 0.9);
     this.hpBar = scene.add.rectangle(28, 40, 210, 16, 0xff345f).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
     this.hpGlow = scene.add.rectangle(28, 40, 210, 3, 0xffb6c7, 0.7).setOrigin(0, 0).setScrollFactor(0).setDepth(23);
 
@@ -27,9 +30,10 @@ class HUD {
       .setScrollFactor(0)
       .setDepth(22);
 
-    this.stBack = scene.add.rectangle(28, 64, 210, 10, 0x101620).setOrigin(0, 0).setScrollFactor(0).setDepth(21);
-    this.stBar = scene.add.rectangle(28, 64, 210, 10, 0x49d9ff).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
-    scene.add.text(246, 59, 'ST', { fontSize: '12px', color: '#a9ecff', fontFamily: 'Arial' })
+    this.stBack = scene.add.rectangle(28, 64, 210, 10, 0x101620).setOrigin(0, 0).setScrollFactor(0).setDepth(21)
+      .setStrokeStyle(1, 0x5d421d, 0.78);
+    this.stBar = scene.add.rectangle(28, 64, 210, 10, 0x75a947).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
+    scene.add.text(246, 59, 'ST', { fontSize: '12px', color: '#d8b667', fontFamily: 'Arial' })
       .setScrollFactor(0)
       .setDepth(22);
     this.powerText = scene.add.text(286, 38, 'PWR 24', {
@@ -40,13 +44,15 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
 
-    this.scorePanel = scene.add.rectangle(width / 2, 18, 190, 46, 0x050912, 0.68)
-      .setStrokeStyle(1, 0x26465a, 0.9)
+    this.scorePanel = scene.add.rectangle(width / 2, 18, 190, 46, 0x090805, 0.72)
+      .setStrokeStyle(2, 0xb88a3a, 0.9)
       .setScrollFactor(0)
       .setDepth(20);
+    this.scoreCornerLeft = scene.add.image(width / 2 - 96, 21, 'ui_gold_corner').setOrigin(0, 0).setScrollFactor(0).setDepth(21).setScale(0.55);
+    this.scoreCornerRight = scene.add.image(width / 2 + 96, 21, 'ui_gold_corner').setOrigin(1, 0).setScrollFactor(0).setDepth(21).setScale(0.55).setFlipX(true);
     this.scoreText = scene.add.text(width / 2, 28, 'SCORE 0', {
       fontSize: '20px',
-      color: '#ffffff',
+      color: '#f2d48a',
       fontFamily: 'Arial',
       stroke: '#000000',
       strokeThickness: 3,
@@ -149,15 +155,21 @@ class HUD {
     this.cm.characters.forEach((_, i) => {
       const isActive = i === this.cm.activeIndex;
       const x = (this.scene.scale?.width || this.scene.cameras.main.width) - 112 + i * 62;
-      const frame = this.scene.add.rectangle(x, 54, 58, 58, isActive ? 0x102a36 : 0x070910, 0.92)
-        .setStrokeStyle(2, isActive ? 0x7ff9ff : 0x4b5867, isActive ? 1 : 0.75)
+      const portraitFrame = this.scene.add.rectangle(x, 54, 58, 58, isActive ? 0x17120a : 0x070603, 0.94)
+        .setStrokeStyle(2, isActive ? 0xb88a3a : 0x5d421d, isActive ? 1 : 0.75)
         .setScrollFactor(0)
         .setDepth(20);
+      const corner = this.scene.add.image(x - 29, 25, 'ui_gold_corner')
+        .setOrigin(0, 0)
+        .setScrollFactor(0)
+        .setDepth(21)
+        .setScale(0.45)
+        .setAlpha(isActive ? 1 : 0.5);
       const portrait = this.scene.add.image(x, 54, keys[i] || keys[0])
         .setScrollFactor(0)
         .setDepth(21)
         .setAlpha(isActive ? 1 : 0.45);
-      this.charIcons.push(frame, portrait);
+      this.charIcons.push(portraitFrame, corner, portrait);
     });
     this._lastActiveIndex = this.cm.activeIndex;
   }
