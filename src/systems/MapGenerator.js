@@ -34,8 +34,8 @@ class MapGenerator {
 
     // 항상 이동 가능한 경로 보장: 좌/중/우 각 1개
     const guaranteed = [
-      { x: laneLeft,   y: yTop + 170, w: 125 },
-      { x: laneRight,  y: yTop + 270, w: 125 },
+      { x: laneLeft,   y: yTop + 170, w: 375 },
+      { x: laneRight,  y: yTop + 270, w: 375 },
     ];
 
     const platforms = guaranteed.map(p => {
@@ -46,9 +46,10 @@ class MapGenerator {
 
     const extra = Phaser.Math.Between(1, 2);
     for (let i = 0; i < extra; i++) {
-      const x = Phaser.Math.Between(margin, worldWidth - margin);
       const y = yTop + Phaser.Math.Between(45, 320);
-      const w = Phaser.Math.Between(60, 150);
+      const w = Phaser.Math.Between(180, 450);
+      const halfW = Math.floor(w / 2);
+      const x = Phaser.Math.Between(Math.max(margin, halfW), Math.min(worldWidth - margin, worldWidth - halfW));
       const plat = this.platformGroup.create(x, y, 'platform');
       plat.setDisplaySize(w, 20).refreshBody();
       platforms.push(plat);

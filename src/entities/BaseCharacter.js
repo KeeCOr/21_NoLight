@@ -111,7 +111,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
     // 점프
     if (cursors.up.isDown && this.body.blocked.down) {
-      this.setVelocityY(-550);
+      this.setVelocityY(-430);
     }
 
     // 좌우 경계 제한
