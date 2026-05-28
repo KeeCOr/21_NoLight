@@ -35,6 +35,10 @@ class MainMenuScene extends Phaser.Scene {
 
     const inkShadow = this.add.rectangle(width / 2, height - 120, 680, 130, 0x05070b, 0.24);
     inkShadow.setDepth(3);
+    this.add.image(width / 2, height - 132, 'ui_score_frame')
+      .setDisplaySize(700, 154)
+      .setAlpha(0.82)
+      .setDepth(4);
     const tutorialPanel = this.add.rectangle(width / 2, height - 132, 650, 126, 0xf2efe3, 0.82)
       .setStrokeStyle(2, 0x101820, 0.9)
       .setDepth(4);
@@ -59,6 +63,10 @@ class MainMenuScene extends Phaser.Scene {
       wordWrap: { width: 590 },
     }).setOrigin(0.5).setDepth(5);
 
+    this.add.image(width / 2, height - 70, 'ui_button_frame')
+      .setDisplaySize(260, 66)
+      .setAlpha(0.86)
+      .setDepth(5);
     const start = this.add.text(width / 2, height - 70, TutorialCopy.start, {
       fontSize: '28px',
       color: '#ffffff',
