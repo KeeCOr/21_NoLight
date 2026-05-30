@@ -22,6 +22,7 @@ class GameScene extends Phaser.Scene {
     this.charManager = new CharacterManager([electric, mecha]);
     this.pursuer = new Pursuer(this, startX, 860);
     this.hud = new HUD(this, this.stat, this.charManager);
+    this._createBoundaryMarkers();
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keys = this.input.keyboard.addKeys({
@@ -35,8 +36,8 @@ class GameScene extends Phaser.Scene {
     this.projectiles = [];
     this.healthDrops = this.physics.add.group({ allowGravity: false });
 
-    this.physics.add.collider(electric, this.mapGen.getPlatformGroup());
-    this.physics.add.collider(mecha, this.mapGen.getPlatformGroup());
+    this.physics.add.collider(electric, this.mapGen.getPlatformGroup(), null, this._platformCollisionProcess, this);
+    this.physics.add.collider(mecha, this.mapGen.getPlatformGroup(), null, this._platformCollisionProcess, this);
     this.physics.add.overlap(electric, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
     this.physics.add.overlap(mecha, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
 
@@ -89,6 +90,36 @@ class GameScene extends Phaser.Scene {
     this.bgFog.tilePositionY = cam.scrollY * 0.42;
     this.bgFog.tilePositionX += 0.12;
     this.scanlines.tilePositionY += 0.08;
+  }
+
+  _createBoundaryMarkers() {
+    const margin = this.charManager?.getActive()?.PLAY_AREA_MARGIN || 120;
+    const leftX = margin - 34;
+    const rightX = this.worldWidth - margin + 34;
+    this.leftBoundaryMarker = this.add.tileSprite(leftX, this.worldHeight / 2, 54, this.worldHeight, 'ink_splatter')
+      .setScrollFactor(0)
+      .setDepth(1)
+      .setAlpha(0.24)
+      .setTint(0x05070b);
+    this.rightBoundaryMarker = this.add.tileSprite(rightX, this.worldHeight / 2, 54, this.worldHeight, 'ink_splatter')
+      .setScrollFactor(0)
+      .setDepth(1)
+      .setAlpha(0.24)
+      .setTint(0x05070b)
+      .setFlipX(true);
+    this.add.rectangle(leftX + 28, this.worldHeight / 2, 3, this.worldHeight, 0xb88a3a, 0.32)
+      .setScrollFactor(0)
+      .setDepth(2);
+    this.add.rectangle(rightX - 28, this.worldHeight / 2, 3, this.worldHeight, 0xb88a3a, 0.32)
+      .setScrollFactor(0)
+      .setDepth(2);
+  }
+
+  _platformCollisionProcess(player, platform) {
+    if (!platform.isOneWayPlatform) return true;
+    if (player.dropThroughTimer > 0) return false;
+    if (!player.body || !platform.body) return true;
+    return player.body.velocity.y >= 0 && player.body.bottom <= platform.body.top + 14;
   }
 
   _handlePursuerAttack(pursuer, type, player) {

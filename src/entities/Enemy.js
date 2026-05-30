@@ -17,6 +17,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.setCollideWorldBounds(false);
     this.setDepth(3);
+    this.setDisplaySize(52, 52);
     this.body.setSize(28, 34);
     this.body.setOffset(9, 12);
     this.statLabel = scene.add.text(x, y - 42, '', {

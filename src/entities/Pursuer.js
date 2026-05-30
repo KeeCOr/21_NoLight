@@ -14,6 +14,7 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
     this.setImmovable(true);
     this.body.allowGravity = false;
     this.setDepth(2);
+    this.setDisplaySize(108, 122);
     this.body.setSize(58, 78);
     this.body.setOffset(19, 18);
   }

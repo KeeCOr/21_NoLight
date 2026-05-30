@@ -4,6 +4,17 @@ class BootScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('electric_char', 'assets/generated/electric-char.png');
+    this.load.image('mecha_char', 'assets/generated/mecha-char.png');
+    this.load.image('enemy', 'assets/generated/enemy.png');
+    this.load.image('pursuer', 'assets/generated/pursuer.png');
+    this.load.image('platform', 'assets/generated/platform.png');
+    this.load.image('brush_slash', 'assets/generated/brush-slash.png');
+    this.load.image('ink_splatter', 'assets/generated/ink-splatter.png');
+    this.load.image('blood_ink', 'assets/generated/blood-ink.png');
+    this.load.image('life_orb', 'assets/generated/life-orb.png');
+    this.load.image('afterimage_glow', 'assets/generated/smoke-wisp.png');
+
     this.load.image('ui_hp_frame', 'assets/generated/ui-hp-frame.png');
     this.load.image('ui_stamina_frame', 'assets/generated/ui-stamina-frame.png');
     this.load.image('ui_score_frame', 'assets/generated/ui-score-frame.png');

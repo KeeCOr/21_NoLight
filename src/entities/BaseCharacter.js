@@ -20,6 +20,9 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.invincibleDuration = 0;
     this.invincibleTimer = 0;
     this.PLAY_AREA_MARGIN = 120;
+    this.dropThroughTimer = 0;
+
+    this.setDisplaySize(58, 74);
   }
 
   // 가드 시작
@@ -88,6 +91,8 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   onSwapIn() {}
 
   update(delta, cursors, keys) {
+    this.dropThroughTimer = Math.max(0, this.dropThroughTimer - delta);
+
     // 무적 타이머
     if (this.isInvincible) {
       this.invincibleTimer += delta;
@@ -112,6 +117,11 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     // 점프
     if (cursors.up.isDown && this.body.blocked.down) {
       this.setVelocityY(-430);
+    }
+
+    if (cursors.down.isDown && this.body.blocked.down) {
+      this.dropThroughTimer = 260;
+      this.setVelocityY(90);
     }
 
     // 좌우 경계 제한

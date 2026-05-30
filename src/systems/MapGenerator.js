@@ -39,9 +39,7 @@ class MapGenerator {
     ];
 
     const platforms = guaranteed.map(p => {
-      const plat = this.platformGroup.create(p.x, p.y, 'platform');
-      plat.setDisplaySize(p.w, 20).refreshBody();
-      return plat;
+      return this._createPlatform(p.x, p.y, p.w);
     });
 
     const extra = Phaser.Math.Between(1, 2);
@@ -50,8 +48,7 @@ class MapGenerator {
       const w = Phaser.Math.Between(180, 450);
       const halfW = Math.floor(w / 2);
       const x = Phaser.Math.Between(Math.max(margin, halfW), Math.min(worldWidth - margin, worldWidth - halfW));
-      const plat = this.platformGroup.create(x, y, 'platform');
-      plat.setDisplaySize(w, 20).refreshBody();
+      const plat = this._createPlatform(x, y, w);
       platforms.push(plat);
     }
 
@@ -80,6 +77,13 @@ class MapGenerator {
     }
 
     this.chunks.set(chunkIndex, { platforms, enemies, pickups });
+  }
+
+  _createPlatform(x, y, width) {
+    const plat = this.platformGroup.create(x, y, 'platform');
+    plat.isOneWayPlatform = true;
+    plat.setDisplaySize(width, 20).refreshBody();
+    return plat;
   }
 
   removeChunk(chunkIndex) {
