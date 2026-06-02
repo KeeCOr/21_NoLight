@@ -14,6 +14,10 @@ class BootScene extends Phaser.Scene {
     this.load.image('brush_slash', 'assets/generated/brush-slash.png');
     this.load.image('ink_splatter', 'assets/generated/ink-splatter.png');
     this.load.image('blood_ink', 'assets/generated/blood-ink.png');
+    this.load.image('impact_ink_burst', 'assets/generated/impact-ink-burst.png');
+    this.load.image('impact_brush_ring', 'assets/generated/impact-brush-ring.png');
+    this.load.image('combo_brush_smear', 'assets/generated/combo-brush-smear.png');
+    this.load.image('heavy_hit_flash', 'assets/generated/heavy-hit-flash.png');
     this.load.image('life_orb', 'assets/generated/life-orb.png');
     this.load.image('afterimage_glow', 'assets/generated/smoke-wisp.png');
 

@@ -43,12 +43,14 @@ class GameScene extends Phaser.Scene {
 
     this.events.on('enemyKilled', (enemy) => {
       this.stat.onKill();
+      this._impactInkBurst(enemy.x, enemy.y, 'kill', 1.25);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, 12);
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
       this._spawnHealthDrop(enemy.x, enemy.y);
       this._cameraPunch('kill', 1.25);
     });
     this.events.on('enemyHit', (enemy) => {
+      this._impactInkBurst(enemy.x, enemy.y, 'hit', 0.82);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, 8);
       this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', 0.85);
       this._hitStop(42);
@@ -197,6 +199,7 @@ class GameScene extends Phaser.Scene {
         this.physics.add.overlap(proj, pursuer, () => {
           if (!proj.active) return;
           pursuer.onHit(proj.damage, proj);
+          this._impactInkBurst(proj.x, proj.y, 'hit', 0.9);
           this._impactBurst(proj.x, proj.y, 0x05070b, 10);
           proj.destroy();
           this.projectiles = this.projectiles.filter(p => p !== proj);
@@ -208,6 +211,7 @@ class GameScene extends Phaser.Scene {
 
       this.physics.add.overlap(proj, player, () => {
         player.onHit(proj.damage, proj);
+        this._impactInkBurst(proj.x, proj.y, 'hit', 0.75);
         this._impactBurst(proj.x, proj.y, 0x05070b, 9);
         proj.destroy();
         this.projectiles = this.projectiles.filter(p => p !== proj);
@@ -326,6 +330,7 @@ class GameScene extends Phaser.Scene {
       .setScale((0.74 + comboStep * 0.16) * facing, 0.68 + comboStep * 0.13)
       .setAngle(facing * (-10 - comboStep * 6))
       .setTint(comboStep >= 2 ? 0xf4efe3 : color);
+    if (comboStep > 0) this._comboBrushSmear(char, comboStep);
     const arc = this.add.ellipse(char.x + facing * offset, char.y, width, height)
       .setStrokeStyle(4 + comboStep, color, 0.85)
       .setDepth(5);
@@ -384,7 +389,8 @@ class GameScene extends Phaser.Scene {
         alpha: 0,
         duration: 105 + comboStep * 28,
         onComplete: () => bolt.destroy(),
-      });
+          });
+      if (comboStep > 0) this._comboBrushSmear(char, comboStep);
       this._impactBurst(endX, endY, 0x05070b, 2 + comboStep);
     }
     if (comboStep >= 2) {
@@ -402,8 +408,80 @@ class GameScene extends Phaser.Scene {
       ease: 'Cubic.easeOut',
       onComplete: () => ring.destroy(),
     });
+    this._impactInkBurst(x, y, 'skill', radius >= 180 ? 1.12 : 0.72);
     this._impactBurst(x, y, color, 14);
     this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85);
+  }
+
+  _impactInkBurst(x, y, kind = 'hit', power = 1) {
+    const isHeavy = kind === 'kill' || kind === 'skill';
+    const burstScale = (isHeavy ? 1.15 : 0.78) * power;
+    const ringScale = (isHeavy ? 1.1 : 0.74) * power;
+    const flashScale = (isHeavy ? 0.9 : 0.52) * power;
+
+    const burst = this.add.image(x, y, 'impact_ink_burst')
+      .setDepth(7)
+      .setAlpha(isHeavy ? 0.86 : 0.66)
+      .setScale(burstScale * 0.55)
+      .setAngle(Phaser.Math.Between(-35, 35))
+      .setTint(0x05070b);
+    const ring = this.add.image(x, y, 'impact_brush_ring')
+      .setDepth(6)
+      .setAlpha(isHeavy ? 0.72 : 0.48)
+      .setScale(ringScale * 0.42)
+      .setAngle(Phaser.Math.Between(-18, 18))
+      .setTint(0x05070b);
+    const flash = this.add.image(x, y, 'heavy_hit_flash')
+      .setDepth(8)
+      .setAlpha(isHeavy ? 0.72 : 0.38)
+      .setScale(flashScale * 0.36)
+      .setAngle(Phaser.Math.Between(-20, 20))
+      .setTint(0xf4efe3);
+
+    this.tweens.add({
+      targets: burst,
+      alpha: 0,
+      scale: burstScale,
+      duration: isHeavy ? 260 : 190,
+      ease: 'Cubic.easeOut',
+      onComplete: () => burst.destroy(),
+    });
+    this.tweens.add({
+      targets: ring,
+      alpha: 0,
+      scale: ringScale,
+      duration: isHeavy ? 310 : 220,
+      ease: 'Cubic.easeOut',
+      onComplete: () => ring.destroy(),
+    });
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      scale: flashScale,
+      duration: isHeavy ? 110 : 70,
+      ease: 'Cubic.easeOut',
+      onComplete: () => flash.destroy(),
+    });
+  }
+
+  _comboBrushSmear(char, comboStep) {
+    const facing = char.flipX ? -1 : 1;
+    const smear = this.add.image(char.x + facing * (70 + comboStep * 18), char.y + 5, 'combo_brush_smear')
+      .setDepth(5)
+      .setAlpha(0.58 + comboStep * 0.1)
+      .setScale((0.55 + comboStep * 0.15) * facing, 0.44 + comboStep * 0.08)
+      .setAngle(facing * (-8 - comboStep * 8))
+      .setTint(comboStep >= 2 ? 0x05070b : 0x1a1714);
+    this.tweens.add({
+      targets: smear,
+      alpha: 0,
+      x: smear.x + facing * (24 + comboStep * 8),
+      scaleX: smear.scaleX * 1.2,
+      scaleY: smear.scaleY * 1.08,
+      duration: 150 + comboStep * 38,
+      ease: 'Cubic.easeOut',
+      onComplete: () => smear.destroy(),
+    });
   }
 
   _inkSplatter(x, y, texture = 'ink_splatter', scale = 1) {
