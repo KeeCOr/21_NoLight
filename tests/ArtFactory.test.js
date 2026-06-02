@@ -40,7 +40,7 @@ function makeScene() {
 }
 
 describe('ArtFactory', () => {
-  test('build creates all gameplay and sumi neon texture keys', () => {
+  test('build creates all gameplay and sumi ink texture keys', () => {
     const scene = makeScene();
 
     ArtFactory.build(scene);
@@ -74,7 +74,7 @@ describe('ArtFactory', () => {
     ]);
   });
 
-  test('world art uses white background and dark walkable platforms', () => {
+  test('world art uses white background, dark platforms, and monochrome accents', () => {
     const scene = makeScene();
 
     ArtFactory._buildWorld(scene);
@@ -87,6 +87,6 @@ describe('ArtFactory', () => {
       .map(([, args]) => args[1]);
 
     expect(fillColors).toEqual(expect.arrayContaining([0xffffff, 0xf8f7f1, 0x05070b]));
-    expect(lineColors).toEqual(expect.arrayContaining([0x51f6ff, 0xff9b3d]));
+    expect(lineColors).toEqual(expect.arrayContaining([0xf4efe3, 0x27231d]));
   });
 });

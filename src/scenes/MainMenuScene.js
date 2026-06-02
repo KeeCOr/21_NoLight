@@ -5,15 +5,20 @@ class MainMenuScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
-    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_far').setDepth(-30);
-    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_mid').setAlpha(0.38).setDepth(-20);
-    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_fog').setAlpha(0.68).setDepth(-15);
-    this.add.rectangle(width / 2, height / 2, width, height, 0xffffff, 0.22).setDepth(-12);
-    this.add.rectangle(width / 2, height / 2, width, height, 0x05070b, 0.08).setDepth(-10);
+    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_far').setTint(0xefe6d0).setDepth(-30);
+    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_mid').setTint(0x25231f).setAlpha(0.42).setDepth(-20);
+    this.add.image(width / 2, height / 2 - 90, 'bg_mountain_generated')
+      .setDisplaySize(width * 1.12, 420)
+      .setTint(0x151410)
+      .setAlpha(0.34)
+      .setDepth(-18);
+    this.add.tileSprite(width / 2, height / 2, width, height, 'bg_fog').setTint(0xf4efe3).setAlpha(0.58).setDepth(-15);
+    this.add.rectangle(width / 2, height / 2, width, height, 0xffffff, 0.3).setDepth(-12);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x05070b, 0.16).setDepth(-10);
 
-    this.add.image(width / 2 - 210, height / 2 + 22, 'electric_char').setScale(2.2).setAlpha(0.95).setDepth(1);
-    this.add.image(width / 2 + 210, height / 2 + 22, 'mecha_char').setScale(2.05).setAlpha(0.95).setDepth(1);
-    this.add.image(width / 2, height / 2 + 42, 'pursuer').setScale(1.55).setAlpha(0.38).setTint(0xff263e).setDepth(0);
+    this.add.image(width / 2 - 210, height / 2 + 22, 'electric_char').setScale(2.2).setAlpha(0.95).setTint(0x2a2823).setDepth(1);
+    this.add.image(width / 2 + 210, height / 2 + 22, 'mecha_char').setScale(2.05).setAlpha(0.95).setTint(0x2a2823).setDepth(1);
+    this.add.image(width / 2, height / 2 + 42, 'pursuer').setScale(1.55).setAlpha(0.42).setTint(0x05070b).setDepth(0);
 
     this.add.text(width / 2, 142, '21 NL', {
       fontSize: '86px',
@@ -25,7 +30,7 @@ class MainMenuScene extends Phaser.Scene {
 
     this.add.text(width / 2, 218, TutorialCopy.goal, {
       fontSize: '24px',
-      color: '#9dfbff',
+      color: '#f4efe3',
       fontFamily: 'Arial',
       stroke: '#05070b',
       strokeThickness: 4,

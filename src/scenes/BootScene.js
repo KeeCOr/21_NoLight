@@ -9,6 +9,8 @@ class BootScene extends Phaser.Scene {
     this.load.image('enemy', 'assets/generated/enemy.png');
     this.load.image('pursuer', 'assets/generated/pursuer.png');
     this.load.image('platform', 'assets/generated/platform.png');
+    this.load.image('bg_mountain_generated', 'assets/generated/bg-mountain.png');
+    this.load.image('ink_wall', 'assets/generated/ink-wall.png');
     this.load.image('brush_slash', 'assets/generated/brush-slash.png');
     this.load.image('ink_splatter', 'assets/generated/ink-splatter.png');
     this.load.image('blood_ink', 'assets/generated/blood-ink.png');

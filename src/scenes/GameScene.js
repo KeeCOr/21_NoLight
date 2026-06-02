@@ -43,21 +43,21 @@ class GameScene extends Phaser.Scene {
 
     this.events.on('enemyKilled', (enemy) => {
       this.stat.onKill();
-      this._impactBurst(enemy.x, enemy.y, 0xff4f9a, 12);
+      this._impactBurst(enemy.x, enemy.y, 0x05070b, 12);
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
       this._spawnHealthDrop(enemy.x, enemy.y);
       this._cameraPunch('kill', 1.25);
     });
     this.events.on('enemyHit', (enemy) => {
-      this._impactBurst(enemy.x, enemy.y, 0x92fbff, 8);
+      this._impactBurst(enemy.x, enemy.y, 0x05070b, 8);
       this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', 0.85);
       this._hitStop(42);
       this._cameraPunch('hit', 1);
     });
-    this.events.on('mechaDashStart', (char) => this._dashTrail(char, 0xff8a2a));
+    this.events.on('mechaDashStart', (char) => this._dashTrail(char, 0x05070b));
 
     this.events.on('electricSwapIn', (char) => {
-      this._skillBurst(char.x, char.y, 0x64e7ff, 230);
+      this._skillBurst(char.x, char.y, 0x05070b, 230);
       this.mapGen.getAllEnemies().forEach(e => {
         const dist = Phaser.Math.Distance.Between(char.x, char.y, e.x, e.y);
         if (dist <= 200) e.applyStun(800);
@@ -73,14 +73,66 @@ class GameScene extends Phaser.Scene {
     const cx = this.worldWidth / 2;
     const cy = this.worldHeight / 2;
     this.bgFar = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_far').setScrollFactor(0).setDepth(-30);
-    this.bgMid = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.42);
-    this.bgFog = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.72);
-    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0xffffff, 0.18).setScrollFactor(0).setDepth(-6);
-    this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0x05070b, 0.03).setScrollFactor(0).setDepth(-5);
+    this.bgMid = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.54);
+    this.bgFog = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.56);
+    this._createInkLandscape();
+    this.paperWash = this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0xf7f1e4, 0.28)
+      .setScrollFactor(0)
+      .setDepth(-7);
+    this.inkGrade = this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0x05070b, 0.16)
+      .setScrollFactor(0)
+      .setDepth(-5);
+    this.edgeVignetteTop = this.add.rectangle(cx, 28, this.worldWidth, 92, 0x05070b, 0.18)
+      .setScrollFactor(0)
+      .setDepth(18);
+    this.edgeVignetteBottom = this.add.rectangle(cx, this.worldHeight - 28, this.worldWidth, 92, 0x05070b, 0.18)
+      .setScrollFactor(0)
+      .setDepth(18);
     this.scanlines = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_scanline')
       .setScrollFactor(0)
       .setDepth(19)
-      .setAlpha(0.12);
+      .setAlpha(0.07)
+      .setTint(0x05070b);
+    this._applyMonochromeTint(this.bgFar, 0xefe6d0, 0.96);
+    this._applyMonochromeTint(this.bgMid, 0x2c2a25, 0.54);
+    this._applyMonochromeTint(this.bgFog, 0xf5f0e4, 0.5);
+  }
+
+  _createInkLandscape() {
+    const mountainY = this.worldHeight * 0.34;
+    this.mountainFar = this.add.image(this.worldWidth / 2, mountainY, 'bg_mountain_generated')
+      .setDisplaySize(this.worldWidth * 1.12, 280)
+      .setScrollFactor(0)
+      .setDepth(-18)
+      .setAlpha(0.44)
+      .setTint(0x28251f);
+    this.mountainNear = this.add.image(this.worldWidth / 2 + 70, this.worldHeight * 0.48, 'bg_mountain_generated')
+      .setDisplaySize(this.worldWidth * 1.28, 360)
+      .setScrollFactor(0)
+      .setDepth(-16)
+      .setAlpha(0.3)
+      .setTint(0x0f0e0c);
+    this.inkWallLeft = this.add.tileSprite(22, this.worldHeight / 2, 96, this.worldHeight, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(-4)
+      .setAlpha(0.16)
+      .setTint(0x05070b);
+    this.inkWallRight = this.add.tileSprite(this.worldWidth - 22, this.worldHeight / 2, 96, this.worldHeight, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(-4)
+      .setAlpha(0.16)
+      .setTint(0x05070b)
+      .setFlipX(true);
+    this.inkForeground = this.add.tileSprite(this.worldWidth / 2, this.worldHeight - 54, this.worldWidth, 128, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(0)
+      .setAlpha(0.24)
+      .setTint(0x05070b);
+  }
+
+  _applyMonochromeTint(target, tint, alpha) {
+    target.setTint(tint);
+    target.setAlpha(alpha);
   }
 
   _syncBackground() {
@@ -89,6 +141,11 @@ class GameScene extends Phaser.Scene {
     this.bgMid.tilePositionY = cam.scrollY * 0.24;
     this.bgFog.tilePositionY = cam.scrollY * 0.42;
     this.bgFog.tilePositionX += 0.12;
+    if (this.mountainFar) this.mountainFar.y = this.worldHeight * 0.34 - cam.scrollY * 0.04;
+    if (this.mountainNear) this.mountainNear.y = this.worldHeight * 0.48 - cam.scrollY * 0.08;
+    if (this.inkWallLeft) this.inkWallLeft.tilePositionY = cam.scrollY * 0.18;
+    if (this.inkWallRight) this.inkWallRight.tilePositionY = cam.scrollY * 0.22;
+    if (this.inkForeground) this.inkForeground.tilePositionY = cam.scrollY * 0.12;
     this.scanlines.tilePositionY += 0.08;
   }
 
@@ -136,11 +193,11 @@ class GameScene extends Phaser.Scene {
         const backAngle = Phaser.Math.Angle.Between(proj.x, proj.y, pursuer.x, pursuer.y);
         proj.body.setVelocity(Math.cos(backAngle) * 350, Math.sin(backAngle) * 350);
         proj.damage = 30;
-        proj.setTint(0x92fbff);
+        proj.setTint(0xf4efe3);
         this.physics.add.overlap(proj, pursuer, () => {
           if (!proj.active) return;
           pursuer.onHit(proj.damage, proj);
-          this._impactBurst(proj.x, proj.y, 0x92fbff, 10);
+          this._impactBurst(proj.x, proj.y, 0x05070b, 10);
           proj.destroy();
           this.projectiles = this.projectiles.filter(p => p !== proj);
         });
@@ -151,7 +208,7 @@ class GameScene extends Phaser.Scene {
 
       this.physics.add.overlap(proj, player, () => {
         player.onHit(proj.damage, proj);
-        this._impactBurst(proj.x, proj.y, 0xff6b18, 9);
+        this._impactBurst(proj.x, proj.y, 0x05070b, 9);
         proj.destroy();
         this.projectiles = this.projectiles.filter(p => p !== proj);
       });
@@ -164,20 +221,20 @@ class GameScene extends Phaser.Scene {
         }
       });
     } else if (type === 'shockwave') {
-      const warn = this.add.circle(pursuer.x, pursuer.y, 200, 0xff263e, 0.08)
-        .setStrokeStyle(3, 0xff263e, 0.65)
+      const warn = this.add.circle(pursuer.x, pursuer.y, 200, 0x05070b, 0.08)
+        .setStrokeStyle(3, 0x05070b, 0.65)
         .setDepth(2);
       this.tweens.add({ targets: warn, scale: 1.12, alpha: 0.35, duration: 760, yoyo: true });
       this.time.delayedCall(800, () => {
         warn.destroy();
-        this._skillBurst(pursuer.x, pursuer.y, 0xff263e, 205);
+        this._skillBurst(pursuer.x, pursuer.y, 0x05070b, 205);
         const dist = Phaser.Math.Distance.Between(pursuer.x, pursuer.y, player.x, player.y);
         if (dist <= 200) player.onHit(20, pursuer);
       });
     } else if (type === 'dash') {
       const angle = Phaser.Math.Angle.Between(pursuer.x, pursuer.y, player.x, player.y);
       pursuer.setVelocity(Math.cos(angle) * 500, Math.sin(angle) * 500);
-      this._dashTrail(pursuer, 0xff263e);
+      this._dashTrail(pursuer, 0x05070b);
       this.time.delayedCall(400, () => pursuer.setVelocity(0, 0));
     } else if (type === 'rush') {
       this._showAlert('THE HUNTER SURGES');
@@ -189,10 +246,10 @@ class GameScene extends Phaser.Scene {
     const cam = this.cameras.main;
     const profiles = {
       hit: { duration: 95, intensity: 0.004, zoom: 1.018, flash: 35, color: 0xffffff },
-      kill: { duration: 150, intensity: 0.006, zoom: 1.035, flash: 65, color: 0xff4f9a },
-      combo: { duration: 105, intensity: 0.0045, zoom: 1.024, flash: 42, color: 0x9dfbff },
+      kill: { duration: 150, intensity: 0.006, zoom: 1.035, flash: 65, color: 0x05070b },
+      combo: { duration: 105, intensity: 0.0045, zoom: 1.024, flash: 42, color: 0xf4efe3 },
       skill: { duration: 190, intensity: 0.0065, zoom: 1.04, flash: 75, color: 0xffffff },
-      rush: { duration: 320, intensity: 0.009, zoom: 1.055, flash: 95, color: 0xff273d },
+      rush: { duration: 320, intensity: 0.009, zoom: 1.055, flash: 95, color: 0x05070b },
     };
     const p = profiles[kind] || profiles.hit;
     cam.shake(Math.round(p.duration * power), p.intensity * power);
@@ -210,7 +267,7 @@ class GameScene extends Phaser.Scene {
   _showAlert(text) {
     const alert = this.add.text(this.worldWidth / 2, 260, text, {
       fontSize: '30px',
-      color: '#ff273d',
+      color: '#f4efe3',
       fontFamily: 'Arial Black',
       stroke: '#05070b',
       strokeThickness: 6,
@@ -243,8 +300,8 @@ class GameScene extends Phaser.Scene {
     if (!drop || !drop.active) return;
     this.stat.restoreHp(drop.healAmount);
     SharkCombat.eatFish(this.stat);
-    this._impactBurst(drop.x, drop.y, 0xff4f9a, 10);
-    this._skillBurst(drop.x, drop.y, 0xff4f9a, 44);
+    this._impactBurst(drop.x, drop.y, 0x05070b, 10);
+    this._skillBurst(drop.x, drop.y, 0x05070b, 44);
     drop.destroy();
   }
 
@@ -268,7 +325,7 @@ class GameScene extends Phaser.Scene {
       .setAlpha(0.76)
       .setScale((0.74 + comboStep * 0.16) * facing, 0.68 + comboStep * 0.13)
       .setAngle(facing * (-10 - comboStep * 6))
-      .setTint(comboStep >= 2 ? 0xffffff : color);
+      .setTint(comboStep >= 2 ? 0xf4efe3 : color);
     const arc = this.add.ellipse(char.x + facing * offset, char.y, width, height)
       .setStrokeStyle(4 + comboStep, color, 0.85)
       .setDepth(5);
@@ -312,12 +369,12 @@ class GameScene extends Phaser.Scene {
       const midX = (startX + endX) / 2 + facing * Phaser.Math.Between(-10, 14);
       const midY = (startY + endY) / 2 + Phaser.Math.Between(-18, 18);
       const bolt = this.add.graphics().setDepth(6);
-      bolt.lineStyle(7 - Math.min(comboStep, 2), 0x51f6ff, 0.18).beginPath()
+      bolt.lineStyle(8 - Math.min(comboStep, 2), 0x05070b, 0.46).beginPath()
         .moveTo(startX, startY)
         .lineTo(midX, midY)
         .lineTo(endX, endY)
         .strokePath();
-      bolt.lineStyle(2 + comboStep, 0xffffff, 0.92).beginPath()
+      bolt.lineStyle(2 + comboStep, 0xf4efe3, 0.86).beginPath()
         .moveTo(startX, startY)
         .lineTo(midX + facing * 8, midY - lane * 5)
         .lineTo(endX, endY)
@@ -328,7 +385,7 @@ class GameScene extends Phaser.Scene {
         duration: 105 + comboStep * 28,
         onComplete: () => bolt.destroy(),
       });
-      this._impactBurst(endX, endY, 0x64e7ff, 2 + comboStep);
+      this._impactBurst(endX, endY, 0x05070b, 2 + comboStep);
     }
     if (comboStep >= 2) {
       this._cameraPunch('combo', 1.05);
@@ -336,7 +393,7 @@ class GameScene extends Phaser.Scene {
   }
 
   _skillBurst(x, y, color, radius) {
-    const ring = this.add.circle(x, y, radius, color, 0.08).setStrokeStyle(3, color, 0.8).setDepth(5);
+    const ring = this.add.circle(x, y, radius, color, 0.06).setStrokeStyle(3, color, 0.74).setDepth(5);
     this.tweens.add({
       targets: ring,
       alpha: 0,
@@ -439,7 +496,7 @@ class GameScene extends Phaser.Scene {
         if (current instanceof ElectricCharacter) {
           this._electricDischarge(current, comboStep);
         } else {
-          this._slashArc(current, 0xff8a2a, comboStep);
+          this._slashArc(current, 0x05070b, comboStep);
         }
       }
     }
@@ -448,7 +505,7 @@ class GameScene extends Phaser.Scene {
       const staminaBefore = this.stat.stamina;
       current.skill(this.mapGen.getAllEnemies());
       if (this.stat.stamina < staminaBefore) {
-        this._skillBurst(current.x, current.y, current instanceof ElectricCharacter ? 0x64e7ff : 0xff8a2a, 120);
+        this._skillBurst(current.x, current.y, 0x05070b, 120);
       }
     }
 

@@ -23,6 +23,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.dropThroughTimer = 0;
 
     this.setDisplaySize(58, 74);
+    this.setTint(0x2a2823);
   }
 
   // 가드 시작
@@ -99,6 +100,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
       if (this.invincibleTimer >= this.invincibleDuration) {
         this.isInvincible = false;
         this.setAlpha(1);
+        this.setTint(0x2a2823);
       }
     }
 

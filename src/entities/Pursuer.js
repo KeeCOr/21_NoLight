@@ -15,6 +15,7 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
     this.body.allowGravity = false;
     this.setDepth(2);
     this.setDisplaySize(108, 122);
+    this.setTint(0x1a1714);
     this.body.setSize(58, 78);
     this.body.setOffset(19, 18);
   }
@@ -22,7 +23,7 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
   // 플레이어 공격에 의한 피격
   onHit(damage, attacker) {
     this.ai.onDamage(damage);
-    if (this.ai.isStunned()) this.setTint(0x888888);
+    if (this.ai.isStunned()) this.setTint(0x5c5750);
   }
 
   // 패링으로 반사된 투사체가 추격자에 닿을 때
@@ -37,12 +38,12 @@ class Pursuer extends Phaser.Physics.Arcade.Sprite {
 
     if (this.ai.isStunned()) {
       this.setVelocity(0, 0);
-      this.setTint(0x888888);
+      this.setTint(0x5c5750);
       return;
     }
 
-    if (this.ai.state === PURSUER_STATE.RUSHING) this.setTint(0xff273d);
-    else this.clearTint();
+    if (this.ai.state === PURSUER_STATE.RUSHING) this.setTint(0x3a0b0b);
+    else this.setTint(0x1a1714);
 
     // 플레이어 추격
     const speed = this.ai.getSpeed(this.BASE_SPEED);

@@ -22,16 +22,16 @@ class ArtFactory {
       paperShade: 0xf8f7f1,
       ink: 0x05070b,
       inkSoft: 0x101820,
-      inkBlue: 0x172431,
-      inkPurple: 0x221825,
-      cyan: 0x51f6ff,
-      cyanSoft: 0x9dfbff,
-      orange: 0xff9b3d,
-      amber: 0xffcf63,
+      inkBlue: 0x2c2922,
+      inkPurple: 0x1d1b18,
+      cyan: 0xf4efe3,
+      cyanSoft: 0xd8d0bf,
+      orange: 0x27231d,
+      amber: 0xead8ad,
       gold: 0xb88a3a,
       goldDark: 0x5d421d,
-      magenta: 0xff4f9a,
-      red: 0xff273d,
+      magenta: 0x11100d,
+      red: 0x1a1714,
     };
   }
 
@@ -93,7 +93,7 @@ class ArtFactory {
       this._wash(g, 62, 76, p.ink, 0.11, 9, 4);
       this._wash(g, 62, 76, p.orange, 0.055, 5, 4);
       this._jaggedFill(g, [[28, 6], [44, 15], [45, 54], [37, 70], [22, 70], [13, 55], [14, 17]], p.ink, 0.98);
-      this._jaggedFill(g, [[21, 16], [39, 16], [40, 56], [31, 63], [21, 57]], 0x414850, 0.92);
+      this._jaggedFill(g, [[21, 16], [39, 16], [40, 56], [31, 63], [21, 57]], 0x34312a, 0.92);
       g.fillStyle(p.orange, 0.96).fillRoundedRect(18, 22, 26, 8, 2);
       g.fillStyle(p.ink, 1).fillRect(22, 24, 17, 3);
       this._dryBrush(g, [[8, 37], [18, 32], [24, 45], [15, 59]], p.paperShade, 0.85, 6);
@@ -126,8 +126,8 @@ class ArtFactory {
       this._wash(g, 108, 122, p.ink, 0.15, 18, 8);
       this._wash(g, 108, 122, p.red, 0.075, 10, 8);
       this._jaggedFill(g, [[50, 7], [78, 20], [88, 65], [69, 105], [43, 116], [21, 90], [17, 35]], p.ink, 0.98);
-      this._jaggedFill(g, [[50, 19], [70, 28], [75, 65], [62, 91], [45, 96], [31, 75], [31, 33]], 0x340811, 0.94);
-      this._jaggedFill(g, [[46, 29], [65, 36], [66, 70], [53, 82], [38, 68], [36, 39]], 0x7f1222, 0.9);
+      this._jaggedFill(g, [[50, 19], [70, 28], [75, 65], [62, 91], [45, 96], [31, 75], [31, 33]], 0x1d1b18, 0.94);
+      this._jaggedFill(g, [[46, 29], [65, 36], [66, 70], [53, 82], [38, 68], [36, 39]], 0x2a2823, 0.9);
       this._neonCore(g, 53, 47, 14, p.red, 1);
       g.fillStyle(p.ink, 1).fillCircle(53, 47, 4);
       this._dryBrush(g, [[25, 29], [7, 8], [18, 35], [4, 54]], p.ink, 1, 5);
@@ -358,7 +358,7 @@ class ArtFactory {
       this._wash(g, 58, 58, p.orange, 0.08, 5, 7);
       g.fillStyle(p.paper, 0.14).fillRoundedRect(0, 0, 58, 58, 8);
       this._jaggedFill(g, [[14, 13], [31, 7], [45, 18], [42, 43], [28, 51], [13, 39]], p.ink, 0.96);
-      g.fillStyle(0x4b5867, 0.9).fillRoundedRect(17, 14, 28, 31, 5);
+      g.fillStyle(0x34312a, 0.9).fillRoundedRect(17, 14, 28, 31, 5);
       g.fillStyle(p.orange, 0.95).fillRect(18, 22, 24, 5);
       g.lineStyle(2, p.orange, 0.9).strokeRoundedRect(3, 3, 52, 52, 6);
       this._dryBrush(g, [[10, 48], [25, 42], [39, 49], [50, 42]], p.orange, 0.42, 2);

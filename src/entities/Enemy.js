@@ -18,6 +18,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(false);
     this.setDepth(3);
     this.setDisplaySize(52, 52);
+    this.setTint(0x1d1b18);
     this.body.setSize(28, 34);
     this.body.setOffset(9, 12);
     this.statLabel = scene.add.text(x, y - 42, '', {
@@ -32,9 +33,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   onHit(damage, attacker) {
     this.hp -= damage;
     this.scene.events.emit('enemyHit', this);
-    this.setTint(0xffd1e6);
+    this.setTint(0xf4efe3);
     this.scene.time.delayedCall(80, () => {
-      if (this.active) this.clearTint();
+      if (this.active) this.setTint(0x1d1b18);
     });
     if (this.hp <= 0) this.onDeath();
   }

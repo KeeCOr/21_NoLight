@@ -130,7 +130,7 @@ class HUD {
         .setScrollFactor(0)
         .setDepth(24)
         .setAlpha(glow ? 0.96 : 0.84);
-      if (glow) button.setTint(0xffc56a);
+      if (glow) button.setTint(0xf4efe3);
       scene.add.text(x, baseY - 2, key, {
         fontSize: '24px',
         color: glow ? '#2a1205' : '#05070b',
