@@ -16,15 +16,14 @@ describe('generated UI asset integration', () => {
     expect(source).toContain("this.load.image('ui_button_frame', 'assets/generated/ui-button-frame.png')");
   });
 
-  test('HUD uses generated frames for bars, score, portraits, and bottom command buttons', () => {
+  test('HUD uses reference-style brush HUD art for bars, score, and bottom controls', () => {
     const source = read('src/ui/HUD.js');
 
-    expect(source).toContain("'ui_hp_frame'");
-    expect(source).toContain("'ui_stamina_frame'");
-    expect(source).toContain("'ui_score_frame'");
-    expect(source).toContain("'ui_portrait_frame'");
-    expect(source).toContain('_buildCommandButtons');
-    expect(source).toContain("'ui_button_frame'");
+    expect(source).toContain("'hud_logo_panel'");
+    expect(source).toContain("'hud_brush_bar'");
+    expect(source).toContain("'hud_score_box'");
+    expect(source).toContain('_buildBottomInkControls');
+    expect(source).toContain("'hud_skill_button'");
   });
 
   test('Main menu uses generated button and frame art for the start prompt', () => {

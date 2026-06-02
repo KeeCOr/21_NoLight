@@ -55,12 +55,13 @@ describe('reference-driven visual upgrade', () => {
     ]));
   });
 
-  test('HUD uses warm gold mechanical trim instead of the old cyan-only frame', () => {
+  test('HUD uses ink mobile reference elements instead of the old cyan-only frame', () => {
     const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'ui', 'HUD.js'), 'utf8');
 
-    expect(source).toContain('0xb88a3a');
-    expect(source).toContain('ui_gold_corner');
-    expect(source).toContain('portraitFrame');
+    expect(source).toContain('hud_logo_panel');
+    expect(source).toContain('hud_brush_bar');
+    expect(source).toContain('hud_score_box');
+    expect(source).toContain('hud_joystick_ring');
   });
 
   test('GameScene layers ink splatter sprites into hit and slash feedback', () => {

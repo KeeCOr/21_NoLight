@@ -292,6 +292,57 @@ class ArtFactory {
   static _buildUi(scene) {
     const p = this._palette();
 
+    this._texture(scene, 'hud_logo_panel', 238, 112, (g, w, h) => {
+      this._wash(g, w, h, p.ink, 0.18, 20, 21);
+      this._jaggedFill(g, [[6, 18], [34, 7], [84, 12], [122, 4], [184, 13], [230, 8], [220, 92], [171, 101], [113, 96], [55, 108], [9, 98]], p.ink, 0.96);
+      this._dryBrush(g, [[4, 23], [55, 11], [120, 18], [181, 9], [237, 18]], p.paper, 0.16, 5);
+      this._dryBrush(g, [[14, 93], [65, 101], [123, 92], [183, 104], [222, 91]], p.paper, 0.12, 5);
+      g.fillStyle(p.red, 0.86).fillRoundedRect(196, 66, 24, 24, 3);
+      g.lineStyle(2, p.ink, 0.82).strokeRoundedRect(200, 70, 16, 16, 2);
+    });
+
+    this._texture(scene, 'hud_brush_bar', 430, 52, (g, w, h) => {
+      this._wash(g, w, h, p.ink, 0.08, 12, 22);
+      this._jaggedFill(g, [[5, 15], [49, 9], [112, 11], [181, 7], [262, 12], [367, 8], [425, 14], [414, 39], [328, 43], [238, 38], [141, 45], [39, 41], [3, 36]], p.ink, 0.92);
+      this._dryBrush(g, [[4, 13], [83, 7], [172, 10], [266, 6], [424, 13]], p.paper, 0.24, 3);
+      this._dryBrush(g, [[20, 40], [132, 43], [244, 39], [360, 42], [421, 36]], p.paper, 0.14, 4);
+    });
+
+    this._texture(scene, 'hud_score_box', 154, 108, (g, w, h) => {
+      g.fillStyle(p.paperShade, 0.88).fillRoundedRect(8, 8, w - 16, h - 16, 4);
+      this._wash(g, w, h, p.ink, 0.045, 12, 23);
+      g.lineStyle(5, p.ink, 0.94).strokeRoundedRect(7, 7, w - 14, h - 14, 2);
+      this._dryBrush(g, [[0, 18], [37, 11], [88, 15], [153, 8]], p.ink, 0.76, 5);
+      this._dryBrush(g, [[1, 95], [44, 102], [94, 96], [153, 101]], p.ink, 0.62, 5);
+    });
+
+    this._texture(scene, 'hud_joystick_ring', 164, 164, (g, w, h) => {
+      g.fillStyle(p.paperShade, 0.16).fillCircle(w / 2, h / 2, 74);
+      g.lineStyle(10, p.ink, 0.82).strokeCircle(w / 2, h / 2, 68);
+      g.lineStyle(3, p.paper, 0.25).strokeCircle(w / 2, h / 2, 56);
+      g.fillStyle(p.ink, 0.76).fillCircle(w / 2, h / 2, 34);
+      this._dryBrush(g, [[27, 31], [82, 15], [139, 30]], p.ink, 0.45, 5);
+      this._dryBrush(g, [[25, 136], [82, 149], [137, 132]], p.ink, 0.4, 5);
+    });
+
+    this._texture(scene, 'hud_skill_button', 148, 148, (g, w, h) => {
+      g.fillStyle(p.paperShade, 0.76).fillCircle(w / 2, h / 2, 68);
+      this._wash(g, w, h, p.ink, 0.08, 12, 24);
+      g.lineStyle(9, p.ink, 0.9).strokeCircle(w / 2, h / 2, 62);
+      g.lineStyle(3, p.gold, 0.55).strokeCircle(w / 2, h / 2, 69);
+      this._dryBrush(g, [[32, 90], [58, 61], [96, 42], [119, 30]], p.ink, 0.84, 8);
+      this._dryBrush(g, [[39, 97], [69, 79], [101, 75], [127, 62]], p.ink, 0.34, 5);
+    });
+
+    this._texture(scene, 'hud_item_slot', 94, 132, (g, w, h) => {
+      g.fillStyle(p.paperShade, 0.84).fillRoundedRect(10, 8, w - 20, h - 16, 6);
+      this._wash(g, w, h, p.ink, 0.065, 8, 25);
+      g.lineStyle(5, p.ink, 0.95).strokeRoundedRect(9, 7, w - 18, h - 14, 5);
+      g.lineStyle(2, p.gold, 0.54).strokeRoundedRect(15, 14, w - 30, h - 28, 3);
+      this._dryBrush(g, [[28, 101], [48, 72], [66, 38]], p.ink, 0.78, 5);
+      g.fillStyle(p.ink, 0.72).fillCircle(48, 42, 4);
+    });
+
     this._texture(scene, 'portrait_electric', 58, 58, (g) => {
       this._wash(g, 58, 58, p.cyan, 0.08, 5, 3);
       g.fillStyle(p.paper, 0.16).fillRoundedRect(0, 0, 58, 58, 8);

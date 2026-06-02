@@ -3,129 +3,192 @@ class HUD {
     this.scene = scene;
     this.stat = stat;
     this.cm = characterManager;
-    const width = scene.scale?.width || scene.cameras.main.width;
-    const height = scene.scale?.height || scene.cameras.main.height;
+    this.width = scene.scale?.width || scene.cameras.main.width;
+    this.height = scene.scale?.height || scene.cameras.main.height;
 
-    this.panel = scene.add.rectangle(18, 16, 340, 76, 0x090805, 0.52)
-      .setOrigin(0, 0)
-      .setStrokeStyle(2, 0xb88a3a, 0.92)
-      .setScrollFactor(0)
-      .setDepth(20);
-    this.hpFrame = scene.add.image(8, 8, 'ui_hp_frame')
-      .setOrigin(0, 0)
-      .setDisplaySize(390, 62)
-      .setScrollFactor(0)
-      .setDepth(21)
-      .setAlpha(0.94);
-    this.staminaFrame = scene.add.image(22, 47, 'ui_stamina_frame')
-      .setOrigin(0, 0)
-      .setDisplaySize(320, 44)
-      .setScrollFactor(0)
-      .setDepth(21)
-      .setAlpha(0.88);
-    this.panelCorner = scene.add.image(22, 20, 'ui_gold_corner').setOrigin(0, 0).setScrollFactor(0).setDepth(21).setScale(0.72);
-    this.panelCornerMirror = scene.add.image(354, 20, 'ui_gold_corner').setOrigin(1, 0).setScrollFactor(0).setDepth(21).setScale(0.72).setFlipX(true);
+    this._buildTopInkHud();
+    this._buildBottomInkControls();
+    this._buildTutorialPanel();
 
-    scene.add.text(28, 22, 'VITAL', {
-      fontSize: '11px',
-      color: '#e8c275',
-      fontFamily: 'Arial',
-      letterSpacing: 1,
-    }).setScrollFactor(0).setDepth(21);
-
-    this.hpBack = scene.add.rectangle(90, 34, 210, 16, 0x1b1117).setOrigin(0, 0).setScrollFactor(0).setDepth(21)
-      .setStrokeStyle(1, 0x5d421d, 0.9);
-    this.hpBar = scene.add.rectangle(90, 34, 210, 16, 0xff345f).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
-    this.hpGlow = scene.add.rectangle(90, 34, 210, 3, 0xffb6c7, 0.7).setOrigin(0, 0).setScrollFactor(0).setDepth(23);
-
-    scene.add.text(308, 32, 'HP', { fontSize: '13px', color: '#ffffff', fontFamily: 'Arial' })
-      .setScrollFactor(0)
-      .setDepth(22);
-
-    this.stBack = scene.add.rectangle(90, 63, 190, 10, 0x101620).setOrigin(0, 0).setScrollFactor(0).setDepth(21)
-      .setStrokeStyle(1, 0x5d421d, 0.78);
-    this.stBar = scene.add.rectangle(90, 63, 190, 10, 0x75a947).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
-    scene.add.text(292, 58, 'ST', { fontSize: '12px', color: '#d8b667', fontFamily: 'Arial' })
-      .setScrollFactor(0)
-      .setDepth(22);
-    this.powerText = scene.add.text(286, 38, 'PWR 24', {
-      fontSize: '16px',
-      color: '#ffcf63',
-      fontFamily: 'Arial Black',
-      stroke: '#05070b',
-      strokeThickness: 3,
-    }).setOrigin(0, 0).setScrollFactor(0).setDepth(22);
-
-    this.scorePanel = scene.add.rectangle(width / 2, 18, 190, 46, 0x090805, 0.46)
-      .setStrokeStyle(2, 0xb88a3a, 0.9)
-      .setScrollFactor(0)
-      .setDepth(20);
-    this.scoreFrame = scene.add.image(width / 2, 45, 'ui_score_frame')
-      .setDisplaySize(220, 70)
-      .setScrollFactor(0)
-      .setDepth(20)
-      .setAlpha(0.86);
-    this.scoreCornerLeft = scene.add.image(width / 2 - 96, 21, 'ui_gold_corner').setOrigin(0, 0).setScrollFactor(0).setDepth(21).setScale(0.55);
-    this.scoreCornerRight = scene.add.image(width / 2 + 96, 21, 'ui_gold_corner').setOrigin(1, 0).setScrollFactor(0).setDepth(21).setScale(0.55).setFlipX(true);
-    this.scoreText = scene.add.text(width / 2, 28, 'SCORE 0', {
-      fontSize: '20px',
-      color: '#f2d48a',
-      fontFamily: 'Arial',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(21);
-
-    this.comboText = scene.add.text(width / 2, 92, '', {
+    this.comboText = scene.add.text(this.width / 2, 142, '', {
       fontSize: '24px',
-      color: '#ffcf63',
+      color: '#f4dfb2',
       fontFamily: 'Arial Black',
       stroke: '#05070b',
       strokeThickness: 5,
-    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(22).setAlpha(0);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(32).setAlpha(0);
 
     scene.events.on('comboChanged', ({ step, max }) => this.showCombo(step, max));
+  }
 
-    this.helpText = scene.add.text(width / 2, height - 42, TutorialCopy.controls, {
-      fontSize: '14px',
-      color: '#a9b8c7',
-      fontFamily: 'Arial',
-      stroke: '#000000',
+  _buildTopInkHud() {
+    const scene = this.scene;
+
+    scene.add.image(124, 74, 'hud_logo_panel')
+      .setDisplaySize(232, 106)
+      .setScrollFactor(0)
+      .setDepth(26);
+    scene.add.text(104, 72, '21NL', {
+      fontSize: '54px',
+      color: '#ead8ad',
+      fontFamily: 'Arial Black',
+      fontStyle: 'italic',
+      stroke: '#05070b',
       strokeThickness: 3,
-    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(20);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(27);
 
-    this._buildTutorialPanel();
-    this.charIcons = [];
-    this._buildCharIcons();
-    this._buildCommandButtons();
-    this._lastActiveIndex = -1;
+    this.hpBrush = scene.add.image(486, 48, 'hud_brush_bar')
+      .setDisplaySize(420, 48)
+      .setScrollFactor(0)
+      .setDepth(25);
+    this.hpFill = scene.add.rectangle(358, 49, 248, 16, 0x8d2418, 0.92)
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0)
+      .setDepth(26);
+    scene.add.text(264, 48, 'HP', {
+      fontSize: '22px',
+      color: '#ead8ad',
+      fontFamily: 'Arial Black',
+      fontStyle: 'italic',
+      stroke: '#05070b',
+      strokeThickness: 4,
+    }).setOrigin(0, 0.5).setScrollFactor(0).setDepth(27);
+    this.hpValueText = scene.add.text(662, 48, '100 / 100', {
+      fontSize: '18px',
+      color: '#f7ebcf',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 3,
+    }).setOrigin(1, 0.5).setScrollFactor(0).setDepth(27);
+
+    this.staminaBrush = scene.add.image(486, 94, 'hud_brush_bar')
+      .setDisplaySize(420, 44)
+      .setScrollFactor(0)
+      .setDepth(25)
+      .setAlpha(0.96);
+    this.stBar = scene.add.rectangle(358, 95, 248, 14, 0x435f25, 0.94)
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0)
+      .setDepth(26);
+    scene.add.text(264, 94, 'STAMINA', {
+      fontSize: '20px',
+      color: '#ead8ad',
+      fontFamily: 'Arial Black',
+      fontStyle: 'italic',
+      stroke: '#05070b',
+      strokeThickness: 4,
+    }).setOrigin(0, 0.5).setScrollFactor(0).setDepth(27);
+    this.staminaValueText = scene.add.text(662, 94, '100 / 100', {
+      fontSize: '17px',
+      color: '#f7ebcf',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 3,
+    }).setOrigin(1, 0.5).setScrollFactor(0).setDepth(27);
+
+    scene.add.image(this.width - 88, 68, 'hud_score_box')
+      .setDisplaySize(150, 100)
+      .setScrollFactor(0)
+      .setDepth(25);
+    scene.add.text(this.width - 88, 43, 'SCORE', {
+      fontSize: '20px',
+      color: '#05070b',
+      fontFamily: 'Arial Black',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(27);
+    this.scoreText = scene.add.text(this.width - 88, 86, '0', {
+      fontSize: '32px',
+      color: '#05070b',
+      fontFamily: 'Arial Black',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(27);
+  }
+
+  _buildBottomInkControls() {
+    const scene = this.scene;
+    const baseY = this.height - 145;
+
+    scene.add.image(126, baseY, 'hud_joystick_ring')
+      .setDisplaySize(154, 154)
+      .setScrollFactor(0)
+      .setDepth(24)
+      .setAlpha(0.78);
+    [['▲', 126, baseY - 56], ['▼', 126, baseY + 56], ['◀', 70, baseY], ['▶', 182, baseY]].forEach(([label, x, y]) => {
+      scene.add.text(x, y, label, {
+        fontSize: '18px',
+        color: '#05070b',
+        fontFamily: 'Arial Black',
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(25).setAlpha(0.78);
+    });
+
+    const skills = [
+      { label: '참격', key: 'Z', x: this.width / 2 - 122 },
+      { label: '대시', key: 'X', x: this.width / 2 },
+      { label: '필살', key: 'C', x: this.width / 2 + 122, glow: true },
+    ];
+    skills.forEach(({ label, key, x, glow }) => {
+      const button = scene.add.image(x, baseY, 'hud_skill_button')
+        .setDisplaySize(glow ? 128 : 116, glow ? 128 : 116)
+        .setScrollFactor(0)
+        .setDepth(24)
+        .setAlpha(glow ? 0.96 : 0.84);
+      if (glow) button.setTint(0xffc56a);
+      scene.add.text(x, baseY - 2, key, {
+        fontSize: '24px',
+        color: glow ? '#2a1205' : '#05070b',
+        fontFamily: 'Arial Black',
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+      scene.add.text(x, baseY + 84, label, {
+        fontSize: '20px',
+        color: '#ead8ad',
+        fontFamily: 'Arial Black',
+        stroke: '#05070b',
+        strokeThickness: 5,
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+    });
+
+    const itemX = this.width - 64;
+    [
+      { y: this.height - 520, label: '검' },
+      { y: this.height - 394, label: '교' },
+      { y: this.height - 268, label: '3' },
+    ].forEach(({ y, label }) => {
+      scene.add.image(itemX, y, 'hud_item_slot')
+        .setDisplaySize(74, 104)
+        .setScrollFactor(0)
+        .setDepth(24)
+        .setAlpha(0.86);
+      scene.add.text(itemX, y + 22, label, {
+        fontSize: label === '3' ? '24px' : '22px',
+        color: '#05070b',
+        fontFamily: 'Arial Black',
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+    });
   }
 
   _buildTutorialPanel() {
     const scene = this.scene;
-    const width = scene.scale?.width || scene.cameras.main.width;
-    const inkShadow = scene.add.rectangle(width / 2, 188, 650, 148, 0x05070b, 0.22)
+    const inkShadow = scene.add.rectangle(this.width / 2, 190, 650, 138, 0x05070b, 0.18)
       .setScrollFactor(0)
-      .setDepth(23);
-    const panel = scene.add.rectangle(width / 2, 174, 620, 144, 0xf2efe3, 0.88)
-      .setStrokeStyle(2, 0x101820, 0.88)
+      .setDepth(28);
+    const panel = scene.add.rectangle(this.width / 2, 178, 620, 130, 0xf2efe3, 0.82)
+      .setStrokeStyle(2, 0x101820, 0.84)
       .setScrollFactor(0)
-      .setDepth(24);
-    const title = scene.add.text(width / 2, 120, TutorialCopy.title, {
+      .setDepth(29);
+    const title = scene.add.text(this.width / 2, 130, TutorialCopy.title, {
       fontSize: '18px',
       color: '#05070b',
       fontFamily: 'Arial Black',
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
-    const goal = scene.add.text(width / 2, 158, '', {
-      fontSize: '18px',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30);
+    const body = scene.add.text(this.width / 2, 164, '', {
+      fontSize: '17px',
       color: '#101820',
       fontFamily: 'Arial',
       align: 'center',
       wordWrap: { width: 560 },
-    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(25);
+    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(30);
 
-    this.tutorialNodes = [inkShadow, panel, title, goal];
+    this.tutorialNodes = [inkShadow, panel, title, body];
     this.tutorialTitle = title;
-    this.tutorialBody = goal;
+    this.tutorialBody = body;
     this.tutorialStep = -1;
     this._advanceTutorial();
   }
@@ -154,90 +217,27 @@ class HUD {
     this.scene.tweens.killTweensOf(this.comboText);
     this.scene.tweens.add({
       targets: this.comboText,
-      y: 82,
+      y: 132,
       scale: 1.12,
       duration: 70,
       yoyo: true,
       onComplete: () => {
-        this.comboText.setY(92).setScale(1);
+        this.comboText.setY(142).setScale(1);
         this.scene.tweens.add({ targets: this.comboText, alpha: 0, duration: 520, delay: 380 });
       },
     });
   }
 
-  _buildCharIcons() {
-    this.charIcons.forEach(icon => icon.destroy());
-    this.charIcons = [];
-    const keys = ['portrait_electric', 'portrait_mecha'];
-
-    this.cm.characters.forEach((_, i) => {
-      const isActive = i === this.cm.activeIndex;
-      const x = (this.scene.scale?.width || this.scene.cameras.main.width) - 112 + i * 62;
-      const generatedFrame = this.scene.add.image(x, 54, 'ui_portrait_frame')
-        .setDisplaySize(66, 66)
-        .setScrollFactor(0)
-        .setDepth(20)
-        .setAlpha(isActive ? 0.96 : 0.56);
-      const portraitFrame = this.scene.add.rectangle(x, 54, 58, 58, isActive ? 0x17120a : 0x070603, 0.94)
-        .setStrokeStyle(2, isActive ? 0xb88a3a : 0x5d421d, isActive ? 1 : 0.75)
-        .setScrollFactor(0)
-        .setDepth(20);
-      const corner = this.scene.add.image(x - 29, 25, 'ui_gold_corner')
-        .setOrigin(0, 0)
-        .setScrollFactor(0)
-        .setDepth(21)
-        .setScale(0.45)
-        .setAlpha(isActive ? 1 : 0.5);
-      const portrait = this.scene.add.image(x, 54, keys[i] || keys[0])
-        .setScrollFactor(0)
-        .setDepth(21)
-        .setAlpha(isActive ? 1 : 0.45);
-      this.charIcons.push(generatedFrame, portraitFrame, corner, portrait);
-    });
-    this._lastActiveIndex = this.cm.activeIndex;
-  }
-
-  _buildCommandButtons() {
-    const scene = this.scene;
-    const width = scene.scale?.width || scene.cameras.main.width;
-    const height = scene.scale?.height || scene.cameras.main.height;
-    const commands = [
-      { label: 'Z', x: width / 2 - 138 },
-      { label: 'X', x: width / 2 - 46 },
-      { label: 'C', x: width / 2 + 46 },
-      { label: 'TAB', x: width / 2 + 138 },
-    ];
-
-    commands.forEach(({ label, x }) => {
-      scene.add.image(x, height - 104, 'ui_button_frame')
-        .setDisplaySize(72, 72)
-        .setScrollFactor(0)
-        .setDepth(20)
-        .setAlpha(0.78);
-      scene.add.text(x, height - 117, label, {
-        fontSize: label.length > 1 ? '14px' : '20px',
-        color: '#f2d48a',
-        fontFamily: 'Arial Black',
-        stroke: '#05070b',
-        strokeThickness: 4,
-      }).setOrigin(0.5).setScrollFactor(0).setDepth(21);
-    });
-  }
-
   update() {
     const hpRatio = Math.max(0, this.stat.hp / this.stat.maxHp);
-    this.hpBar.setDisplaySize(210 * hpRatio, 16);
-    this.hpGlow.setDisplaySize(210 * hpRatio, 3);
-    this.hpBar.setFillStyle(hpRatio <= 0.3 ? 0xff8a2a : 0xff345f);
+    this.hpFill.setDisplaySize(248 * hpRatio, 16);
+    this.hpFill.setFillStyle(hpRatio <= 0.3 ? 0xc85f24 : 0x8d2418);
 
     const stRatio = Math.max(0, this.stat.stamina / this.stat.maxStamina);
-    this.stBar.setDisplaySize(190 * stRatio, 10);
+    this.stBar.setDisplaySize(248 * stRatio, 14);
 
-    this.scoreText.setText(`SCORE ${this.stat.score}`);
-    this.powerText.setText(`PWR ${Math.round(this.stat.sharkPower || 0)}`);
-
-    if (this.cm.activeIndex !== this._lastActiveIndex) {
-      this._buildCharIcons();
-    }
+    this.hpValueText.setText(`${Math.ceil(this.stat.hp)} / ${this.stat.maxHp}`);
+    this.staminaValueText.setText(`${Math.ceil(this.stat.stamina)} / ${this.stat.maxStamina}`);
+    this.scoreText.setText(`${this.stat.score}`);
   }
 }
