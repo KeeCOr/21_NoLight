@@ -1,6 +1,6 @@
 class ElectricCharacter extends BaseCharacter {
   constructor(scene, x, y, stat) {
-    super(scene, x, y, 'electric_char', stat);
+    super(scene, x, y, 'absorber_char', stat);
     this.ATTACK_RANGE = 125;
     this.ATTACK_DAMAGE = 20;
     this.SKILL_DAMAGE = 50;

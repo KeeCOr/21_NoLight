@@ -5,6 +5,7 @@ class BootScene extends Phaser.Scene {
 
   preload() {
     this.load.image('electric_char', 'assets/generated/electric-char.png');
+    this.load.image('absorber_char', 'assets/generated/absorber-char.png');
     this.load.image('mecha_char', 'assets/generated/mecha-char.png');
     this.load.image('enemy', 'assets/generated/enemy.png');
     this.load.image('pursuer', 'assets/generated/pursuer.png');
@@ -18,6 +19,10 @@ class BootScene extends Phaser.Scene {
     this.load.image('impact_brush_ring', 'assets/generated/impact-brush-ring.png');
     this.load.image('combo_brush_smear', 'assets/generated/combo-brush-smear.png');
     this.load.image('heavy_hit_flash', 'assets/generated/heavy-hit-flash.png');
+    this.load.image('light_shard_top', 'assets/generated/light-shard-top.png');
+    this.load.image('light_shard_bottom', 'assets/generated/light-shard-bottom.png');
+    this.load.image('absorb_trail', 'assets/generated/absorb-trail.png');
+    this.load.image('absorb_aura', 'assets/generated/absorb-aura.png');
     this.load.image('life_orb', 'assets/generated/life-orb.png');
     this.load.image('afterimage_glow', 'assets/generated/smoke-wisp.png');
 

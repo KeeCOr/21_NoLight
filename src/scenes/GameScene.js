@@ -7,6 +7,7 @@ class GameScene extends Phaser.Scene {
     this.worldWidth = this.scale?.width || this.cameras.main.width;
     this.worldHeight = this.scale?.height || this.cameras.main.height;
     this._createBackground();
+    this._createLightGuides();
 
     this.physics.world.setBounds(-50000, -50000, 100000, 100000);
     this.cameras.main.setBounds(-50000, -50000, 100000, 100000);
@@ -135,6 +136,37 @@ class GameScene extends Phaser.Scene {
   _applyMonochromeTint(target, tint, alpha) {
     target.setTint(tint);
     target.setAlpha(alpha);
+  }
+
+  _createLightGuides() {
+    const cx = this.worldWidth / 2;
+    this.topLightGuide = this.add.image(cx, 102, 'light_shard_top')
+      .setDisplaySize(210, 420)
+      .setScrollFactor(0)
+      .setDepth(-2)
+      .setAlpha(0.26)
+      .setTint(0xf4efe3);
+    this.bottomLightGuide = this.add.image(cx, this.worldHeight - 120, 'light_shard_bottom')
+      .setDisplaySize(220, 430)
+      .setScrollFactor(0)
+      .setDepth(-2)
+      .setAlpha(0.22)
+      .setTint(0xf4efe3);
+    this.lightGuidePulse = 0;
+  }
+
+  _syncLightGuides(delta) {
+    if (!this.topLightGuide || !this.bottomLightGuide) return;
+    this.lightGuidePulse += delta;
+    const pulse = Math.sin(this.lightGuidePulse * 0.0022);
+    const active = this.charManager?.getActive?.();
+    const targetX = active ? Phaser.Math.Clamp(active.x, this.worldWidth * 0.28, this.worldWidth * 0.72) : this.worldWidth / 2;
+    this.topLightGuide.x += (targetX - this.topLightGuide.x) * 0.018;
+    this.bottomLightGuide.x += (targetX - this.bottomLightGuide.x) * 0.014;
+    this.topLightGuide.setAlpha(0.22 + pulse * 0.05);
+    this.bottomLightGuide.setAlpha(0.2 - pulse * 0.04);
+    this.topLightGuide.setAngle(pulse * 1.2);
+    this.bottomLightGuide.setAngle(-pulse * 1.4);
   }
 
   _syncBackground() {
@@ -304,6 +336,7 @@ class GameScene extends Phaser.Scene {
     if (!drop || !drop.active) return;
     this.stat.restoreHp(drop.healAmount);
     SharkCombat.eatFish(this.stat);
+    this._absorbLightFeedback(player);
     this._impactBurst(drop.x, drop.y, 0x05070b, 10);
     this._skillBurst(drop.x, drop.y, 0x05070b, 44);
     drop.destroy();
@@ -411,6 +444,40 @@ class GameScene extends Phaser.Scene {
     this._impactInkBurst(x, y, 'skill', radius >= 180 ? 1.12 : 0.72);
     this._impactBurst(x, y, color, 14);
     this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85);
+  }
+
+  _absorbLightFeedback(player) {
+    const facing = player.flipX ? -1 : 1;
+    const aura = this.add.image(player.x, player.y, 'absorb_aura')
+      .setDepth(8)
+      .setAlpha(0.72)
+      .setScale(0.42)
+      .setTint(0xf4efe3);
+    const trail = this.add.image(player.x - facing * 42, player.y + 6, 'absorb_trail')
+      .setDepth(7)
+      .setAlpha(0.68)
+      .setScale(-0.52 * facing, 0.46)
+      .setAngle(facing * -9)
+      .setTint(0x05070b);
+    this.tweens.add({
+      targets: aura,
+      alpha: 0,
+      scale: 0.84,
+      angle: 38,
+      duration: 360,
+      ease: 'Cubic.easeOut',
+      onComplete: () => aura.destroy(),
+    });
+    this.tweens.add({
+      targets: trail,
+      alpha: 0,
+      x: player.x,
+      scaleX: trail.scaleX * 0.45,
+      scaleY: trail.scaleY * 0.72,
+      duration: 320,
+      ease: 'Cubic.easeIn',
+      onComplete: () => trail.destroy(),
+    });
   }
 
   _impactInkBurst(x, y, kind = 'hit', power = 1) {
@@ -548,6 +615,7 @@ class GameScene extends Phaser.Scene {
 
   update(time, delta) {
     this._syncBackground();
+    this._syncLightGuides(delta);
 
     if (this.stat.isDead()) {
       this.scene.start('GameOverScene', { score: this.stat.score, time: this.stat.survivalTime });

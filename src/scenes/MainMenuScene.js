@@ -16,7 +16,7 @@ class MainMenuScene extends Phaser.Scene {
     this.add.rectangle(width / 2, height / 2, width, height, 0xffffff, 0.3).setDepth(-12);
     this.add.rectangle(width / 2, height / 2, width, height, 0x05070b, 0.16).setDepth(-10);
 
-    this.add.image(width / 2 - 210, height / 2 + 22, 'electric_char').setScale(2.2).setAlpha(0.95).setTint(0x2a2823).setDepth(1);
+    this.add.image(width / 2 - 210, height / 2 + 22, 'absorber_char').setScale(2.2).setAlpha(0.95).setTint(0x2a2823).setDepth(1);
     this.add.image(width / 2 + 210, height / 2 + 22, 'mecha_char').setScale(2.05).setAlpha(0.95).setTint(0x2a2823).setDepth(1);
     this.add.image(width / 2, height / 2 + 42, 'pursuer').setScale(1.55).setAlpha(0.42).setTint(0x05070b).setDepth(0);
 
