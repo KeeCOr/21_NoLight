@@ -32,7 +32,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   onHit(damage, attacker) {
     this.hp -= damage;
-    this.scene.events.emit('enemyHit', this);
+    this.scene.events.emit('enemyHit', this, { damage, comboStep: attacker?.comboStep || 1 });
     this.setTint(0xf4efe3);
     this.scene.time.delayedCall(80, () => {
       if (this.active) this.setTint(0x1d1b18);

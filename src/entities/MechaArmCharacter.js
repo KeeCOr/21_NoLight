@@ -33,6 +33,7 @@ class MechaArmCharacter extends BaseCharacter {
         const result = SharkCombat.resolveAttack(this, enemy, { apply: false });
         const comboDamage = Math.max(result.damage, Math.round(this.ATTACK_DAMAGE * multiplier * comboMult));
         if (result.winner === this) {
+          enemy.lastDamage = comboDamage;
           enemy.onHit(comboDamage, this);
         } else {
           this.onHit(result.damage, enemy);
@@ -41,6 +42,7 @@ class MechaArmCharacter extends BaseCharacter {
     });
 
     this.scene.events.emit('comboChanged', { step: currentStep + 1, max: this.COMBO_COUNT, source: this });
+    this.scene.events.emit('playerAttackFeedback', { comboStep: currentStep + 1, source: this });
     this.comboStep = (this.comboStep + 1) % this.COMBO_COUNT;
     this.comboResetTimer = 0;
     return currentStep;
@@ -60,7 +62,7 @@ class MechaArmCharacter extends BaseCharacter {
       duration: 80 + currentStep * 18,
       ease: 'Cubic.easeOut',
     });
-    this.scene.events.emit('mechaDashStart', this);
+    this.scene.events.emit('mechaDashStart', this, { staminaBefore: staminaBefore ?? null, staminaAfter: this.stat.stamina });
   }
 
   // 메카 팔 대시 돌진 (스태미나 소모)

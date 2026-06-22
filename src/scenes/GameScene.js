@@ -44,20 +44,36 @@ class GameScene extends Phaser.Scene {
 
     this.events.on('enemyKilled', (enemy) => {
       this.stat.onKill();
-      this._impactInkBurst(enemy.x, enemy.y, 'kill', 1.25);
+      const feedback = getActionFeedback({ type: 'kill', damage: enemy?.maxHp || 0 });
+      this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, 12);
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
+      this._showActionFeedback(enemy.x, enemy.y - 54, feedback);
       this._spawnHealthDrop(enemy.x, enemy.y);
       this._cameraPunch('kill', 1.25);
     });
-    this.events.on('enemyHit', (enemy) => {
-      this._impactInkBurst(enemy.x, enemy.y, 'hit', 0.82);
+    this.events.on('enemyHit', (enemy, payload = {}) => {
+      const feedback = getActionFeedback({
+        type: 'hit',
+        comboStep: payload.comboStep || 1,
+        damage: payload.damage || enemy?.lastDamage || 0,
+      });
+      this._impactInkBurst(enemy.x, enemy.y, 'hit', feedback.intensity);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, 8);
       this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', 0.85);
+      this._showActionFeedback(enemy.x, enemy.y - 48, feedback);
       this._hitStop(42);
       this._cameraPunch('hit', 1);
     });
-    this.events.on('mechaDashStart', (char) => this._dashTrail(char, 0x05070b));
+    this.events.on('mechaDashStart', (char, payload = {}) => {
+      this._dashTrail(char, 0x05070b);
+      const feedback = getActionFeedback({
+        type: 'dash',
+        staminaBefore: payload.staminaBefore,
+        staminaAfter: payload.staminaAfter,
+      });
+      this._showActionFeedback(char.x, char.y - 78, feedback);
+    });
 
     this.events.on('electricSwapIn', (char) => {
       this._skillBurst(char.x, char.y, 0x05070b, 230);
@@ -548,6 +564,26 @@ class GameScene extends Phaser.Scene {
       duration: 150 + comboStep * 38,
       ease: 'Cubic.easeOut',
       onComplete: () => smear.destroy(),
+    });
+  }
+
+  _showActionFeedback(x, y, feedback) {
+    const color = feedback.tone === 'kill' ? '#f4dfb2' : feedback.tone === 'dash' ? '#f7ebcf' : '#f4efe3';
+    const text = this.add.text(x, y, feedback.label, {
+      fontSize: feedback.tone === 'kill' ? '24px' : '19px',
+      color,
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setDepth(20);
+    this.tweens.add({
+      targets: text,
+      y: y - 42,
+      alpha: 0,
+      scale: 1 + feedback.intensity * 0.15,
+      duration: feedback.tone === 'kill' ? 760 : 520,
+      ease: 'Cubic.easeOut',
+      onComplete: () => text.destroy(),
     });
   }
 

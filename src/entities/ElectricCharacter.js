@@ -30,6 +30,7 @@ class ElectricCharacter extends BaseCharacter {
         const result = SharkCombat.resolveAttack(this, enemy, { apply: false });
         const comboDamage = Math.max(result.damage, Math.round(this.ATTACK_DAMAGE * multiplier * comboMult));
         if (result.winner === this) {
+          enemy.lastDamage = comboDamage;
           enemy.onHit(comboDamage, this);
               enemy.applyStun(320 + currentStep * 70);
         } else {
@@ -38,6 +39,7 @@ class ElectricCharacter extends BaseCharacter {
       }
     });
     this.scene.events.emit('comboChanged', { step: currentStep + 1, max: this.COMBO_COUNT, source: this });
+    this.scene.events.emit('playerAttackFeedback', { comboStep: currentStep + 1, source: this });
     this.comboStep = (this.comboStep + 1) % this.COMBO_COUNT;
     this.comboResetTimer = 0;
     return currentStep;
