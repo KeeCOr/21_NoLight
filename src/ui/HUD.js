@@ -148,7 +148,7 @@ class HUD {
     const itemX = this.width - 64;
     [
       { y: this.height - 520, label: '검' },
-      { y: this.height - 394, label: '교' },
+      { y: this.height - 394, label: 'TAB' },
       { y: this.height - 268, label: '3' },
     ].forEach(({ y, label }) => {
       scene.add.image(itemX, y, 'hud_item_slot')
@@ -157,7 +157,7 @@ class HUD {
         .setDepth(24)
         .setAlpha(0.86);
       scene.add.text(itemX, y + 22, label, {
-        fontSize: label === '3' ? '24px' : '22px',
+        fontSize: label === 'TAB' ? '18px' : (label === '3' ? '24px' : '22px'),
         color: '#05070b',
         fontFamily: 'Arial Black',
       }).setOrigin(0.5).setScrollFactor(0).setDepth(25);

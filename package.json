@@ -1,6 +1,6 @@
 {
   "name": "21-nl",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "수묵화 액션 플랫포머",
   "author": "오진우",
   "main": "main.js",
@@ -19,6 +19,8 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js"]
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   }
 }
