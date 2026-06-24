@@ -42,7 +42,7 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(electric, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
     this.physics.add.overlap(mecha, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
 
-    this.events.on('enemyKilled', (enemy) => {
+    this.events.on('enemyKilled', (enemy, payload = {}) => {
       this.stat.onKill();
       const feedback = getActionFeedback({ type: 'kill', damage: enemy?.maxHp || 0 });
       this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity);
@@ -50,7 +50,7 @@ class GameScene extends Phaser.Scene {
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
       this._showActionFeedback(enemy.x, enemy.y - 54, feedback);
       this._spawnHealthDrop(enemy.x, enemy.y);
-      this._cameraPunch('kill', 1.25);
+      this._cameraPunch('kill', 1.25, { facing: payload.facing || enemy.lastHitFacing || 1, comboStep: payload.comboStep || 3 });
     });
     this.events.on('enemyHit', (enemy, payload = {}) => {
       const feedback = getActionFeedback({
@@ -62,8 +62,11 @@ class GameScene extends Phaser.Scene {
       this._impactBurst(enemy.x, enemy.y, 0x05070b, 8);
       this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', 0.85);
       this._showActionFeedback(enemy.x, enemy.y - 48, feedback);
-      this._hitStop(42);
-      this._cameraPunch('hit', 1);
+      const cameraProfile = this._cameraPunch('hit', 1, {
+        facing: payload.facing || 1,
+        comboStep: payload.comboStep || 1,
+      });
+      this._hitStop(cameraProfile.hitStop);
     });
     this.events.on('mechaDashStart', (char, payload = {}) => {
       this._dashTrail(char, 0x05070b);
@@ -76,7 +79,7 @@ class GameScene extends Phaser.Scene {
     });
 
     this.events.on('electricSwapIn', (char) => {
-      this._skillBurst(char.x, char.y, 0x05070b, 230);
+      this._skillBurst(char.x, char.y, 0x05070b, 230, char.flipX ? -1 : 1);
       this.mapGen.getAllEnemies().forEach(e => {
         const dist = Phaser.Math.Distance.Between(char.x, char.y, e.x, e.y);
         if (dist <= 200) e.applyStun(800);
@@ -279,7 +282,7 @@ class GameScene extends Phaser.Scene {
       this.tweens.add({ targets: warn, scale: 1.12, alpha: 0.35, duration: 760, yoyo: true });
       this.time.delayedCall(800, () => {
         warn.destroy();
-        this._skillBurst(pursuer.x, pursuer.y, 0x05070b, 205);
+        this._skillBurst(pursuer.x, pursuer.y, 0x05070b, 205, pursuer.flipX ? -1 : 1);
         const dist = Phaser.Math.Distance.Between(pursuer.x, pursuer.y, player.x, player.y);
         if (dist <= 200) player.onHit(20, pursuer);
       });
@@ -294,24 +297,37 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  _cameraPunch(kind, power = 1) {
+  _cameraPunch(kind, power = 1, options = {}) {
     const cam = this.cameras.main;
-    const profiles = {
-      hit: { duration: 95, intensity: 0.004, zoom: 1.018, flash: 35, color: 0xffffff },
-      kill: { duration: 150, intensity: 0.006, zoom: 1.035, flash: 65, color: 0x05070b },
-      combo: { duration: 105, intensity: 0.0045, zoom: 1.024, flash: 42, color: 0xf4efe3 },
-      skill: { duration: 190, intensity: 0.0065, zoom: 1.04, flash: 75, color: 0xffffff },
-      rush: { duration: 320, intensity: 0.009, zoom: 1.055, flash: 95, color: 0x05070b },
-    };
-    const p = profiles[kind] || profiles.hit;
-    cam.shake(Math.round(p.duration * power), p.intensity * power);
-    cam.flash(Math.round(p.flash * power), (p.color >> 16) & 255, (p.color >> 8) & 255, p.color & 255, false);
+    const profile = getCameraImpactProfile({ kind, power, ...options });
+    cam.shake(profile.duration, profile.intensity);
+    cam.flash(profile.flash, (profile.color >> 16) & 255, (profile.color >> 8) & 255, profile.color & 255, false);
     this.tweens.killTweensOf(cam);
-    cam.setZoom(p.zoom);
+    cam.setZoom(profile.zoom);
+    this._cameraNudge(profile);
     this.tweens.add({
       targets: cam,
       zoom: 1,
-      duration: Math.round((p.duration + 80) * power),
+      duration: profile.recoverDuration,
+      ease: 'Cubic.easeOut',
+    });
+    return profile;
+  }
+
+  _cameraNudge(profile) {
+    const cam = this.cameras.main;
+    if (!cam.followOffset || !cam.setFollowOffset) return;
+    const baseX = this._cameraBaseFollowOffsetX ?? cam.followOffset.x ?? 0;
+    const baseY = this._cameraBaseFollowOffsetY ?? cam.followOffset.y ?? 0;
+    this._cameraBaseFollowOffsetX = baseX;
+    this._cameraBaseFollowOffsetY = baseY;
+    this.tweens.killTweensOf(cam.followOffset);
+    cam.setFollowOffset(baseX + profile.nudgeX, baseY + profile.nudgeY);
+    this.tweens.add({
+      targets: cam.followOffset,
+      x: baseX,
+      y: baseY,
+      duration: profile.recoverDuration,
       ease: 'Cubic.easeOut',
     });
   }
@@ -388,7 +404,7 @@ class GameScene extends Phaser.Scene {
     } else if (comboStep >= 2) {
       arc.setStrokeStyle(7, 0xffffff, 0.75);
       this._impactBurst(char.x + facing * 58, char.y, color, 9);
-      this._cameraPunch('combo', 1.1);
+      this._cameraPunch('combo', 1.1, { facing, comboStep: comboStep + 1 });
     }
     this.tweens.add({
       targets: arc,
@@ -443,11 +459,11 @@ class GameScene extends Phaser.Scene {
       this._impactBurst(endX, endY, 0x05070b, 2 + comboStep);
     }
     if (comboStep >= 2) {
-      this._cameraPunch('combo', 1.05);
+      this._cameraPunch('combo', 1.05, { facing, comboStep: comboStep + 1 });
     }
   }
 
-  _skillBurst(x, y, color, radius) {
+  _skillBurst(x, y, color, radius, facing = 1) {
     const ring = this.add.circle(x, y, radius, color, 0.06).setStrokeStyle(3, color, 0.74).setDepth(5);
     this.tweens.add({
       targets: ring,
@@ -459,7 +475,7 @@ class GameScene extends Phaser.Scene {
     });
     this._impactInkBurst(x, y, 'skill', radius >= 180 ? 1.12 : 0.72);
     this._impactBurst(x, y, color, 14);
-    this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85);
+    this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85, { facing });
   }
 
   _absorbLightFeedback(player) {
@@ -687,7 +703,7 @@ class GameScene extends Phaser.Scene {
       const staminaBefore = this.stat.stamina;
       current.skill(this.mapGen.getAllEnemies());
       if (this.stat.stamina < staminaBefore) {
-        this._skillBurst(current.x, current.y, 0x05070b, 120);
+        this._skillBurst(current.x, current.y, 0x05070b, 120, current.flipX ? -1 : 1);
       }
     }
 

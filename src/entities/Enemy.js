@@ -32,7 +32,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   onHit(damage, attacker) {
     this.hp -= damage;
-    this.scene.events.emit('enemyHit', this, { damage, comboStep: attacker?.comboStep || 1 });
+    this.lastHitFacing = attacker?.flipX ? -1 : 1;
+    this.lastHitComboStep = attacker?.comboStep || 1;
+    this.scene.events.emit('enemyHit', this, { damage, comboStep: this.lastHitComboStep, facing: this.lastHitFacing });
     this.setTint(0xf4efe3);
     this.scene.time.delayedCall(80, () => {
       if (this.active) this.setTint(0x1d1b18);
@@ -51,7 +53,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   onDeath() {
     if (this.statLabel) this.statLabel.destroy();
-    this.scene.events.emit('enemyKilled', this);
+    this.scene.events.emit('enemyKilled', this, { facing: this.lastHitFacing || 1, comboStep: this.lastHitComboStep || 1 });
     this.destroy();
   }
 

@@ -4,6 +4,22 @@ class BootScene extends Phaser.Scene {
   }
 
   preload() {
+    // AI-generated textures
+    this.load.image('bg_far', 'C:/Development/21_NL/src/assets/generated/bg_far.png');
+    this.load.image('bg_mid', 'C:/Development/21_NL/src/assets/generated/bg_mid.png');
+    this.load.image('bg_fog', 'C:/Development/21_NL/src/assets/generated/bg_fog.png');
+    this.load.image('bg_scanline', 'C:/Development/21_NL/src/assets/generated/bg_scanline.png');
+    this.load.image('projectile', 'C:/Development/21_NL/src/assets/generated/projectile.png');
+    this.load.image('spark', 'C:/Development/21_NL/src/assets/generated/spark.png');
+    this.load.image('hud_logo_panel', 'C:/Development/21_NL/src/assets/generated/hud_logo_panel.png');
+    this.load.image('hud_brush_bar', 'C:/Development/21_NL/src/assets/generated/hud_brush_bar.png');
+    this.load.image('hud_score_box', 'C:/Development/21_NL/src/assets/generated/hud_score_box.png');
+    this.load.image('hud_joystick_ring', 'C:/Development/21_NL/src/assets/generated/hud_joystick_ring.png');
+    this.load.image('hud_skill_button', 'C:/Development/21_NL/src/assets/generated/hud_skill_button.png');
+    this.load.image('hud_item_slot', 'C:/Development/21_NL/src/assets/generated/hud_item_slot.png');
+    this.load.image('portrait_electric', 'C:/Development/21_NL/src/assets/generated/portrait_electric.png');
+    this.load.image('portrait_mecha', 'C:/Development/21_NL/src/assets/generated/portrait_mecha.png');
+    this.load.image('ui_gold_corner', 'C:/Development/21_NL/src/assets/generated/ui_gold_corner.png');
     this.load.image('electric_char', 'assets/generated/electric-char.png');
     this.load.image('absorber_char', 'assets/generated/absorber-char.png');
     this.load.image('mecha_char', 'assets/generated/mecha-char.png');
@@ -34,21 +50,6 @@ class BootScene extends Phaser.Scene {
     this.load.image('ui_skill_frame', 'assets/generated/ui-skill-frame.png');
     this.load.image('ui_gold_corner_large', 'assets/generated/ui-gold-corner-large.png');
     this.load.image('ui_medallion', 'assets/generated/ui-medallion.png');
-    this.load.image('bg_far', 'assets/generated/bg_far.png');
-    this.load.image('bg_mid', 'assets/generated/bg_mid.png');
-    this.load.image('bg_fog', 'assets/generated/bg_fog.png');
-    this.load.image('bg_scanline', 'assets/generated/bg_scanline.png');
-    this.load.image('projectile', 'assets/generated/projectile.png');
-    this.load.image('spark', 'assets/generated/spark.png');
-    this.load.image('hud_logo_panel', 'assets/generated/hud_logo_panel.png');
-    this.load.image('hud_brush_bar', 'assets/generated/hud_brush_bar.png');
-    this.load.image('hud_score_box', 'assets/generated/hud_score_box.png');
-    this.load.image('hud_joystick_ring', 'assets/generated/hud_joystick_ring.png');
-    this.load.image('hud_skill_button', 'assets/generated/hud_skill_button.png');
-    this.load.image('hud_item_slot', 'assets/generated/hud_item_slot.png');
-    this.load.image('portrait_electric', 'assets/generated/portrait_electric.png');
-    this.load.image('portrait_mecha', 'assets/generated/portrait_mecha.png');
-    this.load.image('ui_gold_corner', 'assets/generated/ui_gold_corner.png');
   }
 
   create() {
