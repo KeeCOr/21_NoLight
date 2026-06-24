@@ -44,7 +44,7 @@ class GameScene extends Phaser.Scene {
 
     this.events.on('enemyKilled', (enemy, payload = {}) => {
       this.stat.onKill();
-      const feedback = getActionFeedback({ type: 'kill', damage: enemy?.maxHp || 0 });
+      const feedback = getActionFeedback({ type: 'defeat', damage: enemy?.maxHp || 0 });
       this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, 12);
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
@@ -71,7 +71,7 @@ class GameScene extends Phaser.Scene {
     this.events.on('mechaDashStart', (char, payload = {}) => {
       this._dashTrail(char, 0x05070b);
       const feedback = getActionFeedback({
-        type: 'dash',
+        type: 'dodge',
         staminaBefore: payload.staminaBefore,
         staminaAfter: payload.staminaAfter,
       });
@@ -262,8 +262,11 @@ class GameScene extends Phaser.Scene {
 
       this.physics.add.overlap(proj, player, () => {
         player.onHit(proj.damage, proj);
-        this._impactInkBurst(proj.x, proj.y, 'hit', 0.75);
+        const feedback = getActionFeedback({ type: 'stagger', damage: proj.damage });
+        this._impactInkBurst(proj.x, proj.y, 'hit', feedback.intensity);
         this._impactBurst(proj.x, proj.y, 0x05070b, 9);
+        this._inkSplatter(proj.x, proj.y, feedback.texture, 0.88);
+        this._showActionFeedback(player.x, player.y - 68, feedback);
         proj.destroy();
         this.projectiles = this.projectiles.filter(p => p !== proj);
       });
@@ -284,7 +287,12 @@ class GameScene extends Phaser.Scene {
         warn.destroy();
         this._skillBurst(pursuer.x, pursuer.y, 0x05070b, 205, pursuer.flipX ? -1 : 1);
         const dist = Phaser.Math.Distance.Between(pursuer.x, pursuer.y, player.x, player.y);
-        if (dist <= 200) player.onHit(20, pursuer);
+        if (dist <= 200) {
+          player.onHit(20, pursuer);
+          const feedback = getActionFeedback({ type: 'stagger', damage: 20 });
+          this._inkSplatter(player.x, player.y, feedback.texture, 0.96);
+          this._showActionFeedback(player.x, player.y - 68, feedback);
+        }
       });
     } else if (type === 'dash') {
       const angle = Phaser.Math.Angle.Between(pursuer.x, pursuer.y, player.x, player.y);
@@ -386,8 +394,6 @@ class GameScene extends Phaser.Scene {
 
   _slashArc(char, color, comboStep = 0) {
     const facing = char.flipX ? -1 : 1;
-    const width = 82 + comboStep * 28;
-    const height = 42 + comboStep * 16;
     const offset = 36 + comboStep * 10;
     const slash = this.add.image(char.x + facing * (offset + 28), char.y - 6, 'brush_slash')
       .setDepth(6)
@@ -396,21 +402,21 @@ class GameScene extends Phaser.Scene {
       .setAngle(facing * (-10 - comboStep * 6))
       .setTint(comboStep >= 2 ? 0xf4efe3 : color);
     if (comboStep > 0) this._comboBrushSmear(char, comboStep);
-    const arc = this.add.ellipse(char.x + facing * offset, char.y, width, height)
-      .setStrokeStyle(4 + comboStep, color, 0.85)
-      .setDepth(5);
-    if (comboStep === 1) {
-      arc.setAngle(facing * -12);
-    } else if (comboStep >= 2) {
-      arc.setStrokeStyle(7, 0xffffff, 0.75);
+    const arc = this.add.image(char.x + facing * offset, char.y, 'impact_brush_ring')
+      .setDepth(5)
+      .setAlpha(0.52 + comboStep * 0.08)
+      .setScale((0.52 + comboStep * 0.14) * facing, 0.34 + comboStep * 0.09)
+      .setAngle(facing * (comboStep >= 2 ? -18 : -12))
+      .setTint(comboStep >= 2 ? 0xf4efe3 : color);
+    if (comboStep >= 2) {
       this._impactBurst(char.x + facing * 58, char.y, color, 9);
       this._cameraPunch('combo', 1.1, { facing, comboStep: comboStep + 1 });
     }
     this.tweens.add({
       targets: arc,
       alpha: 0,
-      scaleX: 1.3 + comboStep * 0.12,
-      scaleY: 1.16 + comboStep * 0.08,
+      scaleX: arc.scaleX * 1.32,
+      scaleY: arc.scaleY * 1.16,
       duration: 135 + comboStep * 35,
       onComplete: () => arc.destroy(),
     });
@@ -584,9 +590,9 @@ class GameScene extends Phaser.Scene {
   }
 
   _showActionFeedback(x, y, feedback) {
-    const color = feedback.tone === 'kill' ? '#f4dfb2' : feedback.tone === 'dash' ? '#f7ebcf' : '#f4efe3';
+    const color = feedback.rule === 'finish' ? '#f4dfb2' : feedback.rule === 'evade' ? '#f7ebcf' : '#f4efe3';
     const text = this.add.text(x, y, feedback.label, {
-      fontSize: feedback.tone === 'kill' ? '24px' : '19px',
+      fontSize: feedback.rule === 'finish' ? '24px' : '19px',
       color,
       fontFamily: 'Arial Black',
       stroke: '#05070b',
@@ -597,7 +603,7 @@ class GameScene extends Phaser.Scene {
       y: y - 42,
       alpha: 0,
       scale: 1 + feedback.intensity * 0.15,
-      duration: feedback.tone === 'kill' ? 760 : 520,
+      duration: feedback.rule === 'finish' ? 760 : 520,
       ease: 'Cubic.easeOut',
       onComplete: () => text.destroy(),
     });
@@ -691,6 +697,8 @@ class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keys.attack)) {
       const comboStep = current.attack(this.mapGen.getAllEnemies());
       if (comboStep !== null && comboStep !== undefined) {
+        const feedback = getActionFeedback({ type: 'attack', comboStep: comboStep + 1 });
+        this._showActionFeedback(current.x, current.y - 76, feedback);
         if (current instanceof ElectricCharacter) {
           this._electricDischarge(current, comboStep);
         } else {

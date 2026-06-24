@@ -1,47 +1,61 @@
-(function (root) {
+﻿(function (root) {
+  function numberOrZero(value) {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function getSpentStamina(input) {
+    const before = numberOrZero(input.staminaBefore);
+    const after = Number.isFinite(input.staminaAfter) ? input.staminaAfter : before;
+    return Math.max(0, Math.round(before - after));
+  }
+
+  function getCombo(input) {
+    return Math.max(1, Math.round(input.comboStep || 1));
+  }
+
+  function getDamage(input) {
+    return Math.max(0, Math.round(input.damage || 0));
+  }
+
+  function feedback(label, tone, texture, intensity, rule) {
+    return { label, tone, texture, intensity, rule };
+  }
+
   function getActionFeedback(input) {
-    if (!input || !input.type) {
-      return {
-        label: '먹물 흔적',
-        tone: 'hit',
-        texture: 'ink_splatter',
-        intensity: 0.6,
-      };
+    const data = input || {};
+    const type = data.type || 'hit';
+
+    if (type === 'attack') {
+      const combo = getCombo(data);
+      return feedback(`붓길 예고 · ${combo}식`, 'attack', 'brush_slash', combo >= 3 ? 0.92 : 0.72, 'strike');
     }
 
-    if (input.type === 'kill') {
-      return {
-        label: '먹물 폭쇄 · +50',
-        tone: 'kill',
-        texture: 'impact_ink_burst',
-        intensity: 1.25,
-      };
+    if (type === 'dodge' || type === 'dash') {
+      const spent = getSpentStamina(data);
+      return feedback(`대시 잔상 · -${spent} ST`, type === 'dash' ? 'dash' : 'dodge', 'afterimage_glow', 0.7, 'evade');
     }
 
-    if (input.type === 'dash') {
-      const before = Number.isFinite(input.staminaBefore) ? input.staminaBefore : 0;
-      const after = Number.isFinite(input.staminaAfter) ? input.staminaAfter : before;
-      const spent = Math.max(0, Math.round(before - after));
-      return {
-        label: `대시 잔상 · -${spent} ST`,
-        tone: 'dash',
-        texture: 'afterimage_glow',
-        intensity: 0.7,
-      };
+    if (type === 'stagger') {
+      const damage = getDamage(data);
+      return feedback(`먹번짐 경직 · ${damage}`, 'stagger', 'blood_ink', 0.95, 'wound');
     }
 
-    const combo = Math.max(1, Math.round(input.comboStep || 1));
-    const damage = Math.max(0, Math.round(input.damage || 0));
-    return {
-      label: `${combo}연 참격 · ${damage}`,
-      tone: 'hit',
-      texture: 'brush_slash',
-      intensity: combo >= 3 ? 1.05 : 0.85,
-    };
+    if (type === 'defeat' || type === 'kill') {
+      return feedback('먹물 폭쇄 · +50', type === 'kill' ? 'kill' : 'defeat', 'impact_ink_burst', 1.25, 'finish');
+    }
+
+    const combo = getCombo(data);
+    const damage = getDamage(data);
+    return feedback(`${combo}연 참격 · ${damage}`, 'hit', 'brush_slash', combo >= 3 ? 1.05 : 0.85, 'strike');
+  }
+
+  function getCombatFeedbackSequence(events) {
+    return (Array.isArray(events) ? events : []).map(getActionFeedback);
   }
 
   root.getActionFeedback = getActionFeedback;
+  root.getCombatFeedbackSequence = getCombatFeedbackSequence;
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { getActionFeedback };
+    module.exports = { getActionFeedback, getCombatFeedbackSequence };
   }
 })(typeof globalThis !== 'undefined' ? globalThis : window);
