@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
@@ -6,90 +6,199 @@
   <title>InkWarrior 기획서</title>
   <style>
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65;max-width:980px;margin:0 auto;padding:40px 24px;color:#20242a;background:#fafafa}
-    h1{font-size:34px;margin:0 0 8px}h2{font-size:24px;margin-top:34px;border-bottom:1px solid #ddd;padding-bottom:6px}p,li,pre,td,th{font-size:15px}li{margin:5px 0}pre{white-space:pre-wrap;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 10px}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;vertical-align:top}th{background:#f5f5f5}blockquote{border-left:4px solid #ddd;margin:12px 0;padding:8px 16px;color:#555;background:#fff;border-radius:0 8px 8px 0}code{background:#fff;border:1px solid #e2e2e2;border-radius:4px;padding:1px 4px}img{display:block;max-width:min(100%,720px);max-height:420px;object-fit:contain;margin:12px auto;border-radius:8px;border:1px solid #ddd;background:#fff}
+    h1{font-size:34px;margin:0 0 8px} h2{font-size:24px;margin-top:34px;border-bottom:1px solid #ddd;padding-bottom:6px} h3{font-size:18px;margin-top:24px}
+    p,li,pre{font-size:15px} li{margin:5px 0} pre{white-space:pre-wrap;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 10px}
+    table{border-collapse:collapse;width:100%;margin:12px 0} th,td{border:1px solid #ddd;padding:8px 12px;text-align:left} th{background:#f5f5f5;font-weight:600}
+    .meta{color:#666;font-size:14px;margin-bottom:32px}
+    .loop-box{background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 20px;font-size:15px;white-space:pre-wrap;line-height:1.8}
+    .checklist{list-style:none;padding-left:0}
+    .checklist li::before{content:"☐ ";font-size:16px}
+    .problem-def{background:#fff;border-left:4px solid #333;border-radius:4px;padding:12px 16px;margin:12px 0}
+    .problem-def p{margin:6px 0}
   </style>
 </head>
 <body>
+
 <h1>InkWarrior 기획서 v0.3</h1>
-<blockquote>버전: 0.3.0 | 최종 수정: 2026-06-24 | 출시 플랫폼: Windows PC portable, Web/Electron 로컬 빌드</blockquote>
-<h2>문제 정의</h2><p>짧은 액션 세션에서 플레이어는 공격, 회피, 피해, 경직, 처치 결과를 즉시 읽고 싶다.</p>
-<h2>게임 소개</h2><p>InkWarrior는 수묵화 질감의 횡스크롤 액션 플랫포머다. 플레이어는 캐릭터를 교체하며 무한 청크 맵을 올라가고, 적과 추격자를 상대해 생존 시간과 점수를 늘린다.</p>
-<h2>핵심 루프</h2><pre><code>상황 확인 → 행동 선택 → bitmap VFX와 콜아웃 피드백 → 보상/손실 확인 → 다음 전투</code></pre>
-<h2>게임 플레이 예시</h2><ol><li>공격 키를 누르면 붓길 예고와 brush slash VFX가 나온다.</li><li>명중하면 참격 콜아웃, 먹 폭발, 카메라 흔들림, hit-stop이 발생한다.</li><li>피해를 입으면 먹번짐 경직과 blood ink VFX가 표시된다.</li><li>적을 처치하면 먹물 폭쇄와 impact ink burst가 나오고 회복 아이템이 생성된다.</li></ol>
-<h2>주요 시스템</h2><ul><li>캐릭터 교체</li><li>수묵 전투 피드백</li><li>CameraImpactProfile 순수 규칙</li><li>무한 청크 맵</li><li>추격자 압박</li><li>회복 드롭</li></ul>
-<h2>현재 구현 상태</h2><ul><li>현재 문서 기준 버전: 0.3.0</li><li>전체 게임 루프, 캐릭터 교체, 무한 청크 맵, 적/추격자 전투 구현 완료</li><li>공격/회피/피격/경직/패배 피드백 규칙을 ActionFeedback으로 통합</li><li>CameraImpactProfile 순수 규칙으로 카메라 타격 연출 관리</li><li>UI 디자이너 후속 작업 목록: docs/ui-designer-camera-impact-tasks.md</li></ul>
-<h2>공유용 이미지 미리보기</h2><img src="./21NL_gameplay_preview.png" alt="InkWarrior 플레이 예시">
-<h2>빌드, 테스트, 릴리스</h2><pre><code>npm test
-npm run build</code></pre><p>현재 실행파일명: <code>21NL_v0.3.0_portable.exe</code></p>
-<h2>남은 리스크와 다음 우선순위</h2><ol><li>BGM/SFX 오디오 시스템을 추가한다.</li><li>세 번째 캐릭터를 추가한다.</li><li>추격자 패턴을 다양화한다.</li><li>특수 지형/이벤트 청크를 추가한다.</li><li>전투 피드백 규칙을 실제 플레이 녹화로 검증한다.</li></ol>
+<p class="meta">버전 0.3.0 · 최종 수정: 2026-06-25 · 출시 플랫폼: Windows PC portable, Web/Electron 로컬 빌드</p>
 
-<section class="section">
-  <h2>개선 제안</h2>
-  <p style="color:#888;margin-top:-8px;margin-bottom:24px;">아래 제안은 현재 기획을 바탕으로 도출한 우선순위별 개선 방향입니다.</p>
+<h2>문제 정의</h2>
+<div class="problem-def">
+  <p><strong>누가:</strong> 짧은 틈새 시간(5~15분)에 즉각적인 타격감과 시각 피드백을 즐기고 싶은 PC/인디 게임 유저</p>
+  <p><strong>어떤 상황에서:</strong> 전투 조작이 맞았는지, 회피가 성공했는지, 얼마나 피해를 입었는지가 화면에서 즉시 읽히지 않아 "지금 내가 잘 싸우고 있는지" 판단하기 어려울 때</p>
+  <p><strong>왜 불편한가:</strong> 대부분의 횡스크롤 액션 게임이 타격 VFX와 피드백 언어를 개별 연출로 흩어놓아 콤보·회피·피격이 뒤섞이면 무슨 일이 일어났는지 파악하기 어렵고, 수묵화 테마를 내세운 게임은 비주얼이 화려하지만 정작 전투 정보 전달은 소홀히 하는 경향이 있다</p>
+</div>
 
-  <h3>🎮 게임플레이 / 핵심 기능</h3>
-  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-    <thead><tr style="background:#1e293b;">
-      <th style="padding:10px;text-align:left;color:#94a3b8;width:80px;">우선순위</th>
-      <th style="padding:10px;text-align:left;color:#94a3b8;">제안</th>
-      <th style="padding:10px;text-align:left;color:#94a3b8;">기대 효과</th>
-    </tr></thead>
-    <tbody>
-      <tr style="border-bottom:1px solid #1e293b;">
-        <td style="padding:10px;"><span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">높음</span></td>
-        <td style="padding:10px;">첫 플레이 시 적과 마주치는 순간 공격·회피·교체 키 힌트를 화면 하단에 반투명 오버레이로 표시하고, 첫 명중 콜아웃 후 자동 제거</td>
-        <td style="padding:10px;color:#94a3b8;">수묵 전투 언어(strike/evade/wound/finish)를 사전 설명 없이 체감으로 학습하게 해 이탈 감소</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1e293b;">
-        <td style="padding:10px;"><span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">높음</span></td>
-        <td style="padding:10px;">추격자와의 거리를 화면 우측 에지에 색상 바(녹→황→적)로 실시간 표시하고, 위험 거리 진입 시 카메라 가장자리를 붉은 먹 번짐으로 비네팅 처리</td>
-        <td style="padding:10px;color:#94a3b8;">추격자 압박이 시각·직관적으로 전달되어 탈출/교전 판단 속도 향상</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1e293b;">
-        <td style="padding:10px;"><span style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">중간</span></td>
-        <td style="padding:10px;">청크 전환 시 10% 확률로 "도망칠 수 없다" 특수 밀폐 방(출구가 잠기고 적 웨이브 격파 후 개방)을 삽입해 강제 교전 긴장감 생성</td>
-        <td style="padding:10px;color:#94a3b8;">단순 올라가기 반복 피로를 줄이고 세션 중 고조점을 만들어 점수 경쟁 동기 부여</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1e293b;">
-        <td style="padding:10px;"><span style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">중간</span></td>
-        <td style="padding:10px;">처치 연속 횟수(콤보)를 청크 단위로 집계해 콤보 임계치(5·10·20연)마다 붓 흔적 개수가 화면을 수직으로 가르는 "참격 컷씬" 연출 삽입</td>
-        <td style="padding:10px;color:#94a3b8;">콤보 유지 플레이를 명확한 보상으로 강화해 기술 숙련 동기 부여</td>
-      </tr>
-      <tr style="border-bottom:1px solid #1e293b;">
-        <td style="padding:10px;"><span style="background:#64748b;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">낮음</span></td>
-        <td style="padding:10px;">전기형·메카 암 외 세 번째 캐릭터를 "먹구름 회피형"으로 추가하고, 삼각 교체 상성(전기→약→메카, 메카→약→먹구름, 먹구름→약→전기)을 적 종류에 부여</td>
-        <td style="padding:10px;color:#94a3b8;">2캐릭터 이분법에서 3캐릭터 가위바위보 구조로 전략 깊이 확장</td>
-      </tr>
-    </tbody>
-  </table>
+<h2>게임 소개</h2>
+<p>InkWarrior는 수묵화 질감의 횡스크롤 액션 플랫포머다. 플레이어는 전기형 캐릭터와 메카 암 캐릭터를 교체하며 무한 청크 맵을 올라가고, 적과 추격자를 상대해 생존 시간과 점수를 늘린다.</p>
+<p>핵심 매력은 먹으로 그린 듯한 검흔과 충격 VFX가 전투 판단에 직접 연결되는 것이다. v0.3.0부터 공격, 회피, 피격, 경직, 패배 피드백은 <code>strike / evade / wound / finish</code> 규칙으로 정리되어 같은 전투 언어를 공유한다.</p>
 
-  <h3>🖥️ UX / UI</h3>
-  <ul>
-    <li><strong>콜아웃 과부하:</strong> 같은 프레임에 3개 이상 콜아웃이 겹칠 경우 가장 높은 우선순위 1개만 표시하고 나머지는 소형 아이콘으로 우측 스택 — 수묵 화면 가독성을 유지하면서 주요 피드백 누락 없이 전달</li>
-    <li><strong>HP·스태미나 바 가독성:</strong> 현재 수묵 배경에 얇은 바가 묻히는 문제를 방지하기 위해 붓질 텍스처 테두리 + 흰 번짐 후광으로 대체하고, 스태미나 소진 시 바 테두리를 1초간 진동 처리</li>
-    <li><strong>처치/회복 아이템 연결성:</strong> 아이템 생성 위치에서 플레이어 방향으로 먹 물줄기 유도선을 0.3초간 표시해 "처치→회복 드롭→획득" 인과를 시각화, 놓치는 아이템 수 감소</li>
-  </ul>
+<h2>한 줄 소개</h2>
+<p>먹 번짐과 카메라 타격감을 앞세운 캐릭터 교체형 수묵 액션 플랫포머.</p>
 
-  <h3>💰 수익화 전략</h3>
-  <ul>
-    <li><strong>세션 후 스킨 해금:</strong> 생존 시간·최고 콤보 기준으로 플레이 후 수묵화 스타일의 칼 스킨, 잉크 색상 팔레트(세피아, 청묵, 홍묵) 해금 — 반복 플레이 동기를 외부 결제가 아닌 숙련 보상 구조로 설계해 무료 유저 유지율 선확보 후 유료 DLC 확장</li>
-    <li><strong>유료 캐릭터 DLC:</strong> 세 번째 캐릭터 이후부터 "필체 유파" 테마 캐릭터(해서체형, 초서체형 등)를 1~2달러 단건 DLC로 판매 — 수묵 테마에 부합하는 네러티브가 있어 이질감 없이 컬렉션 욕구 자극</li>
-    <li><strong>리더보드 시즌 패스:</strong> 월간 시즌 리더보드에 상위 랭커 전용 수묵 프레임 보상을 추가하고, 시즌 패스(3달러) 구매자에게 중간 보상 2단계 추가 제공 — 경쟁 구조로 DAU 유지</li>
-  </ul>
+<h2>주 페르소나</h2>
+<p><strong>이름:</strong> 이도현 (26세, 대학원생·인디게임 팬)</p>
+<p><strong>직업:</strong> 디자인 전공 대학원생, 부업으로 일러스트 프리랜서</p>
+<p><strong>현재 게임 습관:</strong> 수업·작업 사이 20분 내외 쉬는 시간에 스팀 인디게임을 즐긴다. Dead Cells, Hollow Knight처럼 타격감이 명확하고 시각 언어가 통일된 게임을 선호하며, 한 번 시작하면 "딱 한 판만 더"가 자연스럽게 나오는 루프를 좋아한다.</p>
+<p><strong>이 게임을 플레이하는 맥락:</strong> 수묵화 비주얼에 매력을 느끼지만 예쁜 그래픽만으로는 오래 안 한다. 공격을 넣었을 때 카메라 흔들림·먹 번짐·콜아웃이 동시에 반응하는 순간, "내가 제대로 싸우고 있다"는 확신과 쾌감을 느낀다.</p>
+<p><strong>기대하는 경험:</strong> 5분 짜리 세션에서도 "이번엔 콤보를 더 이어봤어야 했는데" 하고 아쉬워하며 즉시 재시작하게 만드는 구조. 캐릭터 교체 타이밍이 내 실력처럼 느껴질 것.</p>
 
-  <h3>📦 콘텐츠 확장</h3>
-  <ul>
-    <li><strong>단기(1~2개월):</strong> BGM/SFX 오디오 시스템 통합(참격·피격 음이 수묵 VFX와 프레임 동기), 특수 이벤트 청크 3종(낙하 구간, 가시 벽 이동, 보스 전위 전투) 추가</li>
-    <li><strong>중기(3~6개월):</strong> 세 번째 캐릭터(먹구름 회피형) 추가 및 3방향 상성 시스템 구현, 일일 도전 모드(지정 캐릭터·제한 조건으로 특정 점수 달성), 수묵 팔레트 스킨 10종 해금 트리</li>
-    <li><strong>장기(6개월+):</strong> 협동/경쟁 멀티플레이(같은 맵을 두 플레이어가 다른 경로로 동시 진행 후 점수 합산), 커뮤니티 제작 청크 에디터 공개, 전통 회화 작가 협업 한정 아트 팩</li>
-  </ul>
+<h2>핵심 루프</h2>
+<pre class="loop-box">전장 상황과 추격자 거리를 확인한다
+→ 공격, 회피, 스킬, 캐릭터 교체 중 현재 행동을 선택한다
+→ 타격/회피/피해/처치 결과가 bitmap VFX와 콜아웃으로 즉시 표시된다
+→ 점수, 회복 아이템, HP와 스태미나 변화를 확인한다
+→ 다음 청크와 다음 전투로 이동한다</pre>
 
-  <h3>⚙️ 기술적 개선</h3>
-  <ul>
-    <li><strong>청크 생성 시드 저장:</strong> 현재 무한 청크가 실행마다 랜덤 재생성되는 구조를 시드 기반으로 전환해 특정 명국을 리플레이하거나 공유할 수 있게 함 — 소셜 바이럴 경로 확보</li>
-    <li><strong>ActionFeedback 우선순위 큐:</strong> 같은 프레임에 여러 ActionFeedback 이벤트가 발생할 때 처리 순서를 명시적 우선순위 큐로 관리해 콜아웃·VFX 덮어쓰기 버그 방지</li>
-    <li><strong>CameraImpactProfile 런타임 튜닝 UI:</strong> 개발 빌드에서 흔들림/줌/플래시 파라미터를 슬라이더로 실시간 조정할 수 있는 디버그 패널을 추가해 QA 시간 단축 및 느낌 조정 반복 비용 절감</li>
-  </ul>
-</section>
+<h2>MVP 가설</h2>
+<ul>
+  <li><strong>[strike/evade/wound/finish 통합 피드백 언어]가 있으면</strong> 유저가 복잡한 전투 상황에서도 "지금 뭐가 일어났는지"를 0.5초 안에 판독해 몰입이 끊기지 않고 세션이 자연스럽게 연장될 것이다.</li>
+  <li><strong>[카메라 타격·먹 번짐·콜아웃의 동시 발동]이 있으면</strong> 유저가 콤보 성공 순간에 강한 보상감을 느끼고 "다시 그 느낌을 내보고 싶다"는 재플레이 의욕이 생길 것이다.</li>
+  <li><strong>[전기형·메카 암 캐릭터 교체 시스템]이 있으면</strong> 유저가 적 종류와 상황에 따라 교체 타이밍을 스스로 판단하게 되어 숙련감이 쌓이고 숙련 보상을 더 깊이 체감할 것이다.</li>
+  <li><strong>[추격자 압박이 시각(비네팅)·수치(거리 바) 두 채널로 동시 표시]되면</strong> 유저가 위기 상황을 직관적으로 인식해 탈출/교전 결정을 빠르게 내리고 긴장감이 지속될 것이다.</li>
+  <li><strong>[처치 후 회복 드롭과 먹 물줄기 유도선]이 있으면</strong> 유저가 "처치→아이템 획득"의 인과를 시각적으로 이해해 공격적 플레이가 생존에 직접 연결된다는 만족감을 얻을 것이다.</li>
+</ul>
+
+<h2>레퍼런스 분석</h2>
+<table>
+  <thead><tr><th>게임명</th><th>UX 단계 수</th><th>적용 교훈</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Dead Cells</strong> (메트로배니아 액션)</td>
+      <td>맵 진입 → 적 인식 → 공격/회피 → 피드백 확인: <strong>3단계</strong></td>
+      <td>피격·처치 피드백(히트스탑, 화면 효과, 사운드)이 동일한 타이밍 레이어에서 동기화되어야 "내가 잘 싸웠다"는 확신이 생긴다 — InkWarrior CameraImpactProfile의 흔들림·플래시 타이밍을 VFX와 동일 프레임에 맞추는 데 적용</td>
+    </tr>
+    <tr>
+      <td><strong>Hollow Knight</strong> (플랫폼 액션)</td>
+      <td>이동 → 적 인식 → 패리/공격 → 영혼 획득 확인: <strong>4단계</strong></td>
+      <td>성공 행동(패리·처치)에는 과장된 시각 보상, 실패(피격)에는 절제된 피드백으로 밸런스 — InkWarrior의 strike/finish는 과장, wound는 절제하는 피드백 계층화에 적용</td>
+    </tr>
+    <tr>
+      <td><strong>Katana ZERO</strong> (픽셀 액션)</td>
+      <td>방 진입 → 적 패턴 읽기 → 슬로우모 회피/처치 → 결과 확인: <strong>3단계</strong></td>
+      <td>짧은 콜아웃(텍스트 레이블)이 화면 중앙에 0.5초만 떠도 행동의 의미를 즉시 전달한다 — InkWarrior 콜아웃 시스템의 위치·노출 시간 기준에 직접 적용</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>성공 KPI</h2>
+<table>
+  <thead><tr><th>지표명</th><th>목표 수치</th><th>측정 방법</th></tr></thead>
+  <tbody>
+    <tr><td>세션당 평균 플레이 타임</td><td>8분 이상</td><td>세션 시작~종료 타임스탬프</td></tr>
+    <tr><td>D1 리텐션 (다음날 재실행률)</td><td>30% 이상</td><td>첫 실행 후 24시간 내 재실행 비율</td></tr>
+    <tr><td>콤보 5연속 이상 달성률</td><td>세션당 40% 이상</td><td>연속 처치 카운터 5 이상 이벤트 발생 세션 비율</td></tr>
+    <tr><td>캐릭터 교체 사용률</td><td>세션당 3회 이상</td><td>캐릭터 교체 액션 로그 집계</td></tr>
+    <tr><td>게임오버 후 즉시 재시작률</td><td>60% 이상</td><td>게임오버 후 30초 내 재시작 비율</td></tr>
+    <tr><td>회복 드롭 획득률</td><td>드롭 발생 대비 70% 이상</td><td>아이템 생성 대비 플레이어 획득 이벤트 비율</td></tr>
+    <tr><td>추격자 첫 충돌까지 생존 시간</td><td>평균 90초 이상</td><td>세션 시작~추격자 첫 타격 타임스탬프</td></tr>
+  </tbody>
+</table>
+
+<h2>게임 플레이 예시</h2>
+<ol>
+  <li>플레이어가 플랫폼을 타고 올라가다 적과 마주친다.</li>
+  <li>공격 키를 누르면 <code>붓길 예고</code> 콜아웃과 brush slash bitmap VFX가 나온다.</li>
+  <li>적에게 명중하면 <code>2연 참격</code> 콜아웃, 먹 폭발, 카메라 흔들림, hit-stop이 함께 발생한다.</li>
+  <li>추격자 투사체에 맞으면 <code>먹번짐 경직</code> 콜아웃과 blood ink VFX가 표시된다.</li>
+  <li>적을 처치하면 <code>먹물 폭쇄</code> 콜아웃과 impact ink burst가 나오고 회복 아이템이 생성된다.</li>
+  <li>플레이어는 회복 아이템을 먹고 추격자와의 거리를 벌리며 다음 청크로 이동한다.</li>
+</ol>
+
+<h2>주요 시스템</h2>
+<ul>
+  <li><strong>캐릭터 교체:</strong> 전기형과 메카 암 캐릭터를 상황에 맞게 전환한다.</li>
+  <li><strong>수묵 전투 피드백:</strong> 공격, 회피, 피격, 경직, 패배를 통일된 규칙과 bitmap VFX로 표시한다.</li>
+  <li><strong>CameraImpactProfile 순수 규칙:</strong> 기본 히트, 콤보, 처치, 스킬, 추격자 러시의 흔들림/줌/플래시/방향 넛지를 관리한다.</li>
+  <li><strong>무한 청크 맵:</strong> 플랫폼과 적 배치를 이어 붙여 생존형 진행감을 만든다.</li>
+  <li><strong>추격자 압박:</strong> 뒤에서 따라오는 헌터가 투사체, 쇼크웨이브, 돌진으로 전투 속도를 압박한다.</li>
+  <li><strong>회복 드롭:</strong> 적 처치 후 생명력 회복 아이템이 생성되어 위험과 보상이 이어진다.</li>
+</ul>
+
+<h2>현재 구현 상태</h2>
+<ul>
+  <li>현재 문서 기준 버전: 0.3.0</li>
+  <li>전체 게임 루프, 캐릭터 교체, 무한 청크 맵, 적/추격자 전투 구현 완료</li>
+  <li>생성 아트 에셋과 수묵 bitmap VFX 적용 완료</li>
+  <li><code>CameraImpactProfile</code> 순수 규칙으로 기본 히트, 콤보, 처치, 스킬, 추격자 러시의 카메라 타격 연출 관리</li>
+  <li>공격/회피/피격/경직/패배 피드백 규칙을 <code>ActionFeedback</code>으로 통합</li>
+  <li>UI 디자이너 후속 작업 목록: <code>docs/ui-designer-camera-impact-tasks.md</code></li>
+</ul>
+
+<h2>적용 리소스</h2>
+<table>
+  <thead><tr><th>파일명</th><th>용도</th></tr></thead>
+  <tbody>
+    <tr><td>brush-slash.png</td><td>공격 예고와 기본 참격 bitmap VFX</td></tr>
+    <tr><td>impact-brush-ring.png</td><td>참격 링 bitmap VFX</td></tr>
+    <tr><td>impact-ink-burst.png</td><td>처치/강타격 먹 폭발</td></tr>
+    <tr><td>blood-ink.png</td><td>피격/경직 먹 번짐</td></tr>
+    <tr><td>smoke-wisp.png</td><td>회피 잔상</td></tr>
+    <tr><td>combo-brush-smear.png</td><td>콤보 연속 공격 번짐</td></tr>
+    <tr><td>heavy-hit-flash.png</td><td>강한 타격 플래시</td></tr>
+    <tr><td>life-orb.png</td><td>회복 드롭</td></tr>
+  </tbody>
+</table>
+
+<h2>빌드, 테스트, 릴리스</h2>
+<pre>npm test
+npm run build</pre>
+<ul>
+  <li>현재 실행파일명: <code>21NL_v0.3.0_portable.exe</code></li>
+  <li>Windows portable 빌드: <code>electron-builder --config electron-builder.config.js</code></li>
+  <li>배포 우선순위: Windows PC portable 우선, Web/Electron 로컬 실행 보조</li>
+</ul>
+
+<h2>남은 리스크와 다음 우선순위</h2>
+<ol>
+  <li>BGM/SFX 오디오 시스템을 추가해 수묵 전투 피드백과 타이밍을 맞춘다.</li>
+  <li>세 번째 캐릭터를 추가해 캐릭터 교체의 전략 폭을 넓힌다.</li>
+  <li>추격자 패턴을 더 다양화해 후반 압박을 만든다.</li>
+  <li>특수 지형/이벤트 청크를 추가해 무한 맵 반복감을 줄인다.</li>
+  <li>전투 피드백 규칙을 실제 플레이 녹화로 검증하고 과한 콜아웃을 줄인다.</li>
+</ol>
+
+<h2>개선 제안</h2>
+
+<h3>게임플레이 / 핵심 기능</h3>
+<table>
+  <thead><tr><th>우선순위</th><th>제안</th><th>기대 효과</th></tr></thead>
+  <tbody>
+    <tr><td>높음</td><td>첫 플레이 시 적과 마주치는 순간 공격·회피·교체 키 힌트를 화면 하단에 반투명 오버레이로 표시하고, 첫 명중 콜아웃 후 자동 제거</td><td>수묵 전투 언어(strike/evade/wound/finish)를 사전 설명 없이 체감으로 학습하게 해 이탈 감소</td></tr>
+    <tr><td>높음</td><td>추격자와의 거리를 화면 우측 에지에 색상 바(녹→황→적)로 실시간 표시하고, 위험 거리 진입 시 카메라 가장자리를 붉은 먹 번짐으로 비네팅 처리</td><td>추격자 압박이 시각·직관적으로 전달되어 탈출/교전 판단 속도 향상</td></tr>
+    <tr><td>중간</td><td>청크 전환 시 10% 확률로 "도망칠 수 없다" 특수 밀폐 방(출구가 잠기고 적 웨이브 격파 후 개방)을 삽입해 강제 교전 긴장감 생성</td><td>단순 올라가기 반복 피로를 줄이고 세션 중 고조점을 만들어 점수 경쟁 동기 부여</td></tr>
+    <tr><td>중간</td><td>처치 연속 횟수(콤보)를 청크 단위로 집계해 콤보 임계치(5·10·20연)마다 붓 흔적 개수가 화면을 수직으로 가르는 "참격 컷씬" 연출 삽입</td><td>콤보 유지 플레이를 명확한 보상으로 강화해 기술 숙련 동기 부여</td></tr>
+    <tr><td>낮음</td><td>전기형·메카 암 외 세 번째 캐릭터를 "먹구름 회피형"으로 추가하고, 삼각 교체 상성(전기→약→메카, 메카→약→먹구름, 먹구름→약→전기)을 적 종류에 부여</td><td>2캐릭터 이분법에서 3캐릭터 가위바위보 구조로 전략 깊이 확장</td></tr>
+  </tbody>
+</table>
+
+<h3>UX / UI</h3>
+<ul>
+  <li><strong>콜아웃 과부하:</strong> 같은 프레임에 3개 이상 콜아웃이 겹칠 경우 가장 높은 우선순위 1개만 표시하고 나머지는 소형 아이콘으로 우측 스택 — 수묵 화면 가독성을 유지하면서 주요 피드백 누락 없이 전달</li>
+  <li><strong>HP·스태미나 바 가독성:</strong> 현재 수묵 배경에 얇은 바가 묻히는 문제를 방지하기 위해 붓질 텍스처 테두리 + 흰 번짐 후광으로 대체하고, 스태미나 소진 시 바 테두리를 1초간 진동 처리</li>
+  <li><strong>처치/회복 아이템 연결성:</strong> 아이템 생성 위치에서 플레이어 방향으로 먹 물줄기 유도선을 0.3초간 표시해 "처치→회복 드롭→획득" 인과를 시각화, 놓치는 아이템 수 감소</li>
+</ul>
+
+<h3>수익화 전략</h3>
+<ul>
+  <li><strong>세션 후 스킨 해금:</strong> 생존 시간·최고 콤보 기준으로 플레이 후 수묵화 스타일의 칼 스킨, 잉크 색상 팔레트(세피아, 청묵, 홍묵) 해금 — 반복 플레이 동기를 외부 결제가 아닌 숙련 보상 구조로 설계해 무료 유저 유지율 선확보 후 유료 DLC 확장</li>
+  <li><strong>유료 캐릭터 DLC:</strong> 세 번째 캐릭터 이후부터 "필체 유파" 테마 캐릭터(해서체형, 초서체형 등)를 1~2달러 단건 DLC로 판매 — 수묵 테마에 부합하는 네러티브가 있어 이질감 없이 컬렉션 욕구 자극</li>
+  <li><strong>리더보드 시즌 패스:</strong> 월간 시즌 리더보드에 상위 랭커 전용 수묵 프레임 보상을 추가하고, 시즌 패스(3달러) 구매자에게 중간 보상 2단계 추가 제공 — 경쟁 구조로 DAU 유지</li>
+</ul>
+
+<h3>콘텐츠 확장</h3>
+<ul>
+  <li><strong>단기(1~2개월):</strong> BGM/SFX 오디오 시스템 통합(참격·피격 음이 수묵 VFX와 프레임 동기), 특수 이벤트 청크 3종(낙하 구간, 가시 벽 이동, 보스 전위 전투) 추가</li>
+  <li><strong>중기(3~6개월):</strong> 세 번째 캐릭터(먹구름 회피형) 추가 및 3방향 상성 시스템 구현, 일일 도전 모드(지정 캐릭터·제한 조건으로 특정 점수 달성), 수묵 팔레트 스킨 10종 해금 트리</li>
+  <li><strong>장기(6개월+):</strong> 협동/경쟁 멀티플레이(같은 맵을 두 플레이어가 다른 경로로 동시 진행 후 점수 합산), 커뮤니티 제작 청크 에디터 공개, 전통 회화 작가 협업 한정 아트 팩</li>
+</ul>
+
+<h3>기술적 개선</h3>
+<ul>
+  <li><strong>청크 생성 시드 저장:</strong> 현재 무한 청크가 실행마다 랜덤 재생성되는 구조를 시드 기반으로 전환해 특정 명국을 리플레이하거나 공유할 수 있게 함 — 소셜 바이럴 경로 확보</li>
+  <li><strong>ActionFeedback 우선순위 큐:</strong> 같은 프레임에 여러 ActionFeedback 이벤트가 발생할 때 처리 순서를 명시적 우선순위 큐로 관리해 콜아웃·VFX 덮어쓰기 버그 방지</li>
+  <li><strong>CameraImpactProfile 런타임 튜닝 UI:</strong> 개발 빌드에서 흔들림/줌/플래시 파라미터를 슬라이더로 실시간 조정할 수 있는 디버그 패널을 추가해 QA 시간 단축 및 느낌 조정 반복 비용 절감</li>
+</ul>
+
 </body>
 </html>
