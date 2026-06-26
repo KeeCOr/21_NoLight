@@ -64,3 +64,17 @@ These sheets should be sliced into individual runtime sprites before replacing t
 - The generated assets use paper-colored backgrounds. For runtime sprites, slice the sheets and remove the paper background or use multiply/blend modes where appropriate.
 - The platform and VFX sheets are the easiest first replacement targets because they already align closely with the current procedural texture keys.
 - Character sprites are concept-quality source art. They may need manual cleanup, scale normalization, and transparent background extraction before direct gameplay use.
+
+## 2026-06-26 Applied Runtime VFX Refresh
+
+The following existing runtime PNG paths were refreshed with image-generated sumi-e dieselpunk VFX while preserving the filenames used by `BootScene.js` and combat feedback systems:
+
+| Runtime file | Target canvas | Runtime texture key |
+| --- | ---: | --- |
+| `assets/generated/brush-slash.png` | 295x160 | `brush_slash` |
+| `assets/generated/impact-brush-ring.png` | 256x256 | `impact_brush_ring` |
+| `assets/generated/impact-ink-burst.png` | 256x256 | `impact_ink_burst` |
+| `assets/generated/combo-brush-smear.png` | 320x192 | `combo_brush_smear` |
+| `assets/generated/heavy-hit-flash.png` | 256x256 | `heavy_hit_flash` |
+
+Generation note: source images were generated on a flat chroma-key background, alpha-extracted locally, resized onto transparent runtime canvases, and saved over the existing referenced PNG paths.

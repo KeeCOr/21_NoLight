@@ -1,4 +1,8 @@
-﻿# InkWarrior 업데이트 내역서
+# InkWarrior 업데이트 내역서
+
+## 2026-06-26 v0.4.1 combat smoke path
+- Added SharkCombat.runSmokeEncounter to cover combat entry, player hit, enemy retaliation, and encounter end with real HP changes.
+- Added a Jest smoke test for the full path in tests/SharkCombat.test.js.
 
 ## 2026-06-24 v0.3.0 전투 피드백 규칙 통합
 - 공격, 회피, 피격, 경직, 패배 피드백을 `strike / evade / wound / finish` 규칙으로 정리했다.
@@ -20,3 +24,9 @@
 ## 기존 이력 후보
 - 2026-05-18 상어 전투 시스템 조정.
 - v0.1.3 전체 게임 루프, 캐릭터 교체, 무한 청크 맵, HUD, 생성 아트 에셋, Windows portable 빌드 반영.
+
+## 2026-06-26 v0.5.0 image-generated combat VFX refresh
+- Replaced the runtime combat VFX PNGs at the existing `assets/generated/` paths with image-generated sumi-e dieselpunk assets.
+- Updated assets: `brush-slash.png`, `impact-brush-ring.png`, `impact-ink-burst.png`, `combo-brush-smear.png`, and `heavy-hit-flash.png`.
+- The new assets keep the same runtime filenames and target canvas sizes, so `BootScene.js`, `GameScene.js`, `ActionFeedback`, and `ComboHitReaction` continue using the existing texture keys.
+- Source imagegen/chroma-key working files and original backups are stored under `_temp/vfx_imagegen_20260626/`.

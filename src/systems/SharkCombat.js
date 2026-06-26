@@ -71,6 +71,31 @@ const SharkCombat = {
     shark.sharkPower = this.getPower(shark) + fishValue * this.FISH_POWER_GAIN;
     return shark.sharkPower;
   },
+
+  getHp(actor) {
+    if (!actor) return 0;
+    if (actor.stat && typeof actor.stat.hp === 'number') return actor.stat.hp;
+    if (typeof actor.hp === 'number') return actor.hp;
+    return 0;
+  },
+
+  runSmokeEncounter(player, enemy, options = {}) {
+    const openingDamage = Math.max(0, Math.round(options.openingDamage || this.getPower(player)));
+    const retaliationDamage = Math.max(0, Math.round(options.retaliationDamage || this.getPower(enemy)));
+    const finisherDamage = Math.max(0, Math.round(options.finisherDamage || openingDamage));
+    const steps = [{ phase: 'enter', attacker: player, defender: enemy, damage: 0, defenderHp: this.getHp(enemy), ended: false }];
+
+    this.applyDamage(enemy, openingDamage, player);
+    steps.push({ phase: 'player-hit', attacker: player, defender: enemy, damage: openingDamage, defenderHp: this.getHp(enemy), ended: this.getHp(enemy) <= 0 });
+
+    this.applyDamage(player, retaliationDamage, enemy);
+    steps.push({ phase: 'enemy-hit', attacker: enemy, defender: player, damage: retaliationDamage, defenderHp: this.getHp(player), ended: this.getHp(enemy) <= 0 || this.getHp(player) <= 0 });
+
+    this.applyDamage(enemy, finisherDamage, player);
+    steps.push({ phase: 'encounter-end', attacker: player, defender: enemy, damage: finisherDamage, defenderHp: this.getHp(enemy), ended: true });
+
+    return steps;
+  },
 };
 
 if (typeof window !== 'undefined') window.SharkCombat = SharkCombat;

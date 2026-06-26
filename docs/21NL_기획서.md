@@ -1,5 +1,5 @@
-# InkWarrior 기획서
-> 현재 문서 기준 버전: 0.4.0
+﻿# InkWarrior 기획서
+> 현재 문서 기준 버전: 0.5.0
 
 ![InkWarrior gameplay preview](./21NL_gameplay_preview.png)
 
@@ -13,7 +13,7 @@
 플레이어가 추격자와 적 배치를 확인한다 → 공격, 회피, 스킬, 캐릭터 교체를 선택한다 → 수묵 VFX와 적 리액션으로 결과를 읽는다 → 회복 드랍과 점수를 챙긴다 → 다음 청크와 다음 전투로 이동한다.
 
 ## 현재 구현 상태
-- 현재 문서 기준 버전: 0.4.0
+- 현재 문서 기준 버전: 0.5.0
 - Phaser 3 + Electron portable 구조로 빌드한다.
 - 전체 게임 루프, 캐릭터 교체, 무한 청크 맵, 적/추격자 전투가 구현되어 있다.
 - ActionFeedback 규칙으로 strike, evade, wound, finish 콜아웃을 관리한다.
@@ -73,3 +73,18 @@
 | 1 | 콤보 3타 적 튕김 값을 실제 플레이 영상으로 튜닝 | 과하면 적 위치 예측이 어려워지고 약하면 피니셔 느낌이 사라진다. |
 | 2 | SFX 타격음 레이어 추가 | 시각 피드백만으로는 손맛 전달이 절반만 완성된다. |
 | 3 | HUD 콤보 텍스트와 적 리액션 간 우선순위 조정 | 콜아웃 과밀을 줄여 수묵 화면 가독성을 유지한다. |
+
+
+## 2026-06-26 v0.5.0 Visual Resource Update
+
+The combat feedback VFX set was refreshed with image-generated sumi-e dieselpunk PNG assets while preserving the existing runtime paths and texture keys.
+
+| File | Use |
+| --- | --- |
+| `assets/generated/brush-slash.png` | Basic attack warning and slash feedback |
+| `assets/generated/impact-brush-ring.png` | Contact ring on attack impact |
+| `assets/generated/impact-ink-burst.png` | Kill and heavy impact ink burst |
+| `assets/generated/combo-brush-smear.png` | Combo continuation smear |
+| `assets/generated/heavy-hit-flash.png` | Third-hit / finisher flash |
+
+Verification plan: `npm test`, `npm run build`, and final Electron packaging after the instruction batch is complete.

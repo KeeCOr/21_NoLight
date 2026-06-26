@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
@@ -12,13 +12,13 @@
 </head>
 <body>
   <h1>InkWarrior 기획서</h1>
-  <p><strong>현재 문서 기준 버전:</strong> 0.4.0</p>
+  <p><strong>현재 문서 기준 버전:</strong> 0.5.0</p>
   <img src="./21NL_gameplay_preview.png" alt="InkWarrior gameplay preview">
   <h2>문제 정의</h2>
   <p>짧은 세션에서 빠르게 손맛을 느끼고 싶은 PC 액션 플레이어가 공격, 회피, 피격, 처치 결과를 즉시 읽지 못하면 전투가 밋밋하게 느껴진다. InkWarrior는 수묵 VFX, 카메라 반응, 적 리액션을 같은 프레임에 묶어 전투 확신을 주는 액션 플랫폼 게임이다.</p>
   <h2>현재 구현 상태</h2>
   <ul>
-    <li>현재 문서 기준 버전: 0.4.0</li>
+    <li>현재 문서 기준 버전: 0.5.0</li>
     <li>CameraImpactProfile 순수 규칙으로 카메라 흔들림, 줌, 플래시, 방향 넛지를 관리한다.</li>
     <li>ComboHitReaction 순수 규칙으로 1타/2타/3타 적 넉백, 경직, smear, 피니셔 플래시, 드랍 지연을 분리했다.</li>
     <li>UI 디자이너 후속 작업 목록은 <code>docs/ui-designer-camera-impact-tasks.md</code>에 정리했다.</li>
@@ -39,5 +39,19 @@
   </table>
   <h2>빌드, 테스트, 릴리스</h2>
   <table><tr><th>목적</th><th>명령</th></tr><tr><td>테스트</td><td><code>npm test</code></td></tr><tr><td>실행파일 패키지</td><td><code>npm run build</code></td></tr></table>
+<section>
+  <h2>2026-06-26 v0.5.0 Visual Resource Update</h2>
+  <p>The combat feedback VFX set was refreshed with image-generated sumi-e dieselpunk PNG assets while preserving the existing runtime paths and texture keys.</p>
+  <table><tr><th>File</th><th>Use</th></tr>
+    <tr><td><code>assets/generated/brush-slash.png</code></td><td>Basic attack warning and slash feedback</td></tr>
+    <tr><td><code>assets/generated/impact-brush-ring.png</code></td><td>Contact ring on attack impact</td></tr>
+    <tr><td><code>assets/generated/impact-ink-burst.png</code></td><td>Kill and heavy impact ink burst</td></tr>
+    <tr><td><code>assets/generated/combo-brush-smear.png</code></td><td>Combo continuation smear</td></tr>
+    <tr><td><code>assets/generated/heavy-hit-flash.png</code></td><td>Third-hit / finisher flash</td></tr>
+  </table>
+  <p>Verification plan: <code>npm test</code>, <code>npm run build</code>, and final Electron packaging after the instruction batch is complete.</p>
+</section>
 </body>
 </html>
+
+

@@ -35,4 +35,23 @@ describe('SharkCombat', () => {
     expect(shark.fishEaten).toBe(3);
     expect(shark.sharkPower).toBe(33);
   });
+
+  test('combat smoke path enters, trades damage, and ends the encounter', () => {
+    const player = { x: 80, flipX: false, sharkPower: 30, stat: { hp: 100, takeDamage(amount) { this.hp = Math.max(0, this.hp - amount); } } };
+    const enemy = { x: 124, flipX: true, sharkPower: 18, hp: 42 };
+
+    const path = SharkCombat.runSmokeEncounter(player, enemy, {
+      openingDamage: 26,
+      retaliationDamage: 14,
+      finisherDamage: 20,
+    });
+
+    expect(path.map(step => step.phase)).toEqual(['enter', 'player-hit', 'enemy-hit', 'encounter-end']);
+    expect(path.map(step => step.ended)).toEqual([false, false, false, true]);
+    expect(enemy.hp).toBe(0);
+    expect(player.stat.hp).toBe(86);
+    expect(path[1]).toMatchObject({ attacker: player, defender: enemy, damage: 26, defenderHp: 16 });
+    expect(path[2]).toMatchObject({ attacker: enemy, defender: player, damage: 14, defenderHp: 86 });
+    expect(path[3]).toMatchObject({ attacker: player, defender: enemy, damage: 20, defenderHp: 0 });
+  });
 });
