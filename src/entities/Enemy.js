@@ -34,12 +34,40 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.hp -= damage;
     this.lastHitFacing = attacker?.flipX ? -1 : 1;
     this.lastHitComboStep = attacker?.comboStep || 1;
-    this.scene.events.emit('enemyHit', this, { damage, comboStep: this.lastHitComboStep, facing: this.lastHitFacing });
+    this.lastHitReaction = getComboHitReaction({
+      comboStep: this.lastHitComboStep,
+      facing: this.lastHitFacing,
+    });
+    this.scene.events.emit('enemyHit', this, {
+      damage,
+      comboStep: this.lastHitComboStep,
+      facing: this.lastHitFacing,
+      reaction: this.lastHitReaction,
+    });
+    this.applyStun(this.lastHitReaction.staggerMs);
+    this._playHitReaction(this.lastHitReaction);
     this.setTint(0xf4efe3);
     this.scene.time.delayedCall(80, () => {
       if (this.active) this.setTint(0x1d1b18);
     });
     if (this.hp <= 0) this.onDeath();
+  }
+
+  _playHitReaction(reaction) {
+    if (!reaction) return;
+    if (this.body && typeof this.setVelocityX === 'function') {
+      this.setVelocityX(reaction.knockbackVelocityX);
+      if (reaction.isFinisher && typeof this.setVelocityY === 'function') this.setVelocityY(-90);
+    }
+    if (!this.scene?.tweens) return;
+    this.scene.tweens.killTweensOf(this);
+    this.scene.tweens.add({
+      targets: this,
+      x: this.x + reaction.knockbackX,
+      y: this.y + reaction.popY,
+      duration: reaction.travelMs,
+      ease: 'Cubic.easeOut',
+    });
   }
 
   applyStun(duration) {
@@ -53,7 +81,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   onDeath() {
     if (this.statLabel) this.statLabel.destroy();
-    this.scene.events.emit('enemyKilled', this, { facing: this.lastHitFacing || 1, comboStep: this.lastHitComboStep || 1 });
+    this.scene.events.emit('enemyKilled', this, {
+      facing: this.lastHitFacing || 1,
+      comboStep: this.lastHitComboStep || 1,
+      reaction: this.lastHitReaction,
+    });
     this.destroy();
   }
 

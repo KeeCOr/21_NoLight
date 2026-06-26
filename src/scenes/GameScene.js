@@ -44,29 +44,48 @@ class GameScene extends Phaser.Scene {
 
     this.events.on('enemyKilled', (enemy, payload = {}) => {
       this.stat.onKill();
+      const reaction = payload.reaction || getComboHitReaction({
+        comboStep: payload.comboStep || enemy.lastHitComboStep || 3,
+        facing: payload.facing || enemy.lastHitFacing || 1,
+      });
       const feedback = getActionFeedback({ type: 'defeat', damage: enemy?.maxHp || 0 });
       this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity);
-      this._impactBurst(enemy.x, enemy.y, 0x05070b, 12);
-      this._inkSplatter(enemy.x, enemy.y, 'blood_ink', 1.15);
+      this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 16 : 12);
+      this._inkSplatter(enemy.x, enemy.y, 'blood_ink', reaction.isFinisher ? 1.32 : 1.15);
+      this._enemyFinisherPop(enemy, reaction);
       this._showActionFeedback(enemy.x, enemy.y - 54, feedback);
-      this._spawnHealthDrop(enemy.x, enemy.y);
+      const spawnDrop = () => this._spawnHealthDrop(enemy.x, enemy.y);
+      if (reaction.spawnDropDelayMs > 0) this.time.delayedCall(reaction.spawnDropDelayMs, spawnDrop);
+      else spawnDrop();
       this._cameraPunch('kill', 1.25, { facing: payload.facing || enemy.lastHitFacing || 1, comboStep: payload.comboStep || 3 });
     });
     this.events.on('enemyHit', (enemy, payload = {}) => {
+      const reaction = payload.reaction || getComboHitReaction({
+        comboStep: payload.comboStep || 1,
+        facing: payload.facing || 1,
+      });
       const feedback = getActionFeedback({
         type: 'hit',
         comboStep: payload.comboStep || 1,
         damage: payload.damage || enemy?.lastDamage || 0,
       });
       this._impactInkBurst(enemy.x, enemy.y, 'hit', feedback.intensity);
-      this._impactBurst(enemy.x, enemy.y, 0x05070b, 8);
-      this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', 0.85);
+      if (reaction.isFinisher) this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity * 0.7);
+      this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 13 : 8);
+      this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', reaction.isFinisher ? 1.08 : 0.85);
+      this._enemyComboSmear(enemy, reaction);
+      this._enemyFinisherPop(enemy, reaction);
       this._showActionFeedback(enemy.x, enemy.y - 48, feedback);
-      const cameraProfile = this._cameraPunch('hit', 1, {
-        facing: payload.facing || 1,
-        comboStep: payload.comboStep || 1,
-      });
-      this._hitStop(cameraProfile.hitStop);
+      const cameraProfile = reaction.isFinisher
+        ? this._cameraPunch('combo', 1, {
+          facing: payload.facing || 1,
+          comboStep: payload.comboStep || 1,
+        })
+        : this._cameraPunch('hit', 1, {
+          facing: payload.facing || 1,
+          comboStep: payload.comboStep || 1,
+        });
+      this._hitStop(Math.max(cameraProfile.hitStop, reaction.hitStopMs));
     });
     this.events.on('mechaDashStart', (char, payload = {}) => {
       this._dashTrail(char, 0x05070b);
@@ -586,6 +605,44 @@ class GameScene extends Phaser.Scene {
       duration: 150 + comboStep * 38,
       ease: 'Cubic.easeOut',
       onComplete: () => smear.destroy(),
+    });
+  }
+
+  _enemyComboSmear(enemy, reaction) {
+    if (!reaction?.smearTexture) return;
+    const smear = this.add.image(enemy.x - reaction.facing * 22, enemy.y + 4, reaction.smearTexture)
+      .setDepth(6)
+      .setAlpha(0.56)
+      .setScale(reaction.smearScale * -reaction.facing, reaction.smearScale * 0.72)
+      .setAngle(reaction.facing * 10)
+      .setTint(0x05070b);
+    this.tweens.add({
+      targets: smear,
+      alpha: 0,
+      x: smear.x - reaction.facing * 34,
+      scaleX: smear.scaleX * 1.18,
+      scaleY: smear.scaleY * 1.08,
+      duration: 180 + reaction.comboStep * 28,
+      ease: 'Cubic.easeOut',
+      onComplete: () => smear.destroy(),
+    });
+  }
+
+  _enemyFinisherPop(enemy, reaction) {
+    if (!reaction?.flashTexture) return;
+    const flash = this.add.image(enemy.x, enemy.y - 4, reaction.flashTexture)
+      .setDepth(9)
+      .setAlpha(0.66)
+      .setScale(0.62)
+      .setAngle(Phaser.Math.Between(-12, 12))
+      .setTint(0xf4efe3);
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      scale: 1.05,
+      duration: 140,
+      ease: 'Cubic.easeOut',
+      onComplete: () => flash.destroy(),
     });
   }
 
