@@ -33,4 +33,33 @@ describe('ComboHitReaction', () => {
     expect(finisher.spawnDropDelayMs).toBeGreaterThanOrEqual(80);
     expect(finisher.smearScale).toBeGreaterThan(1);
   });
+
+  test('combo impact VFX escalates from ring to smear, flash, and ink burst', () => {
+    const first = getComboHitReaction({ comboStep: 1, facing: 1 });
+    const second = getComboHitReaction({ comboStep: 2, facing: 1 });
+    const third = getComboHitReaction({ comboStep: 3, facing: 1 });
+
+    expect(first.impactVfx).toMatchObject({
+      kind: 'hit',
+      ringTexture: 'impact_brush_ring',
+      burstTexture: null,
+      flashTexture: null,
+      smearTexture: null,
+    });
+    expect(second.impactVfx).toMatchObject({
+      kind: 'combo',
+      ringTexture: 'impact_brush_ring',
+      burstTexture: null,
+      flashTexture: null,
+      smearTexture: 'combo_brush_smear',
+    });
+    expect(third.impactVfx).toMatchObject({
+      kind: 'finisher',
+      ringTexture: 'impact_brush_ring',
+      burstTexture: 'impact_ink_burst',
+      flashTexture: 'heavy_hit_flash',
+      smearTexture: 'combo_brush_smear',
+    });
+    expect(third.impactVfx.power).toBeGreaterThan(second.impactVfx.power);
+  });
 });

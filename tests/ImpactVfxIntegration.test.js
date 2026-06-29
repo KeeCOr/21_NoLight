@@ -36,8 +36,11 @@ describe('impact VFX integration', () => {
     expect(source).toContain("'impact_brush_ring'");
     expect(source).toContain("'combo_brush_smear'");
     expect(source).toContain("'heavy_hit_flash'");
-    expect(source).toContain("this._impactInkBurst(enemy.x, enemy.y, 'kill'");
-    expect(source).toContain("this._impactInkBurst(enemy.x, enemy.y, 'hit'");
+    expect(source).toContain('reaction.impactVfx');
+    expect(source).toContain('this._comboImpactVfx(enemy, reaction.impactVfx, reaction)');
+    expect(source).toContain('vfx.ringTexture');
+    expect(source).toContain('vfx.burstTexture');
+    expect(source).toContain('vfx.flashTexture');
     expect(source).toContain("this._comboBrushSmear(char, comboStep)");
   });
 });

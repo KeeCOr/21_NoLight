@@ -18,9 +18,11 @@ describe('combo reaction integration', () => {
     const source = read('src/scenes/GameScene.js');
 
     expect(source).toContain('payload.reaction');
+    expect(source).toContain("reaction.impactVfx");
     expect(source).toContain("reaction.smearTexture");
     expect(source).toContain("reaction.flashTexture");
     expect(source).toContain("reaction.spawnDropDelayMs");
+    expect(source).toContain("this._comboImpactVfx(enemy, reaction.impactVfx, reaction)");
     expect(source).toContain("this._enemyComboSmear(enemy, reaction)");
     expect(source).toContain("this._enemyFinisherPop(enemy, reaction)");
   });

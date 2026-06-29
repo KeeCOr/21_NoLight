@@ -49,7 +49,7 @@ class GameScene extends Phaser.Scene {
         facing: payload.facing || enemy.lastHitFacing || 1,
       });
       const feedback = getActionFeedback({ type: 'defeat', damage: enemy?.maxHp || 0 });
-      this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity);
+      this._comboImpactVfx(enemy, reaction.impactVfx, reaction);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 16 : 12);
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', reaction.isFinisher ? 1.32 : 1.15);
       this._enemyFinisherPop(enemy, reaction);
@@ -69,8 +69,7 @@ class GameScene extends Phaser.Scene {
         comboStep: payload.comboStep || 1,
         damage: payload.damage || enemy?.lastDamage || 0,
       });
-      this._impactInkBurst(enemy.x, enemy.y, 'hit', feedback.intensity);
-      if (reaction.isFinisher) this._impactInkBurst(enemy.x, enemy.y, 'kill', feedback.intensity * 0.7);
+      this._comboImpactVfx(enemy, reaction.impactVfx, reaction);
       this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 13 : 8);
       this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', reaction.isFinisher ? 1.08 : 0.85);
       this._enemyComboSmear(enemy, reaction);
@@ -537,6 +536,84 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  _comboImpactVfx(enemy, vfx, reaction = {}) {
+    if (!enemy || !vfx) return;
+    const facing = reaction.facing === -1 ? -1 : 1;
+    const power = Number.isFinite(vfx.power) ? vfx.power : 1;
+    const isFinisher = vfx.kind === 'finisher';
+    const x = enemy.x;
+    const y = enemy.y;
+
+    if (vfx.ringTexture) {
+      const ring = this.add.image(x, y, vfx.ringTexture)
+        .setDepth(6)
+        .setAlpha(isFinisher ? 0.74 : 0.54)
+        .setScale((isFinisher ? 0.52 : 0.42) * power)
+        .setAngle(facing * (isFinisher ? -18 : -10))
+        .setTint(isFinisher ? 0xf4efe3 : 0x05070b);
+      this.tweens.add({
+        targets: ring,
+        alpha: 0,
+        scale: (isFinisher ? 1.12 : 0.86) * power,
+        duration: isFinisher ? 270 : 210,
+        ease: 'Cubic.easeOut',
+        onComplete: () => ring.destroy(),
+      });
+    }
+
+    if (vfx.smearTexture) {
+      const smear = this.add.image(x - facing * 18, y + 3, vfx.smearTexture)
+        .setDepth(7)
+        .setAlpha(isFinisher ? 0.68 : 0.5)
+        .setScale(-facing * (0.42 + power * 0.22), 0.36 + power * 0.12)
+        .setAngle(facing * (isFinisher ? 15 : 9))
+        .setTint(0x05070b);
+      this.tweens.add({
+        targets: smear,
+        alpha: 0,
+        x: smear.x - facing * (26 + power * 10),
+        scaleX: smear.scaleX * 1.2,
+        scaleY: smear.scaleY * 1.08,
+        duration: isFinisher ? 250 : 190,
+        ease: 'Cubic.easeOut',
+        onComplete: () => smear.destroy(),
+      });
+    }
+
+    if (vfx.burstTexture) {
+      const burst = this.add.image(x, y, vfx.burstTexture)
+        .setDepth(8)
+        .setAlpha(0.82)
+        .setScale(0.48 * power)
+        .setAngle(Phaser.Math.Between(-32, 32))
+        .setTint(0x05070b);
+      this.tweens.add({
+        targets: burst,
+        alpha: 0,
+        scale: 1.08 * power,
+        duration: 280,
+        ease: 'Cubic.easeOut',
+        onComplete: () => burst.destroy(),
+      });
+    }
+
+    if (vfx.flashTexture) {
+      const flash = this.add.image(x, y - 2, vfx.flashTexture)
+        .setDepth(9)
+        .setAlpha(0.7)
+        .setScale(0.34 * power)
+        .setAngle(Phaser.Math.Between(-14, 14))
+        .setTint(0xf4efe3);
+      this.tweens.add({
+        targets: flash,
+        alpha: 0,
+        scale: 0.84 * power,
+        duration: 120,
+        ease: 'Cubic.easeOut',
+        onComplete: () => flash.destroy(),
+      });
+    }
+  }
   _impactInkBurst(x, y, kind = 'hit', power = 1) {
     const isHeavy = kind === 'kill' || kind === 'skill';
     const burstScale = (isHeavy ? 1.15 : 0.78) * power;

@@ -10,6 +10,14 @@
       smearScale: 0,
       flashTexture: null,
       spawnDropDelayMs: 0,
+      impactVfx: {
+        kind: 'hit',
+        power: 0.78,
+        ringTexture: 'impact_brush_ring',
+        burstTexture: null,
+        flashTexture: null,
+        smearTexture: null,
+      },
     },
     2: {
       knockback: 18,
@@ -21,6 +29,14 @@
       smearScale: 1.08,
       flashTexture: null,
       spawnDropDelayMs: 0,
+      impactVfx: {
+        kind: 'combo',
+        power: 0.96,
+        ringTexture: 'impact_brush_ring',
+        burstTexture: null,
+        flashTexture: null,
+        smearTexture: 'combo_brush_smear',
+      },
     },
     3: {
       knockback: 34,
@@ -32,6 +48,14 @@
       smearScale: 1.28,
       flashTexture: 'heavy_hit_flash',
       spawnDropDelayMs: 100,
+      impactVfx: {
+        kind: 'finisher',
+        power: 1.18,
+        ringTexture: 'impact_brush_ring',
+        burstTexture: 'impact_ink_burst',
+        flashTexture: 'heavy_hit_flash',
+        smearTexture: 'combo_brush_smear',
+      },
     },
   };
 
@@ -57,6 +81,7 @@
       smearScale: base.smearScale,
       flashTexture: base.flashTexture,
       spawnDropDelayMs: base.spawnDropDelayMs,
+      impactVfx: { ...base.impactVfx },
       isFinisher: comboStep >= 3,
     };
   }
