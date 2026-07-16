@@ -1,4 +1,4 @@
-module.exports = {
+﻿module.exports = {
   appId: 'com.21nl.game',
   productName: '21NL',
   directories: {
@@ -13,6 +13,7 @@ module.exports = {
   ],
   win: {
     target: 'portable',
+    signAndEditExecutable: false,
   },
   portable: {
     artifactName: '21NL_v${version}_portable.exe',

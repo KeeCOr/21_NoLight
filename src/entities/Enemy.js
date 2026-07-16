@@ -1,13 +1,15 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'enemy');
+    const variant = getMonsterVariantForSpawn({ x, y });
+    super(scene, x, y, variant.texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
+    this.monsterVariant = variant;
 
     this.maxHp = 120;
     this.hp = 120;
-    this.sharkPower = 18 + (Math.abs(Math.floor(x / 120)) % 4) * 3;
-    this.speed = 96;
+    this.sharkPower = 18 + (Math.abs(Math.floor(x / 120)) % 4) * 3 + variant.powerBonus;
+    this.speed = Math.round(96 * variant.speedMultiplier);
     this.ATTACK_DAMAGE = this.sharkPower;
     this.attackRange = 60;
     this.attackCooldown = 1500;
@@ -17,10 +19,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.setCollideWorldBounds(false);
     this.setDepth(3);
-    this.setDisplaySize(52, 52);
+    this.setDisplaySize(variant.display.width, variant.display.height);
     this.setTint(0x1d1b18);
-    this.body.setSize(28, 34);
-    this.body.setOffset(9, 12);
+    this.setTint(variant.tint);
+    this.body.setSize(variant.body.width, variant.body.height);
+    this.body.setOffset(variant.body.offsetX, variant.body.offsetY);
     this.statLabel = scene.add.text(x, y - 42, '', {
       fontSize: '13px',
       color: '#ffffff',
@@ -48,7 +51,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this._playHitReaction(this.lastHitReaction);
     this.setTint(0xf4efe3);
     this.scene.time.delayedCall(80, () => {
-      if (this.active) this.setTint(0x1d1b18);
+      if (this.active) this.setTint(this.monsterVariant.tint);
     });
     if (this.hp <= 0) this.onDeath();
   }

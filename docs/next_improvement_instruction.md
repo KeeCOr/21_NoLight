@@ -27,3 +27,12 @@ Turn the current biggest project issue into a small, executable improvement batc
 
 - Lock a broader shared visual feedback rule for attack, dodge, hit, stagger, and defeat across scene-level VFX.
 - Replace any newly touched final-facing code-drawn combat artwork with bitmap sprites/VFX resources.
+## 2026-06-30 Verification Note
+- Reverified the existing combat smoke path and planning consistency after the v0.7.0 package refresh.
+- Validation: `npm test` passed 36 suites / 110 tests; current release artifact is `release/InkWarrior_v0.7.0_portable.exe`.
+- Remaining follow-up is still visual-language breadth: scene-level attack/dodge/hit/stagger/defeat VFX rules and bitmap replacement for newly touched final-facing combat art.
+
+## 2026-07-02 Package Metadata Verification Note
+- Fixed the audit-facing package metadata compatibility gap by making `package.json` description and author ASCII-safe.
+- Added `tests/PackageMetadata.test.js` and verified `npm test -- --runInBand` passes 39 suites / 122 tests.
+- Rebuilt and copied `21NL_v0.9.0_portable.exe` to the project root and Google Drive execution folder.

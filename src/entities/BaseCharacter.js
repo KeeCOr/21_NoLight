@@ -10,12 +10,12 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(28, 52);
     this.body.setOffset((this.width - 28) / 2, this.height - 54);
 
-    // 패링
+    // ?⑤쭅
     this.PARRY_WINDOW = 100; // ms
     this.isGuarding = false;
     this.isParrying = false;
 
-    // 무적
+    // 臾댁쟻
     this.isInvincible = false;
     this.invincibleDuration = 0;
     this.invincibleTimer = 0;
@@ -26,7 +26,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.setTint(0x2a2823);
   }
 
-  // 가드 시작
+  // 媛???쒖옉
   startGuard(currentTime) {
     if (this.isGuarding) return;
     if (this.stat.stamina <= 0) return;
@@ -42,7 +42,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.isParrying = false;
   }
 
-  // 피격 처리. 패링/가드/무적이면 false 반환
+  // ?쇨꺽 泥섎━. ?⑤쭅/媛??臾댁쟻?대㈃ false 諛섑솚
   onHit(damage, attacker) {
     if (this.isInvincible) return false;
 
@@ -67,13 +67,13 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     return true;
   }
 
-  // 패링 성공: 투사체 반사, 일반 공격 캔슬
+  // ?⑤쭅 ?깃났: ?ъ궗泥?諛섏궗, ?쇰컲 怨듦꺽 罹붿뒳
   onParry(attacker) {
     if (attacker && attacker.reflect) attacker.reflect(this);
     if (attacker && attacker.cancelAttack) attacker.cancelAttack();
   }
 
-  // 가드 피격 기본 처리 (서브클래스에서 오버라이드)
+  // 媛???쇨꺽 湲곕낯 泥섎━ (?쒕툕?대옒?ㅼ뿉???ㅻ쾭?쇱씠??
   onGuardHit(damage, attacker) {
     this.stat.takeDamage(damage * 0.5);
   }
@@ -85,7 +85,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     this.setAlpha(0.5);
   }
 
-  // 서브클래스에서 구현
+  // ?쒕툕?대옒?ㅼ뿉??援ы쁽
   attack(enemies) {}
   skill(enemies) {}
   guard(currentTime) { this.startGuard(currentTime); }
@@ -94,7 +94,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   update(delta, cursors, keys) {
     this.dropThroughTimer = Math.max(0, this.dropThroughTimer - delta);
 
-    // 무적 타이머
+    // 臾댁쟻 ??대㉧
     if (this.isInvincible) {
       this.invincibleTimer += delta;
       if (this.invincibleTimer >= this.invincibleDuration) {
@@ -104,7 +104,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
       }
     }
 
-    // 이동
+    // ?대룞
     const speed = (this.speedBoost || 1.0) * 220;
     if (cursors.left.isDown) {
       this.setVelocityX(-speed);
@@ -116,7 +116,7 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(0);
     }
 
-    // 점프
+    // ?먰봽
     if (cursors.up.isDown && this.body.blocked.down) {
       this.setVelocityY(-430);
     }
@@ -126,15 +126,19 @@ class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(90);
     }
 
-    // 좌우 경계 제한
+    // 醫뚯슦 寃쎄퀎 ?쒗븳
     const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width;
     const minX = this.PLAY_AREA_MARGIN;
     const maxX = worldWidth - this.PLAY_AREA_MARGIN;
-    if (this.x < minX) {
-      this.x = minX;
+    const bounds = getPlayAreaBounds({
+      width: worldWidth,
+      margin: minX,
+    });
+    if (this.x < bounds.minX) {
+      this.x = bounds.minX;
       this.setVelocityX(0);
-    } else if (this.x > maxX) {
-      this.x = maxX;
+    } else if (this.x > bounds.maxX) {
+      this.x = bounds.maxX;
       this.setVelocityX(0);
     }
   }

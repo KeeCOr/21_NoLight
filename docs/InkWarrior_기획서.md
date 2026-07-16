@@ -1,78 +1,115 @@
 ﻿# InkWarrior 기획서
-> 현재 문서 기준 버전: 0.5.0
+> 현재 문서 기준 버전: 0.11.0
 
 ![InkWarrior gameplay preview](./21NL_gameplay_preview.png)
 
-## 문제 정의
-짧은 세션에서 빠르게 손맛을 느끼고 싶은 PC 액션 플레이어가 공격, 회피, 피격, 처치 결과를 즉시 읽지 못하면 전투가 밋밋하게 느껴진다. InkWarrior는 수묵 VFX, 카메라 반응, 적 리액션을 같은 프레임에 묶어 "지금 제대로 맞췄다"는 확신을 주는 액션 플랫폼 게임이다.
-
-## 주 페르소나
-이도윤, 26세, 디자인 전공 대학원생. 작업 사이 5~20분 동안 몰입할 수 있는 액션 게임을 찾고, Dead Cells나 Hollow Knight처럼 입력 결과가 선명하게 돌아오는 전투를 선호한다.
-
-## 핵심 루프
-플레이어가 추격자와 적 배치를 확인한다 → 공격, 회피, 스킬, 캐릭터 교체를 선택한다 → 수묵 VFX와 적 리액션으로 결과를 읽는다 → 회복 드랍과 점수를 챙긴다 → 다음 청크와 다음 전투로 이동한다.
-
 ## 현재 구현 상태
-- 현재 문서 기준 버전: 0.5.0
-- Phaser 3 + Electron portable 구조로 빌드한다.
-- 전체 게임 루프, 캐릭터 교체, 무한 청크 맵, 적/추격자 전투가 구현되어 있다.
-- ActionFeedback 규칙으로 strike, evade, wound, finish 콜아웃을 관리한다.
-- CameraImpactProfile 순수 규칙으로 기본 히트, 콤보, 처치, 스킬, 추격자 러시의 카메라 흔들림/줌/플래시/방향 넛지를 관리한다.
-- ComboHitReaction 순수 규칙으로 1타/2타/3타 적 넉백, 경직, smear, 피니셔 플래시, 드랍 지연을 분리했다.
-- UI 디자이너 후속 작업 목록은 docs/ui-designer-camera-impact-tasks.md에 정리했다.
-
-## MVP 가설
-1. 공격 결과가 0.5초 안에 콜아웃, VFX, 적 리액션으로 동시에 전달되면 플레이어가 전투 판정을 더 명확히 이해한다.
-2. 1타/2타/3타가 적 반응으로 구분되면 콤보가 단순 반복이 아니라 완성되는 붓 획처럼 느껴진다.
-3. 처치 드랍이 피니셔 먹 폭발 뒤 0.1초 지연되면 보상과 타격 여운이 더 잘 연결된다.
-
-## 레퍼런스 분석
-| 게임 | 핵심 행동 단계 | 적용 교훈 |
-|---|---:|---|
-| Dead Cells | 진입 → 공격/회피 → 피드백 확인, 3단계 | 적 리액션과 화면 반응이 같은 프레임에 맞아야 손맛이 선명하다. |
-| Hollow Knight | 이동 → 공격 → 상호 피드백 → 재위치, 4단계 | 성공은 과장하고 피격은 제한해 플레이어 판단을 방해하지 않는다. |
-| Katana ZERO | 패턴 읽기 → 슬로모션 판단 → 처치 확인, 3단계 | 짧은 정지와 강한 시각 반응은 공격 성공을 즉시 각인시킨다. |
-
-## 수묵 전투 피드백 규칙
-| 피드백 유형 | 콜아웃 | VFX | 카메라/리액션 |
-|---|---|---|---|
-| 기본 공격 strike | 붓길 예고, 1연 참격 | brush slash + impact brush ring | 약한 흔들림, 적 짧은 움찔 |
-| 콤보 2타 | 2연 참격 | combo brush smear | 중간 넉백, 130ms 경직 |
-| 콤보 3타 | 3연 참격 | heavy hit flash + ink burst | 큰 넉백, 210ms 경직, 72ms hit-stop |
-| 처치 finish | 먹물 폭쇄 | impact ink burst | 강한 흔들림, 드랍 100ms 지연 |
-| 회피 evade | 대시 잔상 | smoke/afterimage | 방향성 잔상 |
-| 피격 wound | 먹번짐 경직 | blood ink | 짧은 흔들림 |
-
-## 성공 KPI
-| 지표 | 목표 |
-|---|---:|
-| 평균 세션 플레이 시간 | 8분 이상 |
-| 콤보 5연속 이상 달성 세션 비율 | 40% 이상 |
-| 게임오버 후 30초 내 재시작률 | 60% 이상 |
-| 처치 후 회복 드랍 획득률 | 70% 이상 |
+- 현재 문서 기준 버전: 0.11.0
+- Phaser 3 + Electron portable 구조를 유지한다.
+- ActionFeedback은 기존 피드백 API에 Kenney CC0 SFX cue를 추가했다.
+- GameScene은 공격, 회피/가드, 피격, 처치 피드백을 샘플 우선 재생 헬퍼로 재생한다.
+- GameOverScene은 실패 판독음 `sfx_stage_fail`을 재생한다.
 
 ## 적용 리소스
-| 파일명 | 용도 |
-|---|---|
-| brush-slash.png | 공격 예고와 기본 참격 bitmap VFX |
-| impact-brush-ring.png | 참격 링 bitmap VFX |
-| impact-ink-burst.png | 처치/강타격 먹 폭발 |
-| combo-brush-smear.png | 콤보 연속 공격 번짐 |
-| heavy-hit-flash.png | 3타 피니셔 플래시 |
-| life-orb.png | 처치 후 회복 드랍 |
+| 파일명 | 원본 팩 / 원본 파일 | 용도 |
+|---|---|---|
+| `assets/audio/kenney/sfx_attack_slash.ogg` | Kenney Digital Audio / `Audio/laser5.ogg` | 공격 |
+| `assets/audio/kenney/sfx_dodge_guard.ogg` | Kenney Digital Audio / `Audio/phaseJump1.ogg` | 회피/가드 |
+| `assets/audio/kenney/sfx_hit_impact.ogg` | Kenney Impact Sounds / `Audio/impactPunch_medium_000.ogg` | 적 피격 |
+| `assets/audio/kenney/sfx_player_hurt.ogg` | Kenney Impact Sounds / `Audio/impactSoft_medium_000.ogg` | 플레이어 피격 |
+| `assets/audio/kenney/sfx_enemy_defeat.ogg` | Kenney Impact Sounds / `Audio/impactBell_heavy_002.ogg` | 처치 |
+| `assets/audio/kenney/sfx_stage_fail.ogg` | Kenney Interface Sounds / `Audio/error_003.ogg` | 실패 |
 
 ## 빌드, 테스트, 릴리스
 | 목적 | 명령 |
 |---|---|
-| 테스트 | `npm test` |
+| 테스트 | `npm test -- --runInBand` |
 | 실행파일 패키지 | `npm run build` |
 
-## 남은 리스크와 다음 우선순위
-| 우선순위 | 작업 | 이유 |
+## 2026-07-15 v0.11.0 Kenney Combat SFX Runtime Update
+
+Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. 출처는 `assets/audio/kenney/README.md`에 남겼고, Google Drive 업로드는 컨트롤러에게 위임한다.
+
+---
+# InkWarrior 湲고쉷??
+> ?꾩옱 臾몄꽌 湲곗? 踰꾩쟾: 0.10.0
+
+![InkWarrior gameplay preview](./21NL_gameplay_preview.png)
+
+## 臾몄젣 ?뺤쓽
+Dead Cells쨌Hollow Knight瑜??섎갚 ?쒓컙 ?뚮젅?댄븳 26????숈썝?앹씠 ?묒뾽 ?ъ씠 5~20遺?吏ъ뿉 吏㏐쾶 ?뚮젅?댄븷 ?? 湲곗〈 PC ?≪뀡 寃뚯엫? 怨듦꺽쨌?뚰뵾쨌泥섏튂 ?쇰뱶諛깆씠 遺꾩궛 ?꾨떖?섏뼱 吏㏃? ?몄뀡 ?덉뿉 肄ㅻ낫 苡뚭컧怨??깆랬媛먯쓣 ?숈떆??異⑹”?쒗궎吏 紐삵븳??
+
+## 二??섎Ⅴ?뚮굹
+- **?대쫫/?섏씠/吏곸뾽**: 諛뺤옱?? 29?? ?꾨━?쒖꽌 洹몃옒???붿옄?대꼫
+- **?ъ슜 留λ씫**: Dead Cells瑜?500?쒓컙 ?뚮젅?댄븳 肄붿뼱 PC 2D ?≪뀡 寃뚯씠癒? ?꾨━?쒖꽌 ?묒뾽 ?ъ씠 20~40遺??⑥쐞濡?利됱떆 ?쒖옉?섍퀬 ?딆쓣 ???덈뒗 濡쒓렇?쇱씠???≪뀡??李얜뒗??
+- **?좏샇**: 怨듦꺽쨌?뚰뵾쨌泥섏튂 ?쇰뱶諛깆씠 ?좊챸?섍쾶 ?뚯븘?ㅻ뒗 "?먮쭧" 以묒떖 ?꾪닾. 留??곗씠 ?ㅻⅨ 鍮뚮뱶濡??쒖옉?섎뒗 硫뷀? 吏꾪뻾(?닿툑쨌媛뺥솕) 援ъ“. ?꾪듃 ?붾젆?섏씠 ?낇듅???몃뵒 寃뚯엫.
+- **?꾩옱 ?됰룞(???**: Dead Cells瑜?耳쒖?留????ㅽ뙣 ??蹂댁긽 ?놁씠 醫낅즺?섎뒗 寃쎌슦媛 ??븘 吏㏃? ?몄뀡??留욌뒗 ??덉쓣 李얘퀬 ?덈떎. ?섎У?붋룸룞??誘명븰 湲곕컲 ?꾪듃 ?ㅽ??쇱뿉 愿?ъ씠 ?믩떎.
+- **?댄깉 ?ъ씤??*: 怨듦꺽 ?쇰뱶諛깆씠 遺덈챸?뺥븯嫄곕굹 SFX ?寃⑹쓬???쏀빐 "?닿? ????嫄댁?" ?????놁쓣 ?? ?먮뒗 ??媛??깆옣???놁뼱 諛섎났 ?뚮젅???숆린媛 ?щ씪吏????댄깉?쒕떎.
+
+## ?듭떖 猷⑦봽
+?뚮젅?댁뼱媛 異붽꺽?먯? ??諛곗튂瑜??뺤씤?쒕떎 ??怨듦꺽, ?뚰뵾, ?ㅽ궗, 罹먮┃??援먯껜瑜??좏깮?쒕떎 ???섎У VFX? ??由ъ븸?섏쑝濡?寃곌낵瑜??쎈뒗?????뚮났 ?쒕엻怨??먯닔瑜?梨숆릿?????ㅼ쓬 泥?겕? ?ㅼ쓬 ?꾪닾濡??대룞?쒕떎.
+
+## ?꾩옱 援ы쁽 ?곹깭
+- ?꾩옱 臾몄꽌 湲곗? 踰꾩쟾: 0.10.0
+- Phaser 3 + Electron portable 援ъ“濡?鍮뚮뱶?쒕떎.
+- ?꾩껜 寃뚯엫 猷⑦봽, 罹먮┃??援먯껜, 臾댄븳 泥?겕 留? ??異붽꺽???꾪닾媛 援ы쁽?섏뼱 ?덈떎.
+- ActionFeedback 洹쒖튃?쇰줈 strike, evade, wound, finish 肄쒖븘?껋쓣 愿由ы븳??
+- CameraImpactProfile ?쒖닔 洹쒖튃?쇰줈 湲곕낯 ?덊듃, 肄ㅻ낫, 泥섏튂, ?ㅽ궗, 異붽꺽???ъ떆??移대찓???붾뱾由?以??뚮옒??諛⑺뼢 ?쏆?瑜?愿由ы븳??
+- ComboHitReaction ?쒖닔 洹쒖튃?쇰줈 1?/2?/3? ???됰갚, 寃쎌쭅, smear, ?쇰땲???뚮옒?? ?쒕엻 吏?? combo-specific impact VFX stack??遺꾨━?덈떎.
+- UI ?붿옄?대꼫 ?꾩냽 ?묒뾽 紐⑸줉? docs/ui-designer-camera-impact-tasks.md???뺣━?덈떎.
+
+## MVP 媛??
+1. 怨듦꺽 寃곌낵媛 0.5珥??덉뿉 肄쒖븘?? VFX, ??由ъ븸?섏쑝濡??숈떆???꾨떖?섎㈃ ?뚮젅?댁뼱媛 ?꾪닾 ?먯젙????紐낇솗???댄빐?쒕떎.
+2. 1?/2?/3?媛 ??諛섏쓳?쇰줈 援щ텇?섎㈃ 肄ㅻ낫媛 ?⑥닚 諛섎났???꾨땲???꾩꽦?섎뒗 遺??띿쿂???먭뺨吏꾨떎.
+3. 泥섏튂 ?쒕엻???쇰땲??癒???컻 ??0.1珥?吏?곕릺硫?蹂댁긽怨??寃??ъ슫???????곌껐?쒕떎.
+
+## ?덊띁?곗뒪 遺꾩꽍
+| 寃뚯엫 | ?듭떖 ?됰룞 ?④퀎 | ?곸슜 援먰썕 |
+|---|---:|---|
+| Dead Cells | 吏꾩엯 ??怨듦꺽/?뚰뵾 ???쇰뱶諛??뺤씤, 3?④퀎 | ??由ъ븸?섍낵 ?붾㈃ 諛섏쓳??媛숈? ?꾨젅?꾩뿉 留욎븘???먮쭧???좊챸?섎떎. |
+| Hollow Knight | ?대룞 ??怨듦꺽 ???곹샇 ?쇰뱶諛????ъ쐞移? 4?④퀎 | ?깃났? 怨쇱옣?섍퀬 ?쇨꺽? ?쒗븳???뚮젅?댁뼱 ?먮떒??諛⑺빐?섏? ?딅뒗?? |
+| Katana ZERO | ?⑦꽩 ?쎄린 ???щ줈紐⑥뀡 ?먮떒 ??泥섏튂 ?뺤씤, 3?④퀎 | 吏㏃? ?뺤?? 媛뺥븳 ?쒓컖 諛섏쓳? 怨듦꺽 ?깃났??利됱떆 媛곸씤?쒗궓?? |
+
+## ?섎У ?꾪닾 ?쇰뱶諛?洹쒖튃
+| ?쇰뱶諛??좏삎 | 肄쒖븘??| VFX | 移대찓??由ъ븸??|
+|---|---|---|---|
+| 湲곕낯 怨듦꺽 strike | 遺볤만 ?덇퀬, 1??李멸꺽 | brush slash + light impact brush ring | ?쏀븳 ?붾뱾由? ??吏㏃? ?李?|
+| 肄ㅻ낫 2? | 2??李멸꺽 | impact brush ring + combo brush smear | 以묎컙 ?됰갚, 130ms 寃쎌쭅 |
+| 肄ㅻ낫 3? | 3??李멸꺽 | impact brush ring + combo brush smear + heavy hit flash + ink burst | ???됰갚, 210ms 寃쎌쭅, 72ms hit-stop |
+| 泥섏튂 finish | 癒밸Ъ ??뇙 | impact ink burst | 媛뺥븳 ?붾뱾由? ?쒕엻 100ms 吏??|
+| ?뚰뵾 evade | ????붿긽 | smoke/afterimage | 諛⑺뼢???붿긽 |
+| ?쇨꺽 wound | 癒밸쾲吏?寃쎌쭅 | blood ink | 吏㏃? ?붾뱾由?|
+
+## ?깃났 KPI
+| 吏??| 紐⑺몴 |
+|---|---:|
+| ?됯퇏 ?몄뀡 ?뚮젅???쒓컙 | 8遺??댁긽 |
+| 肄ㅻ낫 5?곗냽 ?댁긽 ?ъ꽦 ?몄뀡 鍮꾩쑉 | 40% ?댁긽 |
+| 寃뚯엫?ㅻ쾭 ??30珥????ъ떆?묐쪧 | 60% ?댁긽 |
+| 泥섏튂 ???뚮났 ?쒕엻 ?띾뱷瑜?| 70% ?댁긽 |
+
+## ?곸슜 由ъ냼??
+| ?뚯씪紐?| ?⑸룄 |
+|---|---|
+| brush-slash.png | 怨듦꺽 ?덇퀬? 湲곕낯 李멸꺽 bitmap VFX |
+| impact-brush-ring.png | 李멸꺽 留?bitmap VFX |
+| impact-ink-burst.png | 泥섏튂/媛뺥?寃?癒???컻 |
+| combo-brush-smear.png | 肄ㅻ낫 ?곗냽 怨듦꺽 踰덉쭚 |
+| heavy-hit-flash.png | 3? ?쇰땲???뚮옒??|
+| life-orb.png | 泥섏튂 ???뚮났 ?쒕엻 |
+
+## 鍮뚮뱶, ?뚯뒪?? 由대━??
+| 紐⑹쟻 | 紐낅졊 |
+|---|---|
+| ?뚯뒪??| `npm test` |
+| ?ㅽ뻾?뚯씪 ?⑦궎吏 | `npm run build` |
+
+## ?⑥? 由ъ뒪?ъ? ?ㅼ쓬 ?곗꽑?쒖쐞
+| ?곗꽑?쒖쐞 | ?묒뾽 | ?댁쑀 |
 |---|---|---|
-| 1 | 콤보 3타 적 튕김 값을 실제 플레이 영상으로 튜닝 | 과하면 적 위치 예측이 어려워지고 약하면 피니셔 느낌이 사라진다. |
-| 2 | SFX 타격음 레이어 추가 | 시각 피드백만으로는 손맛 전달이 절반만 완성된다. |
-| 3 | HUD 콤보 텍스트와 적 리액션 간 우선순위 조정 | 콜아웃 과밀을 줄여 수묵 화면 가독성을 유지한다. |
+| 1 | 肄ㅻ낫 3? ???뺢? 媛믪쓣 ?ㅼ젣 ?뚮젅???곸긽?쇰줈 ?쒕떇 | VFX stack? 媛뺥솕?먯?留?臾쇰━ ?뺢???怨쇳븯硫????꾩튂 ?덉륫???대젮?뚯쭊?? |
+| 2 | SFX ?寃⑹쓬 ?덉씠??異붽? | ?쒓컖 ?쇰뱶諛깅쭔?쇰줈???먮쭧 ?꾨떖???덈컲留??꾩꽦?쒕떎. |
+| 3 | HUD 肄ㅻ낫 ?띿뒪?몄? ??由ъ븸??媛??곗꽑?쒖쐞 議곗젙 | 肄쒖븘??怨쇰???以꾩뿬 ?섎У ?붾㈃ 媛?낆꽦???좎??쒕떎. |
 
 
 ## 2026-06-26 v0.5.0 Visual Resource Update
@@ -88,3 +125,107 @@ The combat feedback VFX set was refreshed with image-generated sumi-e dieselpunk
 | `assets/generated/heavy-hit-flash.png` | Third-hit / finisher flash |
 
 Verification plan: `npm test`, `npm run build`, and final Electron packaging after the instruction batch is complete.
+
+## 2026-06-29 v0.6.0 Combo Impact VFX Runtime Update
+
+Combo hit reactions now expose a combo-specific `impactVfx` stack that the runtime scene consumes directly: 1? uses a light brush ring, 2? adds a directional combo smear, and 3? layers ring, smear, heavy-hit flash, and ink burst. This keeps the existing generated PNG assets and texture keys while making combo 2 and combo 3 read as distinct impact beats.
+## 2026-06-30 Verification Note
+- Reverified the existing combat smoke path and planning consistency after the v0.7.0 package refresh.
+- Validation: `npm test` passed 36 suites / 110 tests; current release artifact is `release/InkWarrior_v0.7.0_portable.exe`.
+- Remaining follow-up is still visual-language breadth: scene-level attack/dodge/hit/stagger/defeat VFX rules and bitmap replacement for newly touched final-facing combat art.
+
+## 2026-06-30 v0.7.0 Boundary Wall Update
+
+醫뚯슦濡????대룞?????녿뒗 ?곸뿭???뉗? 留덉빱媛 ?꾨땲???섎У 踰쎌쑝濡??쏀엳?꾨줉 媛쒖꽑?덈떎. `PlayAreaBounds`媛 ?뚮젅??媛???? 臾쇰━ 踰??꾩튂, 踰?鍮꾩＜???꾩튂瑜?怨듯넻 怨꾩궛?섍퀬, `GameScene`? 醫뚯슦 static wall collider? 怨좎젙 ?붾㈃ ?섎У 踰?湲덉깋 ?댁륫 ?쇱씤???④퍡 ?앹꽦?쒕떎. ?뚮젅?댁뼱??湲곗〈 以묒븰 ?뚮젅???덉씤 ?덉뿉?쒕쭔 ?吏곸씠硫? 踰쎌? ?쒓컖?곸쑝濡쒕룄 留됲엺 怨듦컙?꾩쓣 利됱떆 ?꾨떖?쒕떎.
+
+## 2026-06-30 v0.8.0 Side Platform Lane Update
+
+以묒븰 履?諛쒗뙋??怨쇳븯寃??앹꽦?섏뼱 ?대룞 寃쎈줈媛 ?⑥“濡?쾶 蹂댁씠??臾몄젣瑜?以꾩씠湲??꾪빐 `PlatformLanePlan`??異붽??덈떎. 湲곕낯 蹂댁옣 諛쒗뙋? 醫???以묒떖?쇰줈 ?좎??섍퀬, 異붽? ?쒕뜡 諛쒗뙋? 以묒븰 湲덉? 諛대뱶瑜??쇳빐 醫뚯륫 ?먮뒗 ?곗륫 spawn band?먯꽌 ?앹꽦?쒕떎. 洹?寃곌낵 ?붾㈃ 以묒븰? ??鍮꾩썙???숉븯/?먰봽 ?먮떒 怨듦컙?쇰줈 ?쏀엳怨? 醫뚯슦 踰쎄낵 ?덉씤 援ъ“媛 ??紐낇솗?댁쭊??
+
+## 2026-06-30 v0.9.0 Grotesque Monster Variant Update
+
+??洹몃줈?뚯뒪?ы븯怨??붿컢???뺥깭???곸씠 ?먯＜ 蹂댁씠?꾨줉 肄붾뱶 ?앹꽦 ?띿뒪泥?湲곕컲 愿대Ъ 蹂醫낆쓣 異붽??덈떎. `MonsterVariantPlan`? spawn ?꾩튂瑜?湲곗??쇰줈 `enemy_maw`, `enemy_spine`, `enemy_many_eyes`, `enemy_crawler` 以??섎굹瑜??덉젙?곸쑝濡??좏깮?섍퀬, 媛?蹂醫낆? ?ш린, 異⑸룎 諛뺤뒪, ?대룞 ?띾룄, 怨듦꺽??蹂대꼫?? ?됲겕 tint媛 ?ㅻⅤ寃??곸슜?쒕떎. ?쒖옉 ?댄썑 泥?겕?????섎뒗 2~4泥대줈 ?섎젮 ?꾪닾 諛?꾩? ?꾪삊媛먯쓣 ?믪???
+
+---
+
+## ?됯? 寃곗젙 (2026-07-01)
+
+**寃곗젙**: 異쒖떆 異붿쭊
+**醫낇빀 ?먯닔**: 6.5/10
+
+### ?듭떖 媛뺤젏
+- ?섎У??sumi-e) + ?붿젮?묓겕 ?꾪듃 ?ㅽ??쇱씠 PC 2D ?≪뀡 ?λⅤ?먯꽌 媛뺣젰???쒓컖??李⑤퀎?먯쑝濡??묒슜
+- Dead Cells쨌Hollow Knight ?鍮?吏㏃? ?몄뀡(5~20遺??먯꽌??肄ㅻ낫 苡뚭컧???꾧껐?쒗궎??援ъ“ ?ㅺ퀎
+- Phaser 3 + Electron 援ъ“濡?PC 濡쒓렇?쇱씠???쒖옣(Steam ?몃뵒??蹂몄쭊)??吏곸젒 異쒖떆 媛?ν븳 ?ㅽ깮
+
+### 移섎챸???쎌젏
+- **SFX ?寃⑹쓬 ?꾨Т**: ?쒓컖 ?쇰뱶諛깅쭔?쇰줈???먮쭧 ?꾨떖???덈컲留??꾩꽦 ??肄붿뼱 寃뚯씠癒??댄깉??吏곸젒???먯씤
+- **濡쒓렇?쇱씠??硫뷀? 吏꾪뻾 遺??*: ??媛??닿툑쨌媛뺥솕 ?쒖뒪???놁씠??諛섎났 ?뚮젅???숆린媛 D3 ?댄썑 湲됰씫
+- ?섎У ?꾪듃 ?ㅽ??쇱쓽 ?믪? ?꾨━??湲곕?移??鍮???蹂醫???4醫? 諛????ㅼ뼇?깆씠 遺議?
+
+### ?ㅼ쓬 ?≪뀡 (異쒖떆 異붿쭊)
+1. **SFX ?寃⑹쓬 ?꾨㈃ 援ы쁽** (1?쒖쐞): 湲곕낯 怨듦꺽쨌肄ㅻ낫 2?쨌肄ㅻ낫 3?쨌泥섏튂쨌?쇨꺽쨌?뚰뵾 媛곴컖 蹂꾧컻???寃⑹쓬 ?곸슜 ???≪뀡 寃뚯엫 ?꾩닔 ?붿냼, ?꾩옱 "?먮쭧 ?덈컲" ?곹깭 ?댁냼
+2. **濡쒓렇?쇱씠??硫뷀? 吏꾪뻾 ?쒖뒪??異붽?**: ??醫낅즺 ???됲겕 寃곗젙泥??먯썝?쇰줈 罹먮┃???곴뎄 媛뺥솕쨌?ㅽ궗 ?닿툑 援ъ“ 援ы쁽 ???κ린 由ы뀗?섏쓽 ?듭떖 ?숇젰
+3. **Steam ?μ뒪???섏뒪??異쒗뭹 紐⑺몴**: SFX + 硫뷀? 吏꾪뻾 ?꾩꽦 ???곕え 踰꾩쟾 ?쒖옉 ??Steam 異쒗뭹 ???꾩떆由ъ뒪???섏쭛 ?쒖옉
+
+---
+
+## ?ы듃?대━??由щ럭 媛쒖꽑 怨꾪쉷 (2026-07-01)
+
+**醫낇빀 ?됯?**: 6.5/10 | **寃곗젙**: ??異쒖떆 異붿쭊 (?꾪듃 媛뺤젏 洹밸???議곌굔)
+
+### ?듭떖 媛뺤젏
+- ?섎У+?붿젮?묓겕 ?꾪듃 = 34媛??꾨줈?앺듃 以?媛??媛뺥븳 ?쒓컖??李⑤퀎??- ?寃??쇰뱶諛??쒖뒪??泥닿퀎???ㅺ퀎 (肄쒖븘??VFX/?덊듃?ㅽ넲)
+- ???쒖옣 (PC 2D ?≪뀡쨌濡쒓렇?쇱씠??Steam 二쇰젰)
+
+### ?듭떖 臾몄젣??- SFX ?寃⑹쓬 誘멸뎄?????≪뀡 寃뚯엫?먯꽌 "?먮쭧???덈컲" 遺??- Dead Cells/Hollow Knight怨?吏곸젒 鍮꾧탳?뱁븯??洹뱁븳??寃쎌웳 援щ룄
+- 濡쒓렇?쇱씠??硫뷀? progression (鍮뚮뱶 ?ㅼ뼇?? 遺議?
+### 利됱떆 ?≪뀡 (2二???
+- [ ] SFX ?寃⑹쓬 援ы쁽 (臾대즺 SFX ?쇱씠釉뚮윭由??쒖슜 ??援먯껜 ?덉젙)
+- [ ] ?寃⑷컧 A/B ?뚯뒪?? SFX ?덉쓬 vs ?놁쓬 泥닿컧 鍮꾧탳
+- [ ] Steam ?섏씠吏 ?깅줉 (?꾪듃 ?ㅽ겕由곗꺑 ?꾩＜)
+
+### ?④린 ?≪뀡 (1媛쒖썡 ??
+- [ ] 濡쒓렇?쇱씠??鍮뚮뱶 ?쒖뒪?? ?????좏깮吏 理쒖냼 3媛吏 遺꾧린
+- [ ] ???ㅼ뼇???뺣? (?꾩옱 4醫???理쒖냼 8醫?紐⑺몴)
+- [ ] itch.io ?곕え 異쒖떆 (?섎У ?꾪듃 而ㅻ??덊떚 留덉???
+
+### ?섎Ⅴ?뚮굹 ?ъ젙??**?ъ젙??*: 2D ?≪뀡 濡쒓렇?쇱씠??肄붿뼱 ??(?꾨룄?? 24?? ?꾨━?쒖꽌) ??Dead Cells 500?쒓컙, ?숈뼇 誘명븰/?섎У??愿???덉쓬, Steam ?몃뵒 ?꾩떆由ъ뒪??100媛??댁긽. "??踰덈룄 蹂????녿뒗 ?꾪듃 ?ㅽ??? 異붽뎄. ?몄뀡 1~2?쒓컙.
+
+### 李⑤퀎???ъ씤??媛뺥솕
+?섎У ?꾪듃???ㅽ겕由곗꺑留뚯쑝濡쒕룄 Steam ?먮젅?댁뀡 ?몄텧 媛?? ?몃젅?쇰윭??"癒밸Ъ??踰덉?硫??곸쓣 踰좊뒗" ?щ줈?곕え???λ㈃?쇰줈 ?쒖옉??寃?
+
+## 2026-07-02 v0.9.0 Package Metadata Compatibility
+
+諛고룷 ?먮룞?붿? PowerShell 湲곕컲 媛먯궗 ?ㅽ겕由쏀듃?먯꽌??`package.json`???덉젙?곸쑝濡??쎌쓣 ???덈룄濡?distribution metadata瑜?ASCII-safe 媛믪쑝濡?怨좎젙?덈떎. `description`? `Ink-brush action platformer`, `author`??`Jinwoo Oh`濡??뺣━?덉쑝硫? `tests/PackageMetadata.test.js`媛 ?숈씪???뚭? 議곌굔??寃利앺븳??
+
+- Validation: `npm test -- --runInBand` passed 39 suites / 122 tests.
+- Build: `npm run build` produced `release/21NL_v0.9.0_portable.exe`.
+- Release copy: latest executable was copied to `21NL_v0.9.0_portable.exe` in the project root and `G:\???쒕씪?대툕\?ㅽ뻾?뚯씪\21_InkWarrior_v0.9.0_portable.exe`.
+
+## 2026-07-15 Combat Density Feedback Contract
+
+ActionFeedback now returns a compact `densityCue` for attack, dodge, hit, stagger, defeat, and kill beats. GameScene consumes the cue's `pulseScale` when drawing action callouts, so 60-second combat reads windup, escape, contact, wound, and payoff moments with tighter and more consistent urgency while keeping the existing anchor/layer/timeline contract.
+
+## 2026-07-15 v0.10.0 ?꾪닾 諛???쇰뱶諛?怨꾩빟
+
+- `ActionFeedback`??`densityCue` 硫뷀??곗씠?곕? 異붽???怨듦꺽, ?뚰뵾, ?쇨꺽, 寃쎌쭅, 泥섏튂??60珥??꾪닾 由щ벉??`windup`, `escape`, `contact`, `wound`, `payoff` 鍮꾪듃濡?援щ텇?덈떎.
+- `GameScene._showActionFeedback()`? ?쇰뱶諛깆쓽 anchor, layer, timeline, density pulse scale??吏곸젒 ?ъ슜??肄쒖븘???꾩튂? ?곸듅/吏???ㅼ??쇱쓣 ?≪뀡 醫낅쪟蹂꾨줈 怨좎젙?쒕떎.
+- 泥??꾪닾?먯꽌 怨듦꺽 ?덇퀬, ?뚰뵾 ?붿긽, 李멸꺽 ?묒큺, 泥섏튂 蹂댁긽???쒕줈 ?ㅻⅨ ?믪씠? pulse濡??쏀엳?꾨줉 ?덈떎.
+- 寃利? `npm test` 湲곗? 39 suites / 124 tests ?듦낵.
+## 2026-07-15 v0.11.0 Kenney Combat SFX Runtime Update
+
+Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. `ActionFeedback`은 기존 label/tone/texture/rule API를 유지하면서 `sfx` cue를 추가하고, `GameScene._showActionFeedback()`이 샘플 우선 재생 헬퍼를 통해 공격, 회피/가드, 피격, 처치, 실패 사운드를 재생한다. 실패 화면은 `GameOverScene`에서 `sfx_stage_fail`을 직접 재생한다.
+
+| Runtime file | Original pack | Original file | Event |
+| --- | --- | --- | --- |
+| `assets/audio/kenney/sfx_attack_slash.ogg` | Kenney Digital Audio | `Audio/laser5.ogg` | Attack |
+| `assets/audio/kenney/sfx_dodge_guard.ogg` | Kenney Digital Audio | `Audio/phaseJump1.ogg` | Dodge / guard |
+| `assets/audio/kenney/sfx_hit_impact.ogg` | Kenney Impact Sounds | `Audio/impactPunch_medium_000.ogg` | Enemy hit |
+| `assets/audio/kenney/sfx_player_hurt.ogg` | Kenney Impact Sounds | `Audio/impactSoft_medium_000.ogg` | Player hit / stagger |
+| `assets/audio/kenney/sfx_enemy_defeat.ogg` | Kenney Impact Sounds | `Audio/impactBell_heavy_002.ogg` | Kill / defeat |
+| `assets/audio/kenney/sfx_stage_fail.ogg` | Kenney Interface Sounds | `Audio/error_003.ogg` | Failure |
+
+Source attribution lives next to the runtime files in `assets/audio/kenney/README.md`. Google Drive upload is intentionally deferred to the controller.
+
+

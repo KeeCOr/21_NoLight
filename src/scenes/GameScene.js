@@ -1,4 +1,4 @@
-class GameScene extends Phaser.Scene {
+﻿class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
   }
@@ -39,6 +39,8 @@ class GameScene extends Phaser.Scene {
 
     this.physics.add.collider(electric, this.mapGen.getPlatformGroup(), null, this._platformCollisionProcess, this);
     this.physics.add.collider(mecha, this.mapGen.getPlatformGroup(), null, this._platformCollisionProcess, this);
+    this.physics.add.collider(electric, this.boundaryWallGroup);
+    this.physics.add.collider(mecha, this.boundaryWallGroup);
     this.physics.add.overlap(electric, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
     this.physics.add.overlap(mecha, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
 
@@ -53,7 +55,7 @@ class GameScene extends Phaser.Scene {
       this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 16 : 12);
       this._inkSplatter(enemy.x, enemy.y, 'blood_ink', reaction.isFinisher ? 1.32 : 1.15);
       this._enemyFinisherPop(enemy, reaction);
-      this._showActionFeedback(enemy.x, enemy.y - 54, feedback);
+      this._showActionFeedback(enemy.x, enemy.y, feedback);
       const spawnDrop = () => this._spawnHealthDrop(enemy.x, enemy.y);
       if (reaction.spawnDropDelayMs > 0) this.time.delayedCall(reaction.spawnDropDelayMs, spawnDrop);
       else spawnDrop();
@@ -74,7 +76,7 @@ class GameScene extends Phaser.Scene {
       this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', reaction.isFinisher ? 1.08 : 0.85);
       this._enemyComboSmear(enemy, reaction);
       this._enemyFinisherPop(enemy, reaction);
-      this._showActionFeedback(enemy.x, enemy.y - 48, feedback);
+      this._showActionFeedback(enemy.x, enemy.y, feedback);
       const cameraProfile = reaction.isFinisher
         ? this._cameraPunch('combo', 1, {
           facing: payload.facing || 1,
@@ -93,7 +95,7 @@ class GameScene extends Phaser.Scene {
         staminaBefore: payload.staminaBefore,
         staminaAfter: payload.staminaAfter,
       });
-      this._showActionFeedback(char.x, char.y - 78, feedback);
+      this._showActionFeedback(char.x, char.y, feedback);
     });
 
     this.events.on('electricSwapIn', (char) => {
@@ -222,25 +224,50 @@ class GameScene extends Phaser.Scene {
 
   _createBoundaryMarkers() {
     const margin = this.charManager?.getActive()?.PLAY_AREA_MARGIN || 120;
-    const leftX = margin - 34;
-    const rightX = this.worldWidth - margin + 34;
-    this.leftBoundaryMarker = this.add.tileSprite(leftX, this.worldHeight / 2, 54, this.worldHeight, 'ink_splatter')
+    const bounds = getPlayAreaBounds({
+      width: this.worldWidth,
+      margin,
+      physicsHeight: 100000,
+    });
+
+    this.boundaryWallGroup = this.physics.add.staticGroup();
+    this.leftBoundaryWall = this.boundaryWallGroup.create(bounds.leftWallX, 0, 'ink_wall')
+      .setDisplaySize(bounds.wallWidth, bounds.physicsHeight)
+      .setVisible(false)
+      .refreshBody();
+    this.rightBoundaryWall = this.boundaryWallGroup.create(bounds.rightWallX, 0, 'ink_wall')
+      .setDisplaySize(bounds.wallWidth, bounds.physicsHeight)
+      .setVisible(false)
+      .refreshBody();
+
+    this.leftBoundaryMarker = this._createBoundaryWallVisual(bounds, 'left');
+    this.rightBoundaryMarker = this._createBoundaryWallVisual(bounds, 'right');
+  }
+
+  _createBoundaryWallVisual(bounds, side) {
+    const isLeft = side === 'left';
+    const x = isLeft ? bounds.leftVisualX : bounds.rightVisualX;
+    const lineX = isLeft ? bounds.innerLineLeftX : bounds.innerLineRightX;
+    const wall = this.add.tileSprite(x, this.worldHeight / 2, bounds.wallVisualWidth, this.worldHeight, 'ink_wall')
       .setScrollFactor(0)
-      .setDepth(1)
-      .setAlpha(0.24)
-      .setTint(0x05070b);
-    this.rightBoundaryMarker = this.add.tileSprite(rightX, this.worldHeight / 2, 54, this.worldHeight, 'ink_splatter')
-      .setScrollFactor(0)
-      .setDepth(1)
-      .setAlpha(0.24)
+      .setDepth(2)
+      .setAlpha(0.5)
       .setTint(0x05070b)
-      .setFlipX(true);
-    this.add.rectangle(leftX + 28, this.worldHeight / 2, 3, this.worldHeight, 0xb88a3a, 0.32)
+      .setFlipX(!isLeft);
+    const splatter = this.add.tileSprite(x, this.worldHeight / 2, bounds.wallVisualWidth * 0.72, this.worldHeight, 'ink_splatter')
       .setScrollFactor(0)
-      .setDepth(2);
-    this.add.rectangle(rightX - 28, this.worldHeight / 2, 3, this.worldHeight, 0xb88a3a, 0.32)
+      .setDepth(3)
+      .setAlpha(0.34)
+      .setTint(0x05070b)
+      .setFlipX(!isLeft);
+    const line = this.add.rectangle(lineX, this.worldHeight / 2, 6, this.worldHeight, 0xb88a3a, 0.72)
       .setScrollFactor(0)
-      .setDepth(2);
+      .setDepth(4);
+    const shadow = this.add.rectangle(isLeft ? lineX - 18 : lineX + 18, this.worldHeight / 2, 28, this.worldHeight, 0x05070b, 0.22)
+      .setScrollFactor(0)
+      .setDepth(3);
+
+    return { wall, splatter, line, shadow };
   }
 
   _platformCollisionProcess(player, platform) {
@@ -284,7 +311,7 @@ class GameScene extends Phaser.Scene {
         this._impactInkBurst(proj.x, proj.y, 'hit', feedback.intensity);
         this._impactBurst(proj.x, proj.y, 0x05070b, 9);
         this._inkSplatter(proj.x, proj.y, feedback.texture, 0.88);
-        this._showActionFeedback(player.x, player.y - 68, feedback);
+        this._showActionFeedback(player.x, player.y, feedback);
         proj.destroy();
         this.projectiles = this.projectiles.filter(p => p !== proj);
       });
@@ -309,7 +336,7 @@ class GameScene extends Phaser.Scene {
           player.onHit(20, pursuer);
           const feedback = getActionFeedback({ type: 'stagger', damage: 20 });
           this._inkSplatter(player.x, player.y, feedback.texture, 0.96);
-          this._showActionFeedback(player.x, player.y - 68, feedback);
+          this._showActionFeedback(player.x, player.y, feedback);
         }
       });
     } else if (type === 'dash') {
@@ -723,21 +750,40 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  _playFeedbackSfx(feedback) {
+    if (!feedback?.sfx?.key || !this.sound?.play) return;
+    const existing = this.sound?.get?.(feedback.sfx.key);
+    const config = { volume: feedback.sfx.volume ?? 0.45, rate: feedback.sfx.rate ?? 1 };
+    if (existing?.isPlaying && feedback.sfx.fallback !== 'synth-defeat') return;
+    this.sound.play(feedback.sfx.key, config);
+  }
+
   _showActionFeedback(x, y, feedback) {
+
+    this._playFeedbackSfx(feedback);
+    const anchorY = Number.isFinite(feedback?.anchor?.offsetY) ? y + feedback.anchor.offsetY : y;
+    const depth = Number.isFinite(feedback?.layer?.depth) ? feedback.layer.depth : 20;
+    const timeline = feedback?.timeline || {};
+    const densityCue = feedback?.densityCue || {};
+    const rise = Number.isFinite(timeline.rise) ? timeline.rise : 42;
+    const duration = Number.isFinite(timeline.duration) ? timeline.duration : (feedback.rule === 'finish' ? 760 : 520);
+    const delay = Number.isFinite(timeline.delay) ? timeline.delay : 0;
+    const pulseScale = Number.isFinite(densityCue.pulseScale) ? densityCue.pulseScale : 1 + feedback.intensity * 0.15;
     const color = feedback.rule === 'finish' ? '#f4dfb2' : feedback.rule === 'evade' ? '#f7ebcf' : '#f4efe3';
-    const text = this.add.text(x, y, feedback.label, {
+    const text = this.add.text(x, anchorY, feedback.label, {
       fontSize: feedback.rule === 'finish' ? '24px' : '19px',
       color,
       fontFamily: 'Arial Black',
       stroke: '#05070b',
       strokeThickness: 5,
-    }).setOrigin(0.5).setDepth(20);
+    }).setOrigin(0.5).setDepth(depth);
     this.tweens.add({
       targets: text,
-      y: y - 42,
+      y: anchorY - rise,
       alpha: 0,
-      scale: 1 + feedback.intensity * 0.15,
-      duration: feedback.rule === 'finish' ? 760 : 520,
+      scale: pulseScale,
+      delay,
+      duration,
       ease: 'Cubic.easeOut',
       onComplete: () => text.destroy(),
     });
@@ -832,7 +878,7 @@ class GameScene extends Phaser.Scene {
       const comboStep = current.attack(this.mapGen.getAllEnemies());
       if (comboStep !== null && comboStep !== undefined) {
         const feedback = getActionFeedback({ type: 'attack', comboStep: comboStep + 1 });
-        this._showActionFeedback(current.x, current.y - 76, feedback);
+        this._showActionFeedback(current.x, current.y, feedback);
         if (current instanceof ElectricCharacter) {
           this._electricDischarge(current, comboStep);
         } else {
@@ -876,3 +922,6 @@ class GameScene extends Phaser.Scene {
     this.hud.update();
   }
 }
+
+
+

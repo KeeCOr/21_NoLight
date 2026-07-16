@@ -122,6 +122,60 @@ class ArtFactory {
       g.lineStyle(2, p.magenta, 0.52).strokeRoundedRect(12, 14, 28, 29, 9);
     });
 
+    this._texture(scene, 'enemy_maw', 64, 58, (g) => {
+      this._wash(g, 64, 58, p.ink, 0.18, 10, 31);
+      this._jaggedFill(g, [[7, 24], [18, 8], [43, 7], [58, 23], [52, 46], [31, 55], [12, 44]], p.ink, 0.98);
+      this._jaggedFill(g, [[13, 25], [24, 17], [43, 18], [50, 29], [42, 40], [22, 40]], p.inkPurple, 0.88);
+      g.fillStyle(p.paperShade, 0.72).fillTriangle(20, 27, 25, 36, 30, 27);
+      g.fillStyle(p.paperShade, 0.72).fillTriangle(32, 27, 37, 38, 42, 27);
+      g.fillStyle(p.ink, 1).fillRoundedRect(18, 29, 30, 9, 2);
+      this._neonCore(g, 21, 20, 3, p.red, 0.9);
+      this._neonCore(g, 44, 20, 3, p.red, 0.9);
+      this._dryBrush(g, [[8, 42], [0, 56], [16, 47]], p.ink, 1, 4);
+      this._dryBrush(g, [[55, 42], [64, 56], [48, 47]], p.ink, 1, 4);
+      g.lineStyle(2, p.red, 0.48).strokeRoundedRect(12, 12, 40, 38, 12);
+    });
+
+    this._texture(scene, 'enemy_spine', 58, 74, (g) => {
+      this._wash(g, 58, 74, p.ink, 0.18, 12, 32);
+      this._jaggedFill(g, [[29, 3], [42, 18], [39, 60], [28, 72], [17, 60], [15, 19]], p.ink, 0.98);
+      this._jaggedFill(g, [[24, 14], [35, 19], [34, 56], [28, 63], [22, 55], [21, 20]], p.inkPurple, 0.9);
+      for (let i = 0; i < 5; i++) {
+        const y = 12 + i * 11;
+        g.fillStyle(p.ink, 0.95).fillTriangle(29, y, 7, y + 7, 24, y + 11);
+        g.fillStyle(p.ink, 0.95).fillTriangle(30, y + 2, 51, y + 8, 35, y + 12);
+      }
+      this._neonCore(g, 25, 25, 3, p.magenta, 1);
+      this._neonCore(g, 33, 25, 3, p.magenta, 1);
+      this._dryBrush(g, [[18, 63], [8, 73], [28, 68], [45, 73], [37, 62]], p.ink, 0.95, 4);
+      g.lineStyle(2, p.red, 0.44).strokeRoundedRect(18, 11, 22, 58, 10);
+    });
+
+    this._texture(scene, 'enemy_many_eyes', 62, 60, (g) => {
+      this._wash(g, 62, 60, p.ink, 0.16, 12, 33);
+      this._jaggedFill(g, [[8, 19], [21, 7], [46, 10], [57, 27], [47, 49], [25, 56], [9, 43]], p.ink, 0.98);
+      this._jaggedFill(g, [[14, 22], [26, 15], [43, 17], [50, 30], [42, 43], [23, 45], [13, 34]], p.inkPurple, 0.88);
+      [[22, 23], [32, 21], [42, 25], [27, 34], [38, 36]].forEach(([x, y], i) => this._neonCore(g, x, y, i === 3 ? 3 : 2.4, p.cyan, 0.95));
+      g.fillStyle(p.ink, 1).fillRect(20, 44, 22, 3);
+      this._dryBrush(g, [[9, 44], [1, 55], [17, 49]], p.ink, 1, 4);
+      this._dryBrush(g, [[51, 44], [62, 55], [44, 49]], p.ink, 1, 4);
+      g.lineStyle(2, p.cyan, 0.36).strokeRoundedRect(12, 14, 40, 36, 12);
+    });
+
+    this._texture(scene, 'enemy_crawler', 76, 48, (g) => {
+      this._wash(g, 76, 48, p.ink, 0.17, 12, 34);
+      this._jaggedFill(g, [[6, 27], [19, 12], [48, 11], [68, 24], [58, 39], [25, 44]], p.ink, 0.98);
+      this._jaggedFill(g, [[17, 25], [28, 17], [48, 18], [57, 27], [49, 34], [25, 35]], p.inkPurple, 0.88);
+      this._neonCore(g, 28, 25, 3, p.magenta, 0.95);
+      this._neonCore(g, 43, 25, 3, p.magenta, 0.95);
+      this._dryBrush(g, [[15, 34], [2, 46], [23, 39]], p.ink, 1, 4);
+      this._dryBrush(g, [[31, 36], [20, 48], [40, 40]], p.ink, 1, 4);
+      this._dryBrush(g, [[48, 35], [58, 48], [55, 38]], p.ink, 1, 4);
+      this._dryBrush(g, [[59, 31], [74, 42], [63, 36]], p.ink, 1, 4);
+      g.fillStyle(p.paperShade, 0.48).fillTriangle(35, 31, 39, 37, 43, 31);
+      g.lineStyle(2, p.red, 0.42).strokeRoundedRect(12, 14, 52, 26, 10);
+    });
+
     this._texture(scene, 'pursuer', 108, 122, (g) => {
       this._wash(g, 108, 122, p.ink, 0.15, 18, 8);
       this._wash(g, 108, 122, p.red, 0.075, 10, 8);

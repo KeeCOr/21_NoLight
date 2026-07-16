@@ -22,4 +22,25 @@ describe('combat feedback integration', () => {
     expect(source).not.toContain('this.add.ellipse(char.x + facing * offset');
     expect(source).toContain("this.add.image(char.x + facing * offset, char.y, 'impact_brush_ring')");
   });
+
+  test('GameScene consumes ActionFeedback anchors, layers, and timelines instead of per-call offsets', () => {
+    const source = read('src/scenes/GameScene.js');
+
+    expect(source).toContain('feedback?.anchor?.offsetY');
+    expect(source).toContain('feedback?.layer?.depth');
+    expect(source).toContain('feedback?.timeline || {}');
+    expect(source).toContain('delay,');
+    expect(source).toContain('this._showActionFeedback(enemy.x, enemy.y, feedback);');
+    expect(source).toContain('this._showActionFeedback(char.x, char.y, feedback);');
+    expect(source).toContain('this._showActionFeedback(current.x, current.y, feedback);');
+    expect(source).not.toContain('this._showActionFeedback(enemy.x, enemy.y - 48, feedback);');
+    expect(source).not.toContain('this._showActionFeedback(current.x, current.y - 76, feedback);');
+  });
+  test('GameScene applies density cue pulse scale when drawing action feedback', () => {
+    const source = read('src/scenes/GameScene.js');
+
+    expect(source).toContain('feedback?.densityCue || {}');
+    expect(source).toContain('densityCue.pulseScale');
+  });
 });
+

@@ -1,4 +1,4 @@
-class GameOverScene extends Phaser.Scene {
+﻿class GameOverScene extends Phaser.Scene {
   constructor() {
     super('GameOverScene');
   }
@@ -6,6 +6,7 @@ class GameOverScene extends Phaser.Scene {
   create(data) {
     const { width, height } = this.cameras.main;
     const score = data?.score ?? 0;
+    this.sound?.play?.('sfx_stage_fail', { volume: 0.5, rate: 0.86 });
 
     this.add.tileSprite(width / 2, height / 2, width, height, 'bg_far').setTint(0x2c2922);
     this.add.image(width / 2, height / 2 - 70, 'bg_mountain_generated')
@@ -43,3 +44,4 @@ class GameOverScene extends Phaser.Scene {
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('MainMenuScene'));
   }
 }
+

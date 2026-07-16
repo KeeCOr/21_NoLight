@@ -1,9 +1,15 @@
-class BootScene extends Phaser.Scene {
+﻿class BootScene extends Phaser.Scene {
   constructor() {
     super('BootScene');
   }
 
   preload() {
+    this.load.audio('sfx_attack_slash', 'assets/audio/kenney/sfx_attack_slash.ogg');
+    this.load.audio('sfx_dodge_guard', 'assets/audio/kenney/sfx_dodge_guard.ogg');
+    this.load.audio('sfx_hit_impact', 'assets/audio/kenney/sfx_hit_impact.ogg');
+    this.load.audio('sfx_player_hurt', 'assets/audio/kenney/sfx_player_hurt.ogg');
+    this.load.audio('sfx_enemy_defeat', 'assets/audio/kenney/sfx_enemy_defeat.ogg');
+    this.load.audio('sfx_stage_fail', 'assets/audio/kenney/sfx_stage_fail.ogg');
     this.load.image('electric_char', 'assets/generated/electric-char.png');
     this.load.image('absorber_char', 'assets/generated/absorber-char.png');
     this.load.image('mecha_char', 'assets/generated/mecha-char.png');
@@ -56,3 +62,4 @@ class BootScene extends Phaser.Scene {
     this.scene.start('MainMenuScene');
   }
 }
+

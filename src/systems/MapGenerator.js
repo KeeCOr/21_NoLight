@@ -29,10 +29,9 @@ class MapGenerator {
     const worldWidth = this.scene.scale?.width || this.scene.cameras.main.width || 900;
     const margin = Math.max(70, Math.floor(worldWidth * 0.09));
     const laneLeft = Math.floor(worldWidth * 0.22);
-    const laneCenter = Math.floor(worldWidth * 0.5);
     const laneRight = Math.floor(worldWidth * 0.78);
 
-    // 항상 이동 가능한 경로 보장: 좌/중/우 각 1개
+    // 항상 이동 가능한 경로 보장: 좌/우 중심으로 열어 중앙 발판 밀도를 낮춘다
     const guaranteed = [
       { x: laneLeft,   y: yTop + 170, w: 375 },
       { x: laneRight,  y: yTop + 270, w: 375 },
@@ -46,15 +45,20 @@ class MapGenerator {
     for (let i = 0; i < extra; i++) {
       const y = yTop + Phaser.Math.Between(45, 320);
       const w = Phaser.Math.Between(180, 450);
-      const halfW = Math.floor(w / 2);
-      const x = Phaser.Math.Between(Math.max(margin, halfW), Math.min(worldWidth - margin, worldWidth - halfW));
+      const x = chooseSidePlatformX({
+        width: worldWidth,
+        margin,
+        platformWidth: w,
+        sideRoll: Phaser.Math.FloatBetween(0, 1),
+        positionRoll: Phaser.Math.FloatBetween(0, 1),
+      });
       const plat = this._createPlatform(x, y, w);
       platforms.push(plat);
     }
 
     const enemies = [];
     if (enemyFactory && chunkIndex !== 0) {
-      const count = Phaser.Math.Between(1, 3);
+      const count = Phaser.Math.Between(2, 4);
       for (let i = 0; i < count; i++) {
         const x = Phaser.Math.Between(margin, worldWidth - margin);
         const y = yTop + 50;
