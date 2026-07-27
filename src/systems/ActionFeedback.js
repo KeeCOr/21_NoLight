@@ -18,6 +18,7 @@
       layer: { depth: 20, lane: 'intent' },
       timeline: { delay: 0, rise: 34, duration: 520 },
       densityCue: { beat: 'windup', urgency: 0.64, responseWindowMs: 360, pulseScale: 1.08 },
+      visualCue: { kind: 'slash', scaleX: 1.12, scaleY: 0.58, alpha: 0.34, angle: -12, durationMs: 220 },
     },
     hit: {
       action: 'hit',
@@ -26,6 +27,7 @@
       layer: { depth: 21, lane: 'impact' },
       timeline: { delay: 60, rise: 42, duration: 560 },
       densityCue: { beat: 'contact', urgency: 0.86, responseWindowMs: 260, pulseScale: 1.15 },
+      visualCue: { kind: 'impact', scaleX: 0.92, scaleY: 0.92, alpha: 0.42, angle: 0, durationMs: 210 },
     },
     dodge: {
       action: 'dodge',
@@ -34,6 +36,7 @@
       layer: { depth: 22, lane: 'evade' },
       timeline: { delay: 0, rise: 36, duration: 500 },
       densityCue: { beat: 'escape', urgency: 0.72, responseWindowMs: 300, pulseScale: 1.1 },
+      visualCue: { kind: 'afterimage', scaleX: 1.3, scaleY: 0.82, alpha: 0.32, angle: 0, durationMs: 260 },
     },
     guard: {
       action: 'guard',
@@ -50,6 +53,7 @@
       layer: { depth: 21, lane: 'wound' },
       timeline: { delay: 40, rise: 38, duration: 560 },
       densityCue: { beat: 'wound', urgency: 0.82, responseWindowMs: 320, pulseScale: 1.14 },
+      visualCue: { kind: 'wound', scaleX: 1.04, scaleY: 0.9, alpha: 0.46, angle: 0, durationMs: 240 },
     },
     defeat: {
       action: 'defeat',
@@ -58,6 +62,7 @@
       layer: { depth: 24, lane: 'finish' },
       timeline: { delay: 90, rise: 50, duration: 760 },
       densityCue: { beat: 'payoff', urgency: 1, responseWindowMs: 420, pulseScale: 1.24 },
+      visualCue: { kind: 'burst', scaleX: 1.52, scaleY: 1.38, alpha: 0.58, angle: 0, durationMs: 360 },
     },
     kill: {
       action: 'kill',
@@ -103,6 +108,7 @@
       layer: { ...rule.layer },
       timeline: { ...rule.timeline },
       densityCue: { ...rule.densityCue },
+      visualCue: { ...rule.visualCue },
     };
   }
 

@@ -42,5 +42,13 @@ describe('combat feedback integration', () => {
     expect(source).toContain('feedback?.densityCue || {}');
     expect(source).toContain('densityCue.pulseScale');
   });
+  test('GameScene draws the action visual cue behind its readable feedback label', () => {
+    const source = read('src/scenes/GameScene.js');
+
+    expect(source).toContain('feedback?.visualCue || {}');
+    expect(source).toContain("this.add.image(x, anchorY, feedback.texture)");
+    expect(source).toContain('visualCue.durationMs');
+  });
+
 });
 

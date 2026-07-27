@@ -1,6 +1,6 @@
 {
     "name": "21-nl",
-    "version": "0.11.0",
+    "version": "0.12.0",
     "description": "Ink-brush action platformer",
     "author": "Jinwoo Oh",
     "main": "main.js",

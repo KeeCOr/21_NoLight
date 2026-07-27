@@ -224,6 +224,15 @@
 <tr><td><code>assets/audio/kenney/sfx_stage_fail.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/error_003.ogg</code></td><td>Failure</td></tr>
 </table>
 <p>Source attribution lives next to the runtime files in <code>assets/audio/kenney/README.md</code>. Google Drive upload is intentionally deferred to the controller.</p>
+
+<section>
+<h2>2026-07-27 v0.12.0 Combat Signal Silhouettes</h2>
+<ul>
+<li><code>ActionFeedback</code> now assigns a distinct visual cue silhouette to attack, dodge, stagger, and defeat: slash, afterimage, wound, and burst.</li>
+<li><code>GameScene._showActionFeedback()</code> renders that cue one depth behind the existing readable label, preserving the established anchor, lane, and timeline rules.</li>
+<li>Verification: <code>npm test</code> and <code>npm run build</code>.</li>
+</ul>
+</section>
 </body>
 </html>
 

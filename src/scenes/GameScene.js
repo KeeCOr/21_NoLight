@@ -769,7 +769,28 @@
     const duration = Number.isFinite(timeline.duration) ? timeline.duration : (feedback.rule === 'finish' ? 760 : 520);
     const delay = Number.isFinite(timeline.delay) ? timeline.delay : 0;
     const pulseScale = Number.isFinite(densityCue.pulseScale) ? densityCue.pulseScale : 1 + feedback.intensity * 0.15;
+    const visualCue = feedback?.visualCue || {};
+    const cueScaleX = Number.isFinite(visualCue.scaleX) ? visualCue.scaleX : 1;
+    const cueScaleY = Number.isFinite(visualCue.scaleY) ? visualCue.scaleY : cueScaleX;
+    const cueAlpha = Number.isFinite(visualCue.alpha) ? visualCue.alpha : 0.3;
+    const cueAngle = Number.isFinite(visualCue.angle) ? visualCue.angle : 0;
+    const cueDuration = Number.isFinite(visualCue.durationMs) ? visualCue.durationMs : 220;
     const color = feedback.rule === 'finish' ? '#f4dfb2' : feedback.rule === 'evade' ? '#f7ebcf' : '#f4efe3';
+    const cue = this.add.image(x, anchorY, feedback.texture)
+      .setDepth(Math.max(0, depth - 1))
+      .setAlpha(cueAlpha)
+      .setAngle(cueAngle)
+      .setScale(cueScaleX, cueScaleY)
+      .setTint(feedback.rule === 'finish' ? 0xf4dfb2 : 0xf4efe3);
+    this.tweens.add({
+      targets: cue,
+      alpha: 0,
+      scaleX: cueScaleX * 1.18,
+      scaleY: cueScaleY * 1.12,
+      duration: cueDuration,
+      ease: 'Cubic.easeOut',
+      onComplete: () => cue.destroy(),
+    });
     const text = this.add.text(x, anchorY, feedback.label, {
       fontSize: feedback.rule === 'finish' ? '24px' : '19px',
       color,

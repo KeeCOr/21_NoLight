@@ -132,4 +132,18 @@ describe('ink action feedback', () => {
     ]);
     expect(sequence.every(step => step.densityCue.responseWindowMs <= 420)).toBe(true);
   });
+  test('attack, dodge, stagger, and defeat keep distinct visual cue silhouettes', () => {
+    const sequence = getCombatFeedbackSequence([
+      { type: 'attack', comboStep: 1 },
+      { type: 'dodge', staminaBefore: 70, staminaAfter: 45 },
+      { type: 'stagger', damage: 24 },
+      { type: 'defeat', damage: 80 },
+    ]);
+
+    expect(sequence.map(step => step.visualCue.kind)).toEqual(['slash', 'afterimage', 'wound', 'burst']);
+    expect(sequence[0].visualCue.scaleX).toBeGreaterThan(sequence[0].visualCue.scaleY);
+    expect(sequence[1].visualCue.durationMs).toBeGreaterThanOrEqual(240);
+    expect(sequence[3].visualCue.scaleX).toBeGreaterThan(sequence[2].visualCue.scaleX);
+  });
+
 });
