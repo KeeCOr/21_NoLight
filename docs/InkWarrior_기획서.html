@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>InkWarrior 湲고쉷??/title>
+  <title>InkWarrior 기획서</title>
   <style>
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65;max-width:980px;margin:0 auto;padding:40px 24px;color:#20242a;background:#fafafa}
     h1{font-size:34px;margin:0 0 8px} h2{font-size:24px;margin-top:34px;border-bottom:1px solid #ddd;padding-bottom:6px} h3{font-size:18px;margin-top:24px}
@@ -12,19 +12,56 @@
     .meta{color:#666;font-size:14px;margin-bottom:32px}
     .loop-box{background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 20px;font-size:15px;white-space:pre-wrap;line-height:1.8}
     .checklist{list-style:none;padding-left:0}
-    .checklist li::before{content:"??";font-size:16px}
+    .checklist li::before{content:"☐ ";font-size:16px}
     hr{border:none;border-top:1px solid #ddd;margin:28px 0}
     blockquote{border-left:4px solid #ddd;margin:0;padding:8px 16px;color:#555;background:#f9f9f9;border-radius:0 8px 8px 0}
     code{background:#f0f0f0;border-radius:4px;padding:2px 5px;font-size:13px}
   </style>
 </head>
 <body>
-<h1>InkWarrior 湲고쉷??/h1>
-<p class="meta">?꾩옱 臾몄꽌 湲곗? 踰꾩쟾: 0.10.0</p>
+<h1>InkWarrior 기획서</h1>
+<p class="meta">현재 문서 기준 버전: 0.11.0</p>
+<blockquote>
+<p>현재 문서 기준 버전: 0.11.0</p>
+</blockquote>
+<p><img src="./21NL_gameplay_preview.png" alt="InkWarrior gameplay preview" style="max-width:100%;border-radius:8px"></p>
+<h2>현재 구현 상태</h2>
+<ul>
+  <li>현재 문서 기준 버전: 0.11.0</li>
+  <li>Phaser 3 + Electron portable 구조를 유지한다.</li>
+  <li>ActionFeedback은 기존 피드백 API에 Kenney CC0 SFX cue를 추가했다.</li>
+  <li>GameScene은 공격, 회피/가드, 피격, 처치 피드백을 샘플 우선 재생 헬퍼로 재생한다.</li>
+  <li>GameOverScene은 실패 판독음 <code>sfx_stage_fail</code>을 재생한다.</li>
+</ul>
+<h2>적용 리소스</h2>
+<table>
+  <thead><tr><th>파일명</th><th>원본 팩 / 원본 파일</th><th>용도</th></tr></thead>
+  <tbody>
+    <tr><td><code>assets/audio/kenney/sfx_attack_slash.ogg</code></td><td>Kenney Digital Audio / <code>Audio/laser5.ogg</code></td><td>공격</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_dodge_guard.ogg</code></td><td>Kenney Digital Audio / <code>Audio/phaseJump1.ogg</code></td><td>회피/가드</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_hit_impact.ogg</code></td><td>Kenney Impact Sounds / <code>Audio/impactPunch_medium_000.ogg</code></td><td>적 피격</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_player_hurt.ogg</code></td><td>Kenney Impact Sounds / <code>Audio/impactSoft_medium_000.ogg</code></td><td>플레이어 피격</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_enemy_defeat.ogg</code></td><td>Kenney Impact Sounds / <code>Audio/impactBell_heavy_002.ogg</code></td><td>처치</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_stage_fail.ogg</code></td><td>Kenney Interface Sounds / <code>Audio/error_003.ogg</code></td><td>실패</td></tr>
+  </tbody>
+</table>
+<h2>빌드, 테스트, 릴리스</h2>
+<table>
+  <thead><tr><th>목적</th><th>명령</th></tr></thead>
+  <tbody>
+    <tr><td>테스트</td><td><code>npm test -- --runInBand</code></td></tr>
+    <tr><td>실행파일 패키지</td><td><code>npm run build</code></td></tr>
+  </tbody>
+</table>
+<h2>2026-07-15 v0.11.0 Kenney Combat SFX Runtime Update</h2>
+<p>Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. 출처는 <code>assets/audio/kenney/README.md</code>에 남겼고, Google Drive 업로드는 컨트롤러에게 위임한다.</p>
+<hr>
+<h1>InkWarrior 湲고쉷??</h1>
+<p class="meta">현재 문서 기준 버전: 0.11.0</p>
 <blockquote>
 <p>?꾩옱 臾몄꽌 湲곗? 踰꾩쟾: 0.10.0</p>
 </blockquote>
-<p>!<a href="./21NL_gameplay_preview.png">InkWarrior gameplay preview</a></p>
+<p><img src="./21NL_gameplay_preview.png" alt="InkWarrior gameplay preview" style="max-width:100%;border-radius:8px"></p>
 <h2>臾몄젣 ?뺤쓽</h2>
 <p>Dead Cells쨌Hollow Knight瑜??섎갚 ?쒓컙 ?뚮젅?댄븳 26????숈썝?앹씠 ?묒뾽 ?ъ씠 5~20遺?吏ъ뿉 吏㏐쾶 ?뚮젅?댄븷 ?? 湲곗〈 PC ?≪뀡 寃뚯엫? 怨듦꺽쨌?뚰뵾쨌泥섏튂 ?쇰뱶諛깆씠 遺꾩궛 ?꾨떖?섏뼱 吏㏃? ?몄뀡 ?덉뿉 肄ㅻ낫 苡뚭컧怨??깆랬媛먯쓣 ?숈떆??異⑹”?쒗궎吏 紐삵븳??</p>
 <h2>二??섎Ⅴ?뚮굹</h2>
@@ -33,7 +70,7 @@
   <li><strong>?ъ슜 留λ씫</strong>: Dead Cells瑜?500?쒓컙 ?뚮젅?댄븳 肄붿뼱 PC 2D ?≪뀡 寃뚯씠癒? ?꾨━?쒖꽌 ?묒뾽 ?ъ씠 20~40遺??⑥쐞濡?利됱떆 ?쒖옉?섍퀬 ?딆쓣 ???덈뒗 濡쒓렇?쇱씠???≪뀡??李얜뒗??</li>
   <li><strong>?좏샇</strong>: 怨듦꺽쨌?뚰뵾쨌泥섏튂 ?쇰뱶諛깆씠 ?좊챸?섍쾶 ?뚯븘?ㅻ뒗 "?먮쭧" 以묒떖 ?꾪닾. 留??곗씠 ?ㅻⅨ 鍮뚮뱶濡??쒖옉?섎뒗 硫뷀? 吏꾪뻾(?닿툑쨌媛뺥솕) 援ъ“. ?꾪듃 ?붾젆?섏씠 ?낇듅???몃뵒 寃뚯엫.</li>
   <li><strong>?꾩옱 ?됰룞(???</strong>: Dead Cells瑜?耳쒖?留????ㅽ뙣 ??蹂댁긽 ?놁씠 醫낅즺?섎뒗 寃쎌슦媛 ??븘 吏㏃? ?몄뀡??留욌뒗 ??덉쓣 李얘퀬 ?덈떎. ?섎У?붋룸룞??誘명븰 湲곕컲 ?꾪듃 ?ㅽ??쇱뿉 愿?ъ씠 ?믩떎.</li>
-  <li><strong>?댄깉 ?ъ씤??/strong>: 怨듦꺽 ?쇰뱶諛깆씠 遺덈챸?뺥븯嫄곕굹 SFX ?寃⑹쓬???쏀빐 "?닿? ????嫄댁?" ?????놁쓣 ?? ?먮뒗 ??媛??깆옣???놁뼱 諛섎났 ?뚮젅???숆린媛 ?щ씪吏????댄깉?쒕떎.</li>
+  <li><em>*?댄깉 ?ъ씤??</em>: 怨듦꺽 ?쇰뱶諛깆씠 遺덈챸?뺥븯嫄곕굹 SFX ?寃⑹쓬???쏀빐 "?닿? ????嫄댁?" ?????놁쓣 ?? ?먮뒗 ??媛??깆옣???놁뼱 諛섎났 ?뚮젅???숆린媛 ?щ씪吏????댄깉?쒕떎.</li>
 </ul>
 <h2>?듭떖 猷⑦봽</h2>
 <p>?뚮젅?댁뼱媛 異붽꺽?먯? ??諛곗튂瑜??뺤씤?쒕떎 ??怨듦꺽, ?뚰뵾, ?ㅽ궗, 罹먮┃??援먯껜瑜??좏깮?쒕떎 ???섎У VFX? ??由ъ븸?섏쑝濡?寃곌낵瑜??쎈뒗?????뚮났 ?쒕엻怨??먯닔瑜?梨숆릿?????ㅼ쓬 泥?겕? ?ㅼ쓬 ?꾪닾濡??대룞?쒕떎.</p>
@@ -47,7 +84,7 @@
   <li>ComboHitReaction ?쒖닔 洹쒖튃?쇰줈 1?/2?/3? ???됰갚, 寃쎌쭅, smear, ?쇰땲???뚮옒?? ?쒕엻 吏?? combo-specific impact VFX stack??遺꾨━?덈떎.</li>
   <li>UI ?붿옄?대꼫 ?꾩냽 ?묒뾽 紐⑸줉? docs/ui-designer-camera-impact-tasks.md???뺣━?덈떎.</li>
 </ul>
-<h2>MVP 媛??/h2>
+<h2>MVP 媛??</h2>
 <ol>
   <li>怨듦꺽 寃곌낵媛 0.5珥??덉뿉 肄쒖븘?? VFX, ??由ъ븸?섏쑝濡??숈떆???꾨떖?섎㈃ ?뚮젅?댁뼱媛 ?꾪닾 ?먯젙????紐낇솗???댄빐?쒕떎.</li>
   <li>1?/2?/3?媛 ??諛섏쓳?쇰줈 援щ텇?섎㈃ 肄ㅻ낫媛 ?⑥닚 諛섎났???꾨땲???꾩꽦?섎뒗 遺??띿쿂???먭뺨吏꾨떎.</li>
@@ -64,43 +101,43 @@
 </table>
 <h2>?섎У ?꾪닾 ?쇰뱶諛?洹쒖튃</h2>
 <table>
-  <thead><tr><th>?쇰뱶諛??좏삎</th><th>肄쒖븘??/th><th>VFX</th><th>移대찓??由ъ븸??/th></tr></thead>
+  <thead><tr><th>?쇰뱶諛??좏삎</th><th>肄쒖븘??</th><th>VFX</th><th>移대찓??由ъ븸??</th></tr></thead>
   <tbody>
-    <tr><td>湲곕낯 怨듦꺽 strike</td><td>遺볤만 ?덇퀬, 1??李멸꺽</td><td>brush slash + light impact brush ring</td><td>?쏀븳 ?붾뱾由? ??吏㏃? ?李?/td></tr>
+    <tr><td>湲곕낯 怨듦꺽 strike</td><td>遺볤만 ?덇퀬, 1??李멸꺽</td><td>brush slash + light impact brush ring</td><td>?쏀븳 ?붾뱾由? ??吏㏃? ?李?</td></tr>
     <tr><td>肄ㅻ낫 2?</td><td>2??李멸꺽</td><td>impact brush ring + combo brush smear</td><td>以묎컙 ?됰갚, 130ms 寃쎌쭅</td></tr>
     <tr><td>肄ㅻ낫 3?</td><td>3??李멸꺽</td><td>impact brush ring + combo brush smear + heavy hit flash + ink burst</td><td>???됰갚, 210ms 寃쎌쭅, 72ms hit-stop</td></tr>
-    <tr><td>泥섏튂 finish</td><td>癒밸Ъ ??뇙</td><td>impact ink burst</td><td>媛뺥븳 ?붾뱾由? ?쒕엻 100ms 吏??/td></tr>
+    <tr><td>泥섏튂 finish</td><td>癒밸Ъ ??뇙</td><td>impact ink burst</td><td>媛뺥븳 ?붾뱾由? ?쒕엻 100ms 吏??</td></tr>
     <tr><td>?뚰뵾 evade</td><td>????붿긽</td><td>smoke/afterimage</td><td>諛⑺뼢???붿긽</td></tr>
-    <tr><td>?쇨꺽 wound</td><td>癒밸쾲吏?寃쎌쭅</td><td>blood ink</td><td>吏㏃? ?붾뱾由?/td></tr>
+    <tr><td>?쇨꺽 wound</td><td>癒밸쾲吏?寃쎌쭅</td><td>blood ink</td><td>吏㏃? ?붾뱾由?</td></tr>
   </tbody>
 </table>
 <h2>?깃났 KPI</h2>
 <table>
-  <thead><tr><th>吏??/th><th>紐⑺몴</th></tr></thead>
+  <thead><tr><th>吏??</th><th>紐⑺몴</th></tr></thead>
   <tbody>
     <tr><td>?됯퇏 ?몄뀡 ?뚮젅???쒓컙</td><td>8遺??댁긽</td></tr>
     <tr><td>肄ㅻ낫 5?곗냽 ?댁긽 ?ъ꽦 ?몄뀡 鍮꾩쑉</td><td>40% ?댁긽</td></tr>
     <tr><td>寃뚯엫?ㅻ쾭 ??30珥????ъ떆?묐쪧</td><td>60% ?댁긽</td></tr>
-    <tr><td>泥섏튂 ???뚮났 ?쒕엻 ?띾뱷瑜?/td><td>70% ?댁긽</td></tr>
+    <tr><td>泥섏튂 ???뚮났 ?쒕엻 ?띾뱷瑜?</td><td>70% ?댁긽</td></tr>
   </tbody>
 </table>
-<h2>?곸슜 由ъ냼??/h2>
+<h2>?곸슜 由ъ냼??</h2>
 <table>
-  <thead><tr><th>?뚯씪紐?/th><th>?⑸룄</th></tr></thead>
+  <thead><tr><th>?뚯씪紐?</th><th>?⑸룄</th></tr></thead>
   <tbody>
     <tr><td>brush-slash.png</td><td>怨듦꺽 ?덇퀬? 湲곕낯 李멸꺽 bitmap VFX</td></tr>
     <tr><td>impact-brush-ring.png</td><td>李멸꺽 留?bitmap VFX</td></tr>
     <tr><td>impact-ink-burst.png</td><td>泥섏튂/媛뺥?寃?癒???컻</td></tr>
     <tr><td>combo-brush-smear.png</td><td>肄ㅻ낫 ?곗냽 怨듦꺽 踰덉쭚</td></tr>
-    <tr><td>heavy-hit-flash.png</td><td>3? ?쇰땲???뚮옒??/td></tr>
+    <tr><td>heavy-hit-flash.png</td><td>3? ?쇰땲???뚮옒??</td></tr>
     <tr><td>life-orb.png</td><td>泥섏튂 ???뚮났 ?쒕엻</td></tr>
   </tbody>
 </table>
-<h2>鍮뚮뱶, ?뚯뒪?? 由대━??/h2>
+<h2>鍮뚮뱶, ?뚯뒪?? 由대━??</h2>
 <table>
   <thead><tr><th>紐⑹쟻</th><th>紐낅졊</th></tr></thead>
   <tbody>
-    <tr><td>?뚯뒪??/td><td><code>npm test</code></td></tr>
+    <tr><td>?뚯뒪??</td><td><code>npm test</code></td></tr>
     <tr><td>?ㅽ뻾?뚯씪 ?⑦궎吏</td><td><code>npm run build</code></td></tr>
   </tbody>
 </table>
@@ -153,8 +190,8 @@
 <h3>移섎챸???쎌젏</h3>
 <ul>
   <li><strong>SFX ?寃⑹쓬 ?꾨Т</strong>: ?쒓컖 ?쇰뱶諛깅쭔?쇰줈???먮쭧 ?꾨떖???덈컲留??꾩꽦 ??肄붿뼱 寃뚯씠癒??댄깉??吏곸젒???먯씤</li>
-  <li><strong>濡쒓렇?쇱씠??硫뷀? 吏꾪뻾 遺??/strong>: ??媛??닿툑쨌媛뺥솕 ?쒖뒪???놁씠??諛섎났 ?뚮젅???숆린媛 D3 ?댄썑 湲됰씫</li>
-  <li>?섎У ?꾪듃 ?ㅽ??쇱쓽 ?믪? ?꾨━??湲곕?移??鍮???蹂醫???4醫? 諛????ㅼ뼇?깆씠 遺議?/li>
+  <li><em>*濡쒓렇?쇱씠??硫뷀? 吏꾪뻾 遺??</em>: ??媛??닿툑쨌媛뺥솕 ?쒖뒪???놁씠??諛섎났 ?뚮젅???숆린媛 D3 ?댄썑 湲됰씫</li>
+  <li>?섎У ?꾪듃 ?ㅽ??쇱쓽 ?믪? ?꾨━??湲곕?移??鍮???蹂醫???4醫? 諛????ㅼ뼇?깆씠 遺議?</li>
 </ul>
 <h3>?ㅼ쓬 ?≪뀡 (異쒖떆 異붿쭊)</h3>
 <ol>
@@ -167,15 +204,12 @@
 <p><strong>醫낇빀 ?됯?</strong>: 6.5/10 | <strong>寃곗젙</strong>: ??異쒖떆 異붿쭊 (?꾪듃 媛뺤젏 洹밸???議곌굔)</p>
 <h3>?듭떖 媛뺤젏</h3>
 <ul>
-  <li>?섎У+?붿젮?묓겕 ?꾪듃 = 34媛??꾨줈?앺듃 以?媛??媛뺥븳 ?쒓컖??李⑤퀎??/li>
-  <li>?寃??쇰뱶諛??쒖뒪??泥닿퀎???ㅺ퀎 (肄쒖븘??VFX/?덊듃?ㅽ넲)</li>
+  <li>?섎У+?붿젮?묓겕 ?꾪듃 = 34媛??꾨줈?앺듃 以?媛??媛뺥븳 ?쒓컖??李⑤퀎??- ?寃??쇰뱶諛??쒖뒪??泥닿퀎???ㅺ퀎 (肄쒖븘??VFX/?덊듃?ㅽ넲)</li>
   <li>???쒖옣 (PC 2D ?≪뀡쨌濡쒓렇?쇱씠??Steam 二쇰젰)</li>
 </ul>
-<h3>?듭떖 臾몄젣??/h3>
+<h3>?듭떖 臾몄젣??- SFX ?寃⑹쓬 誘멸뎄?????≪뀡 寃뚯엫?먯꽌 "?먮쭧???덈컲" 遺??- Dead Cells/Hollow Knight怨?吏곸젒 鍮꾧탳?뱁븯??洹뱁븳??寃쎌웳 援щ룄</h3>
 <ul>
-  <li>SFX ?寃⑹쓬 誘멸뎄?????≪뀡 寃뚯엫?먯꽌 "?먮쭧???덈컲" 遺??/li>
-  <li>Dead Cells/Hollow Knight怨?吏곸젒 鍮꾧탳?뱁븯??洹뱁븳??寃쎌웳 援щ룄</li>
-  <li>濡쒓렇?쇱씠??硫뷀? progression (鍮뚮뱶 ?ㅼ뼇?? 遺議?/li>
+  <li>濡쒓렇?쇱씠??硫뷀? progression (鍮뚮뱶 ?ㅼ뼇?? 遺議?</li>
 </ul>
 <h3>利됱떆 ?≪뀡 (2二???</h3>
 <ul class="checklist">
@@ -189,8 +223,7 @@
   <li>???ㅼ뼇???뺣? (?꾩옱 4醫???理쒖냼 8醫?紐⑺몴)</li>
   <li>itch.io ?곕え 異쒖떆 (?섎У ?꾪듃 而ㅻ??덊떚 留덉???</li>
 </ul>
-<h3>?섎Ⅴ?뚮굹 ?ъ젙??/h3>
-<p><strong>?ъ젙??/strong>: 2D ?≪뀡 濡쒓렇?쇱씠??肄붿뼱 ??(?꾨룄?? 24?? ?꾨━?쒖꽌) ??Dead Cells 500?쒓컙, ?숈뼇 誘명븰/?섎У??愿???덉쓬, Steam ?몃뵒 ?꾩떆由ъ뒪??100媛??댁긽. "??踰덈룄 蹂????녿뒗 ?꾪듃 ?ㅽ??? 異붽뎄. ?몄뀡 1~2?쒓컙.</p>
+<h3>?섎Ⅴ?뚮굹 ?ъ젙??<em>*?ъ젙??</em>: 2D ?≪뀡 濡쒓렇?쇱씠??肄붿뼱 ??(?꾨룄?? 24?? ?꾨━?쒖꽌) ??Dead Cells 500?쒓컙, ?숈뼇 誘명븰/?섎У??愿???덉쓬, Steam ?몃뵒 ?꾩떆由ъ뒪??100媛??댁긽. "??踰덈룄 蹂????녿뒗 ?꾪듃 ?ㅽ??? 異붽뎄. ?몄뀡 1~2?쒓컙.</h3>
 <h3>李⑤퀎???ъ씤??媛뺥솕</h3>
 <p>?섎У ?꾪듃???ㅽ겕由곗꺑留뚯쑝濡쒕룄 Steam ?먮젅?댁뀡 ?몄텧 媛?? ?몃젅?쇰윭??"癒밸Ъ??踰덉?硫??곸쓣 踰좊뒗" ?щ줈?곕え???λ㈃?쇰줈 ?쒖옉??寃?</p>
 <h2>2026-07-02 v0.9.0 Package Metadata Compatibility</h2>
@@ -202,38 +235,27 @@
 </ul>
 <h2>2026-07-15 Combat Density Feedback Contract</h2>
 <p>ActionFeedback now returns a compact <code>densityCue</code> for attack, dodge, hit, stagger, defeat, and kill beats. GameScene consumes the cue's <code>pulseScale</code> when drawing action callouts, so 60-second combat reads windup, escape, contact, wound, and payoff moments with tighter and more consistent urgency while keeping the existing anchor/layer/timeline contract.</p>
-
-<section>
 <h2>2026-07-15 v0.10.0 ?꾪닾 諛???쇰뱶諛?怨꾩빟</h2>
 <ul>
-<li><code>ActionFeedback</code>??<code>densityCue</code> 硫뷀??곗씠?곕? 異붽???怨듦꺽, ?뚰뵾, ?쇨꺽, 寃쎌쭅, 泥섏튂??60珥??꾪닾 由щ벉??援щ텇?덈떎.</li>
-<li><code>GameScene._showActionFeedback()</code>? ?쇰뱶諛깆쓽 anchor, layer, timeline, density pulse scale??吏곸젒 ?ъ슜?쒕떎.</li>
-<li>泥??꾪닾?먯꽌 怨듦꺽 ?덇퀬, ?뚰뵾 ?붿긽, 李멸꺽 ?묒큺, 泥섏튂 蹂댁긽???쒕줈 ?ㅻⅨ ?믪씠? pulse濡??쏀엳?꾨줉 ?덈떎.</li>
-<li>寃利? <code>npm test</code> 湲곗? 39 suites / 124 tests ?듦낵.</li>
+  <li><code>ActionFeedback</code>??<code>densityCue</code> 硫뷀??곗씠?곕? 異붽???怨듦꺽, ?뚰뵾, ?쇨꺽, 寃쎌쭅, 泥섏튂??60珥??꾪닾 由щ벉??<code>windup</code>, <code>escape</code>, <code>contact</code>, <code>wound</code>, <code>payoff</code> 鍮꾪듃濡?援щ텇?덈떎.</li>
+  <li><code>GameScene._showActionFeedback()</code>? ?쇰뱶諛깆쓽 anchor, layer, timeline, density pulse scale??吏곸젒 ?ъ슜??肄쒖븘???꾩튂? ?곸듅/吏???ㅼ??쇱쓣 ?≪뀡 醫낅쪟蹂꾨줈 怨좎젙?쒕떎.</li>
+  <li>泥??꾪닾?먯꽌 怨듦꺽 ?덇퀬, ?뚰뵾 ?붿긽, 李멸꺽 ?묒큺, 泥섏튂 蹂댁긽???쒕줈 ?ㅻⅨ ?믪씠? pulse濡??쏀엳?꾨줉 ?덈떎.</li>
+  <li>寃利? <code>npm test</code> 湲곗? 39 suites / 124 tests ?듦낵.</li>
 </ul>
-</section>
 <h2>2026-07-15 v0.11.0 Kenney Combat SFX Runtime Update</h2>
 <p>Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. <code>ActionFeedback</code>은 기존 label/tone/texture/rule API를 유지하면서 <code>sfx</code> cue를 추가하고, <code>GameScene._showActionFeedback()</code>이 샘플 우선 재생 헬퍼를 통해 공격, 회피/가드, 피격, 처치, 실패 사운드를 재생한다. 실패 화면은 <code>GameOverScene</code>에서 <code>sfx_stage_fail</code>을 직접 재생한다.</p>
 <table>
-<tr><td>Runtime file</td><td>Original pack</td><td>Original file</td><td>Event</td></tr>
-<tr><td><code>assets/audio/kenney/sfx_attack_slash.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/laser5.ogg</code></td><td>Attack</td></tr>
-<tr><td><code>assets/audio/kenney/sfx_dodge_guard.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/phaseJump1.ogg</code></td><td>Dodge / guard</td></tr>
-<tr><td><code>assets/audio/kenney/sfx_hit_impact.ogg</code></td><td>Kenney Impact Sounds</td><td><code>Audio/impactPunch_medium_000.ogg</code></td><td>Enemy hit</td></tr>
-<tr><td><code>assets/audio/kenney/sfx_player_hurt.ogg</code></td><td>Kenney Impact Sounds</td><td><code>Audio/impactSoft_medium_000.ogg</code></td><td>Player hit / stagger</td></tr>
-<tr><td><code>assets/audio/kenney/sfx_enemy_defeat.ogg</code></td><td>Kenney Impact Sounds</td><td><code>Audio/impactBell_heavy_002.ogg</code></td><td>Kill / defeat</td></tr>
-<tr><td><code>assets/audio/kenney/sfx_stage_fail.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/error_003.ogg</code></td><td>Failure</td></tr>
+  <thead><tr><th>Runtime file</th><th>Original pack</th><th>Original file</th><th>Event</th></tr></thead>
+  <tbody>
+    <tr><td><code>assets/audio/kenney/sfx_attack_slash.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/laser5.ogg</code></td><td>Attack</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_dodge_guard.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/phaseJump1.ogg</code></td><td>Dodge / guard</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_hit_impact.ogg</code></td><td>Kenney Impact Sounds</td><td><code>Audio/impactPunch_medium_000.ogg</code></td><td>Enemy hit</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_player_hurt.ogg</code></td><td>Kenney Impact Sounds</td><td><code>Audio/impactSoft_medium_000.ogg</code></td><td>Player hit / stagger</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_enemy_defeat.ogg</code></td><td>Kenney Impact Sounds</td><td><code>Audio/impactBell_heavy_002.ogg</code></td><td>Kill / defeat</td></tr>
+    <tr><td><code>assets/audio/kenney/sfx_stage_fail.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/error_003.ogg</code></td><td>Failure</td></tr>
+  </tbody>
 </table>
 <p>Source attribution lives next to the runtime files in <code>assets/audio/kenney/README.md</code>. Google Drive upload is intentionally deferred to the controller.</p>
 
-<section>
-<h2>2026-07-27 v0.12.0 Combat Signal Silhouettes</h2>
-<ul>
-<li><code>ActionFeedback</code> now assigns a distinct visual cue silhouette to attack, dodge, stagger, and defeat: slash, afterimage, wound, and burst.</li>
-<li><code>GameScene._showActionFeedback()</code> renders that cue one depth behind the existing readable label, preserving the established anchor, lane, and timeline rules.</li>
-<li>Verification: <code>npm test</code> and <code>npm run build</code>.</li>
-</ul>
-</section>
 </body>
 </html>
-
-
