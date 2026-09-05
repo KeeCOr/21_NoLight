@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    name: Jest & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run Jest tests
+        run: npx jest --passWithNoTests
+
+      - name: Build (Electron entry + assets)
+        run: echo "Static Electron project - no Vite build step"
+
+      - name: Lint check
+        run: npx eslint src/ --max-warnings=0
+        continue-on-error: true
