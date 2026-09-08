@@ -6,9 +6,11 @@
   },
   files: [
     'main.js',
+    'preload.js',
     'index.html',
     'src/**/*',
     'assets/**/*',
+    'steam_appid.txt',
     'node_modules/phaser/dist/phaser.min.js',
   ],
   win: {
