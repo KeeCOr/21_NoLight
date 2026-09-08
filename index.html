@@ -34,6 +34,10 @@
   <script src="src/scenes/MainMenuScene.js"></script>
   <script src="src/scenes/GameScene.js"></script>
   <script src="src/scenes/GameOverScene.js"></script>
+  <script type="module">
+    import { installGameAudioRuntime } from './src/systems/GameAudioRuntime.mjs';
+    installGameAudioRuntime('./assets/audio/original');
+  </script>
   <!-- Game 초기화 -->
   <script src="src/game.js"></script>
 </body>

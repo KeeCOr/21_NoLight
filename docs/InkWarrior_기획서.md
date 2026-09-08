@@ -228,4 +228,10 @@ Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. `Actio
 
 Source attribution lives next to the runtime files in `assets/audio/kenney/README.md`. Google Drive upload is intentionally deferred to the controller.
 
+## 오디오 레이어
 
+- **BGM**: 첫 사용자 인터랙션 이후 안전하게 시작되는 루프 배경음
+- **SFX**: 입력, 액션, 위험, 전환, 결과에 대응하는 개별 효과음
+- **볼륨 분리**: BGM과 SFX 음량을 독립적으로 조절하며 위험·결과 신호에서는 BGM을 일시적으로 낮춘다.
+- **음원 출처**: Kenney Music Loops(CC0)와 프로젝트 생성 스크립트로 결정론적으로 만든 독창적 PCM WAV 큐를 사용한다.
+- **런타임 원칙**: 핵심 오디오 레이어는 사전 생성된 음원을 사용하며 런타임 합성음에 의존하지 않는다.
