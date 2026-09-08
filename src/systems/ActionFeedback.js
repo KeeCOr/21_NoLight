@@ -1,13 +1,13 @@
 ﻿(function (root) {
   const SFX_CUES = {
-    attack: { key: 'sfx_attack_slash', source: 'Kenney CC0', fallback: 'synth-slash', volume: 0.42, rate: 1.05 },
-    hit: { key: 'sfx_hit_impact', source: 'Kenney CC0', fallback: 'synth-hit', volume: 0.48, rate: 1 },
-    dodge: { key: 'sfx_dodge_guard', source: 'Kenney CC0', fallback: 'synth-evade', volume: 0.34, rate: 1.18 },
-    guard: { key: 'sfx_dodge_guard', source: 'Kenney CC0', fallback: 'synth-guard', volume: 0.38, rate: 0.92 },
-    stagger: { key: 'sfx_player_hurt', source: 'Kenney CC0', fallback: 'synth-hurt', volume: 0.46, rate: 0.96 },
-    defeat: { key: 'sfx_enemy_defeat', source: 'Kenney CC0', fallback: 'synth-defeat', volume: 0.55, rate: 0.88 },
-    kill: { key: 'sfx_enemy_defeat', source: 'Kenney CC0', fallback: 'synth-defeat', volume: 0.55, rate: 0.88 },
-    fail: { key: 'sfx_stage_fail', source: 'Kenney CC0', fallback: 'synth-fail', volume: 0.5, rate: 0.86 },
+    attack: { key: 'sfx_attack_slash', src: 'assets/audio/kenney/sfx_attack_slash.ogg', source: 'Kenney CC0', category: 'action', volume: 0.42, rate: 1.05 },
+    hit: { key: 'sfx_hit_impact', src: 'assets/audio/kenney/sfx_hit_impact.ogg', source: 'Kenney CC0', category: 'action', volume: 0.48, rate: 1 },
+    dodge: { key: 'sfx_dodge_guard', src: 'assets/audio/kenney/sfx_dodge_guard.ogg', source: 'Kenney CC0', category: 'action', volume: 0.34, rate: 1.18 },
+    guard: { key: 'sfx_dodge_guard', src: 'assets/audio/kenney/sfx_dodge_guard.ogg', source: 'Kenney CC0', category: 'action', volume: 0.38, rate: 0.92 },
+    stagger: { key: 'sfx_player_hurt', src: 'assets/audio/kenney/sfx_player_hurt.ogg', source: 'Kenney CC0', category: 'danger', volume: 0.46, rate: 0.96 },
+    defeat: { key: 'sfx_enemy_defeat', src: 'assets/audio/kenney/sfx_enemy_defeat.ogg', source: 'Kenney CC0', category: 'action', volume: 0.55, rate: 0.88 },
+    kill: { key: 'sfx_enemy_defeat', src: 'assets/audio/kenney/sfx_enemy_defeat.ogg', source: 'Kenney CC0', category: 'action', volume: 0.55, rate: 0.88 },
+    fail: { key: 'sfx_stage_fail', src: 'assets/audio/kenney/sfx_stage_fail.ogg', source: 'Kenney CC0', category: 'result', volume: 0.5, rate: 0.86 },
   };
 
   const FEEDBACK_PROFILES = {

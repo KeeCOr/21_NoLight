@@ -6,7 +6,7 @@
   create(data) {
     const { width, height } = this.cameras.main;
     const score = data?.score ?? 0;
-    this.sound?.play?.('sfx_stage_fail', { volume: 0.5, rate: 0.86 });
+    globalThis.__gameAudioRuntime?.playCue?.({ src: 'assets/audio/kenney/sfx_stage_fail.ogg', category: 'result', gain: 0.5 });
 
     this.add.tileSprite(width / 2, height / 2, width, height, 'bg_far').setTint(0x2c2922);
     this.add.image(width / 2, height / 2 - 70, 'bg_mountain_generated')
@@ -40,8 +40,14 @@
       strokeThickness: 3,
     }).setOrigin(0.5);
 
-    this.input.keyboard.once('keydown-SPACE', () => this.scene.start('GameScene'));
-    this.input.keyboard.once('keydown-ESC', () => this.scene.start('MainMenuScene'));
+    this.input.keyboard.once('keydown-SPACE', () => {
+      globalThis.__gameAudioRuntime?.playCue?.({ src: 'assets/audio/kenney/sfx_attack_slash.ogg', category: 'transition', gain: 0.42 });
+      this.scene.start('GameScene');
+    });
+    this.input.keyboard.once('keydown-ESC', () => {
+      globalThis.__gameAudioRuntime?.playCue?.({ src: 'assets/audio/kenney/sfx_dodge_guard.ogg', category: 'ui', gain: 0.34 });
+      this.scene.start('MainMenuScene');
+    });
   }
 }
 

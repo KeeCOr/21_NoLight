@@ -44,13 +44,12 @@ describe('Kenney combat SFX integration', () => {
     ].forEach(expected => expect(source).toContain(expected));
   });
 
-  test('GameScene plays feedback SFX through a guarded sample-first helper', () => {
+  test('GameScene routes feedback SFX only through the shared audio director', () => {
     const source = read('src/scenes/GameScene.js');
 
     expect(source).toContain('this._playFeedbackSfx(feedback);');
-    expect(source).toContain('this.sound?.get?.(feedback.sfx.key)');
-    expect(source).toContain('this.sound.play(feedback.sfx.key');
-    expect(source).toContain('feedback.sfx.fallback');
+    expect(source).toContain('globalThis.__gameAudioRuntime?.playCue?.(feedback.sfx)');
+    expect(source).not.toContain('this.sound.play(feedback.sfx.key');
   });
 
   test('project keeps Kenney source attribution next to runtime audio files', () => {
@@ -72,11 +71,13 @@ describe('Kenney combat SFX integration', () => {
     });
   });
 
-  test('unknown feedback keeps a synthesized fallback cue instead of hard failing audio', () => {
+  test('unknown feedback keeps a real Kenney sample without synth fallback metadata', () => {
     expect(getActionFeedback({ type: 'unknown' }).sfx).toMatchObject({
       key: 'sfx_hit_impact',
-      fallback: 'synth-hit',
+      src: 'assets/audio/kenney/sfx_hit_impact.ogg',
+      category: 'action',
     });
+    expect(getActionFeedback({ type: 'unknown' }).sfx).not.toHaveProperty('fallback');
   });
 });
 

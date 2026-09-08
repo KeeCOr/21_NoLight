@@ -751,11 +751,8 @@
   }
 
   _playFeedbackSfx(feedback) {
-    if (!feedback?.sfx?.key || !this.sound?.play) return;
-    const existing = this.sound?.get?.(feedback.sfx.key);
-    const config = { volume: feedback.sfx.volume ?? 0.45, rate: feedback.sfx.rate ?? 1 };
-    if (existing?.isPlaying && feedback.sfx.fallback !== 'synth-defeat') return;
-    this.sound.play(feedback.sfx.key, config);
+    if (!feedback?.sfx?.src) return false;
+    return globalThis.__gameAudioRuntime?.playCue?.(feedback.sfx) ?? false;
   }
 
   _showActionFeedback(x, y, feedback) {
@@ -943,6 +940,5 @@
     this.hud.update();
   }
 }
-
 
 

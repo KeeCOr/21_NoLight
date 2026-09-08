@@ -81,6 +81,9 @@ class MainMenuScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(5);
 
     this.tweens.add({ targets: start, alpha: 0.45, duration: 720, yoyo: true, repeat: -1 });
-    this.input.keyboard.once('keydown-SPACE', () => this.scene.start('GameScene'));
+    this.input.keyboard.once('keydown-SPACE', () => {
+      globalThis.__gameAudioRuntime?.playCue?.({ src: 'assets/audio/kenney/sfx_attack_slash.ogg', category: 'transition', gain: 0.42 });
+      this.scene.start('GameScene');
+    });
   }
 }
