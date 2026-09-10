@@ -24,8 +24,7 @@ class HUD {
   _buildTopInkHud() {
     const scene = this.scene;
 
-    scene.add.image(124, 74, 'hud_logo_panel')
-      .setDisplaySize(232, 106)
+    scene.add.nineslice(124, 74, 'iw_hud_surface', undefined, 232, 106, 32, 32, 24, 24)
       .setScrollFactor(0)
       .setDepth(26);
     scene.add.text(104, 72, '21NL', {
@@ -37,8 +36,7 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(27);
 
-    this.hpBrush = scene.add.image(486, 48, 'hud_brush_bar')
-      .setDisplaySize(420, 48)
+    this.hpBrush = scene.add.nineslice(486, 48, 'iw_brush_gauge', undefined, 420, 48, 48, 48, 16, 16)
       .setScrollFactor(0)
       .setDepth(25);
     this.hpFill = scene.add.rectangle(358, 49, 248, 16, 0x8d2418, 0.92)
@@ -61,8 +59,7 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(1, 0.5).setScrollFactor(0).setDepth(27);
 
-    this.staminaBrush = scene.add.image(486, 94, 'hud_brush_bar')
-      .setDisplaySize(420, 44)
+    this.staminaBrush = scene.add.nineslice(486, 94, 'iw_brush_gauge', undefined, 420, 44, 48, 48, 16, 16)
       .setScrollFactor(0)
       .setDepth(25)
       .setAlpha(0.96);
@@ -86,8 +83,7 @@ class HUD {
       strokeThickness: 3,
     }).setOrigin(1, 0.5).setScrollFactor(0).setDepth(27);
 
-    scene.add.image(this.width - 88, 68, 'hud_score_box')
-      .setDisplaySize(150, 100)
+    scene.add.nineslice(this.width - 88, 68, 'iw_hud_surface', undefined, 150, 100, 32, 32, 24, 24)
       .setScrollFactor(0)
       .setDepth(25);
     scene.add.text(this.width - 88, 43, 'SCORE', {
@@ -106,7 +102,7 @@ class HUD {
     const scene = this.scene;
     const baseY = this.height - 145;
 
-    scene.add.image(126, baseY, 'hud_joystick_ring')
+    scene.add.image(126, baseY, 'iw_round_controls', 0)
       .setDisplaySize(154, 154)
       .setScrollFactor(0)
       .setDepth(24)
@@ -125,7 +121,7 @@ class HUD {
       { label: '필살', key: 'C', x: this.width / 2 + 122, glow: true },
     ];
     skills.forEach(({ label, key, x, glow }) => {
-      const button = scene.add.image(x, baseY, 'hud_skill_button')
+      const button = scene.add.image(x, baseY, 'iw_round_controls', 1)
         .setDisplaySize(glow ? 128 : 116, glow ? 128 : 116)
         .setScrollFactor(0)
         .setDepth(24)
@@ -151,8 +147,7 @@ class HUD {
       { y: this.height - 394, label: 'TAB' },
       { y: this.height - 268, label: '3' },
     ].forEach(({ y, label }) => {
-      scene.add.image(itemX, y, 'hud_item_slot')
-        .setDisplaySize(74, 104)
+      scene.add.nineslice(itemX, y, 'iw_item_slot', undefined, 74, 104, 18, 18, 24, 24)
         .setScrollFactor(0)
         .setDepth(24)
         .setAlpha(0.86);
@@ -169,8 +164,7 @@ class HUD {
     const inkShadow = scene.add.rectangle(this.width / 2, 190, 650, 138, 0x05070b, 0.18)
       .setScrollFactor(0)
       .setDepth(28);
-    const panel = scene.add.rectangle(this.width / 2, 178, 620, 130, 0xf2efe3, 0.82)
-      .setStrokeStyle(2, 0x101820, 0.84)
+    const panel = scene.add.nineslice(this.width / 2, 178, 'iw_tutorial_paper', undefined, 620, 130, 24, 24, 20, 20)
       .setScrollFactor(0)
       .setDepth(29);
     const title = scene.add.text(this.width / 2, 130, TutorialCopy.title, {

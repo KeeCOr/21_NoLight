@@ -52,6 +52,11 @@
     this.load.image('hud_joystick_ring', 'assets/generated/hud_joystick_ring.png');
     this.load.image('hud_skill_button', 'assets/generated/hud_skill_button.png');
     this.load.image('hud_item_slot', 'assets/generated/hud_item_slot.png');
+    this.load.image('iw_hud_surface', 'assets/generated/iw-hud-surface-9s.png');
+    this.load.image('iw_brush_gauge', 'assets/generated/iw-brush-gauge-9s.png');
+    this.load.image('iw_item_slot', 'assets/generated/iw-item-slot-9s.png');
+    this.load.image('iw_tutorial_paper', 'assets/generated/iw-tutorial-paper-9s.png');
+    this.load.spritesheet('iw_round_controls', 'assets/generated/iw-round-control-atlas.png', { frameWidth: 160, frameHeight: 160 });
     this.load.image('portrait_electric', 'assets/generated/portrait_electric.png');
     this.load.image('portrait_mecha', 'assets/generated/portrait_mecha.png');
     this.load.image('ui_gold_corner', 'assets/generated/ui_gold_corner.png');
