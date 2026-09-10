@@ -58,10 +58,12 @@ describe('reference-driven visual upgrade', () => {
   test('HUD uses ink mobile reference elements instead of the old cyan-only frame', () => {
     const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'ui', 'HUD.js'), 'utf8');
 
-    expect(source).toContain('hud_logo_panel');
-    expect(source).toContain('hud_brush_bar');
-    expect(source).toContain('hud_score_box');
-    expect(source).toContain('hud_joystick_ring');
+    expect(source).toContain('iw_hud_surface');
+    expect(source).toContain('iw_brush_gauge');
+    expect(source).toContain('iw_item_slot');
+    expect(source).toContain('iw_tutorial_paper');
+    expect(source).toContain("'iw_round_controls', 0");
+    expect(source).toContain("'iw_round_controls', 1");
   });
 
   test('GameScene layers ink splatter sprites into hit and slash feedback', () => {

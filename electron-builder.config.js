@@ -1,6 +1,6 @@
-﻿module.exports = {
+module.exports = {
   appId: 'com.21nl.game',
-  productName: '21NL',
+  productName: 'InkWarrior',
   directories: {
     output: 'release',
   },
@@ -18,6 +18,6 @@
     signAndEditExecutable: false,
   },
   portable: {
-    artifactName: '21NL_v${version}_portable.exe',
+    artifactName: 'InkWarrior_v${version}_portable.exe',
   },
 };

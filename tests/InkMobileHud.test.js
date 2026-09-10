@@ -6,25 +6,24 @@ function read(relativePath) {
 }
 
 describe('ink mobile HUD direction', () => {
-  test('ArtFactory creates brush-styled HUD textures matching the vertical reference', () => {
-    const source = read('src/systems/ArtFactory.js');
+  test('BootScene preloads ink-styled HUD nineslice and spritesheet assets', () => {
+    const source = read('src/scenes/BootScene.js');
 
-    expect(source).toContain("'hud_logo_panel'");
-    expect(source).toContain("'hud_brush_bar'");
-    expect(source).toContain("'hud_score_box'");
-    expect(source).toContain("'hud_joystick_ring'");
-    expect(source).toContain("'hud_skill_button'");
-    expect(source).toContain("'hud_item_slot'");
+    expect(source).toContain("'iw_hud_surface'");
+    expect(source).toContain("'iw_brush_gauge'");
+    expect(source).toContain("'iw_item_slot'");
+    expect(source).toContain("'iw_tutorial_paper'");
+    expect(source).toContain("'iw_round_controls'");
+    expect(source).toContain('frameWidth: 160');
   });
 
   test('HUD builds the reference-style top layout: logo, HP/ST brush bars, and score box', () => {
     const source = read('src/ui/HUD.js');
 
     expect(source).toContain('_buildTopInkHud');
-    expect(source).toContain("'hud_logo_panel'");
+    expect(source).toContain("'iw_hud_surface'");
     expect(source).toContain("'21NL'");
-    expect(source).toContain("'hud_brush_bar'");
-    expect(source).toContain("'hud_score_box'");
+    expect(source).toContain("'iw_brush_gauge'");
     expect(source).toContain('this.hpValueText');
     expect(source).toContain('this.staminaValueText');
   });
@@ -33,11 +32,18 @@ describe('ink mobile HUD direction', () => {
     const source = read('src/ui/HUD.js');
 
     expect(source).toContain('_buildBottomInkControls');
-    expect(source).toContain("'hud_joystick_ring'");
-    expect(source).toContain("'hud_skill_button'");
-    expect(source).toContain("'hud_item_slot'");
+    expect(source).toContain("'iw_round_controls', 0");
+    expect(source).toContain("'iw_round_controls', 1");
+    expect(source).toContain("'iw_item_slot'");
     expect(source).toContain("'참격'");
     expect(source).toContain("'대시'");
     expect(source).toContain("'필살'");
+  });
+
+  test('HUD builds the tutorial paper panel', () => {
+    const source = read('src/ui/HUD.js');
+
+    expect(source).toContain('_buildTutorialPanel');
+    expect(source).toContain("'iw_tutorial_paper'");
   });
 });

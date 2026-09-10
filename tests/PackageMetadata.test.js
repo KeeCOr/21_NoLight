@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 describe('package metadata shell compatibility', () => {
@@ -6,11 +6,10 @@ describe('package metadata shell compatibility', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
 
     expect(pkg.name).toBe('21-nl');
-    expect(pkg.version).toBe('0.13.1');
+    expect(pkg.version).toBe('0.14.0');
     expect(pkg.description).toBe('Ink-brush action platformer');
     expect(pkg.author).toBe('Jinwoo Oh');
     expect(/^[\x20-\x7E]+$/.test(pkg.description)).toBe(true);
     expect(/^[\x20-\x7E]+$/.test(pkg.author)).toBe(true);
   });
 });
-

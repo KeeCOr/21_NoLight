@@ -17,13 +17,22 @@ describe('generated UI asset integration', () => {
   });
 
   test('HUD uses reference-style brush HUD art for bars, score, and bottom controls', () => {
+    const bootSource = read('src/scenes/BootScene.js');
     const source = read('src/ui/HUD.js');
 
-    expect(source).toContain("'hud_logo_panel'");
-    expect(source).toContain("'hud_brush_bar'");
-    expect(source).toContain("'hud_score_box'");
+    expect(bootSource).toContain("this.load.image('iw_hud_surface', 'assets/generated/iw-hud-surface-9s.png')");
+    expect(bootSource).toContain("this.load.image('iw_brush_gauge', 'assets/generated/iw-brush-gauge-9s.png')");
+    expect(bootSource).toContain("this.load.image('iw_item_slot', 'assets/generated/iw-item-slot-9s.png')");
+    expect(bootSource).toContain("this.load.image('iw_tutorial_paper', 'assets/generated/iw-tutorial-paper-9s.png')");
+    expect(bootSource).toContain("this.load.spritesheet('iw_round_controls', 'assets/generated/iw-round-control-atlas.png', { frameWidth: 160, frameHeight: 160 })");
+
+    expect(source).toContain("'iw_hud_surface'");
+    expect(source).toContain("'iw_brush_gauge'");
+    expect(source).toContain("'iw_item_slot'");
+    expect(source).toContain("'iw_tutorial_paper'");
+    expect(source).toContain("'iw_round_controls', 0");
+    expect(source).toContain("'iw_round_controls', 1");
     expect(source).toContain('_buildBottomInkControls');
-    expect(source).toContain("'hud_skill_button'");
   });
 
   test('Main menu uses generated button and frame art for the start prompt', () => {
