@@ -1,10 +1,10 @@
 ﻿# InkWarrior 기획서
-> 현재 문서 기준 버전: 0.13.1
+> 현재 문서 기준 버전: 0.14.1
 
 ![InkWarrior gameplay preview](./21NL_gameplay_preview.png)
 
 ## 현재 구현 상태
-- 현재 문서 기준 버전: 0.11.0
+- 현재 문서 기준 버전: 0.14.1
 - Phaser 3 + Electron portable 구조를 유지한다.
 - ActionFeedback은 기존 피드백 API에 Kenney CC0 SFX cue를 추가했다.
 - GameScene은 공격, 회피/가드, 피격, 처치 피드백을 샘플 우선 재생 헬퍼로 재생한다.
@@ -20,6 +20,11 @@
 | `assets/audio/kenney/sfx_enemy_defeat.ogg` | Kenney Impact Sounds / `Audio/impactBell_heavy_002.ogg` | 처치 |
 | `assets/audio/kenney/sfx_stage_fail.ogg` | Kenney Interface Sounds / `Audio/error_003.ogg` | 실패 |
 
+## 남은 리스크와 다음 우선순위
+- CameraImpactProfile 순수 규칙 기반 카메라 흔들림/줌 타이밍이 히트박스, HUD 임팩트와 과도하게 겹치지 않는지 지속 점검한다.
+- HUD 나인슬라이스 프레임과 한글 폰트 폴백 적용 결과를 실제 플레이 화면에서 확인한다.
+- UI 디자이너 후속 작업 목록은 `docs/ui-designer-camera-impact-tasks.md`에 정리되어 있다.
+
 ## 빌드, 테스트, 릴리스
 | 목적 | 명령 |
 |---|---|
@@ -29,6 +34,17 @@
 ## 2026-07-15 v0.11.0 Kenney Combat SFX Runtime Update
 
 Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. 출처는 `assets/audio/kenney/README.md`에 남겼고, Google Drive 업로드는 컨트롤러에게 위임한다.
+
+## 2026-09-10 v0.14.0 나인슬라이스 HUD 및 화면비 확인
+
+HUD는 `src/ui/HUD.js`에서 ImageGen 라스터 나인슬라이스 프레임(`iw_hud_surface`, `iw_brush_gauge`, `iw_item_slot`, `iw_tutorial_paper`)으로 렌더링되고, `src/game.js`는 `Phaser.Scale.FIT` + `CENTER_BOTH`로 화면비를 유지한다.
+
+## 2026-09-10 v0.14.1 HUD 프레임 비율 고정 및 한글 폰트 폴백
+
+- `ui_score_frame`, `ui_button_frame` 런타임 키는 그대로 유지하면서 원본 이미지 경로만 `assets/generated/ui-score-frame-wide-v002.png`, `assets/generated/ui-button-frame-wide-v002.png`로 교체했다.
+- ImageGen PNG는 실제 비율을 고정한 상태로 사용한다: score 프레임은 1400x308 원본을 700x154로 표시하고, button 프레임은 1040x264 원본을 260x66으로 표시한다.
+- `src/ui/HUD.js`의 한글 라벨(참격, 대시, 필살, 검)은 `fontFamily: 'Noto Sans KR, Malgun Gothic, Arial Black'` 폴백 체인을 사용하고, 숫자/영문 라벨은 기존 `Arial Black` 폴백을 그대로 유지한다.
+- 검증: `npm test` 기준 신규/기존 계약 테스트 통과.
 
 ---
 # InkWarrior 湲고쉷??

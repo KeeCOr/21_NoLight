@@ -6,7 +6,7 @@ describe('package metadata shell compatibility', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
 
     expect(pkg.name).toBe('21-nl');
-    expect(pkg.version).toBe('0.14.0');
+    expect(pkg.version).toBe('0.14.1');
     expect(pkg.description).toBe('Ink-brush action platformer');
     expect(pkg.author).toBe('Jinwoo Oh');
     expect(/^[\x20-\x7E]+$/.test(pkg.description)).toBe(true);

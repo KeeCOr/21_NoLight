@@ -11,9 +11,14 @@ describe('generated UI asset integration', () => {
 
     expect(source).toContain("this.load.image('ui_hp_frame', 'assets/generated/ui-hp-frame.png')");
     expect(source).toContain("this.load.image('ui_stamina_frame', 'assets/generated/ui-stamina-frame.png')");
-    expect(source).toContain("this.load.image('ui_score_frame', 'assets/generated/ui-score-frame.png')");
     expect(source).toContain("this.load.image('ui_portrait_frame', 'assets/generated/ui-portrait-frame.png')");
-    expect(source).toContain("this.load.image('ui_button_frame', 'assets/generated/ui-button-frame.png')");
+  });
+
+  test('BootScene keeps ui_score_frame and ui_button_frame runtime keys but loads the wide-v002 generated art', () => {
+    const source = read('src/scenes/BootScene.js');
+
+    expect(source).toContain("this.load.image('ui_score_frame', 'assets/generated/ui-score-frame-wide-v002.png')");
+    expect(source).toContain("this.load.image('ui_button_frame', 'assets/generated/ui-button-frame-wide-v002.png')");
   });
 
   test('HUD uses reference-style brush HUD art for bars, score, and bottom controls', () => {
@@ -40,5 +45,11 @@ describe('generated UI asset integration', () => {
 
     expect(source).toContain("'ui_button_frame'");
     expect(source).toContain("'ui_score_frame'");
+  });
+
+  test('HUD text falls back through Korean-safe fonts for Hangul labels', () => {
+    const source = read('src/ui/HUD.js');
+
+    expect(source).toContain("fontFamily: 'Noto Sans KR, Malgun Gothic, Arial Black'");
   });
 });

@@ -21,14 +21,14 @@
 </head>
 <body>
 <h1>InkWarrior 기획서</h1>
-<p class="meta">현재 문서 기준 버전: 0.13.1</p>
+<p class="meta">현재 문서 기준 버전: 0.14.1</p>
 <blockquote>
-<p>현재 문서 기준 버전: 0.13.1</p>
+<p>현재 문서 기준 버전: 0.14.1</p>
 </blockquote>
 <p><img src="./21NL_gameplay_preview.png" alt="InkWarrior gameplay preview" style="max-width:100%;border-radius:8px"></p>
 <h2>현재 구현 상태</h2>
 <ul>
-  <li>현재 문서 기준 버전: 0.11.0</li>
+  <li>현재 문서 기준 버전: 0.14.1</li>
   <li>Phaser 3 + Electron portable 구조를 유지한다.</li>
   <li>ActionFeedback은 기존 피드백 API에 Kenney CC0 SFX cue를 추가했다.</li>
   <li>GameScene은 공격, 회피/가드, 피격, 처치 피드백을 샘플 우선 재생 헬퍼로 재생한다.</li>
@@ -46,6 +46,12 @@
     <tr><td><code>assets/audio/kenney/sfx_stage_fail.ogg</code></td><td>Kenney Interface Sounds / <code>Audio/error_003.ogg</code></td><td>실패</td></tr>
   </tbody>
 </table>
+<h2>남은 리스크와 다음 우선순위</h2>
+<ul>
+  <li>CameraImpactProfile 순수 규칙 기반 카메라 흔들림/줌 타이밍이 히트박스, HUD 임팩트와 과도하게 겹치지 않는지 지속 점검한다.</li>
+  <li>HUD 나인슬라이스 프레임과 한글 폰트 폴백 적용 결과를 실제 플레이 화면에서 확인한다.</li>
+  <li>UI 디자이너 후속 작업 목록은 <code>docs/ui-designer-camera-impact-tasks.md</code>에 정리되어 있다.</li>
+</ul>
 <h2>빌드, 테스트, 릴리스</h2>
 <table>
   <thead><tr><th>목적</th><th>명령</th></tr></thead>
@@ -56,6 +62,15 @@
 </table>
 <h2>2026-07-15 v0.11.0 Kenney Combat SFX Runtime Update</h2>
 <p>Kenney CC0 SFX 6개를 첫 30초 전투 판독 이벤트에 연결했다. 출처는 <code>assets/audio/kenney/README.md</code>에 남겼고, Google Drive 업로드는 컨트롤러에게 위임한다.</p>
+<h2>2026-09-10 v0.14.0 나인슬라이스 HUD 및 화면비 확인</h2>
+<p>HUD는 <code>src/ui/HUD.js</code>에서 ImageGen 라스터 나인슬라이스 프레임(<code>iw_hud_surface</code>, <code>iw_brush_gauge</code>, <code>iw_item_slot</code>, <code>iw_tutorial_paper</code>)으로 렌더링되고, <code>src/game.js</code>는 <code>Phaser.Scale.FIT</code> + <code>CENTER_BOTH</code>로 화면비를 유지한다.</p>
+<h2>2026-09-10 v0.14.1 HUD 프레임 비율 고정 및 한글 폰트 폴백</h2>
+<ul>
+  <li><code>ui_score_frame</code>, <code>ui_button_frame</code> 런타임 키는 그대로 유지하면서 원본 이미지 경로만 <code>assets/generated/ui-score-frame-wide-v002.png</code>, <code>assets/generated/ui-button-frame-wide-v002.png</code>로 교체했다.</li>
+  <li>ImageGen PNG는 실제 비율을 고정한 상태로 사용한다: score 프레임은 1400x308 원본을 700x154로 표시하고, button 프레임은 1040x264 원본을 260x66으로 표시한다.</li>
+  <li><code>src/ui/HUD.js</code>의 한글 라벨(참격, 대시, 필살, 검)은 <code>fontFamily: 'Noto Sans KR, Malgun Gothic, Arial Black'</code> 폴백 체인을 사용하고, 숫자/영문 라벨은 기존 <code>Arial Black</code> 폴백을 그대로 유지한다.</li>
+  <li>검증: <code>npm test</code> 기준 신규/기존 계약 테스트 통과.</li>
+</ul>
 <hr>
 <h1>InkWarrior 湲고쉷??</h1>
 <p class="meta">현재 문서 기준 버전: 0.11.0</p>

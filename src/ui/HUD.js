@@ -1,3 +1,11 @@
+const HANGUL_TEXT_STYLE = {
+  fontFamily: 'Noto Sans KR, Malgun Gothic, Arial Black',
+};
+
+function koreanTextStyle(overrides) {
+  return Object.assign({}, HANGUL_TEXT_STYLE, overrides);
+}
+
 class HUD {
   constructor(scene, stat, characterManager) {
     this.scene = scene;
@@ -132,13 +140,12 @@ class HUD {
         color: glow ? '#2a1205' : '#05070b',
         fontFamily: 'Arial Black',
       }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
-      scene.add.text(x, baseY + 84, label, {
+      scene.add.text(x, baseY + 84, label, koreanTextStyle({
         fontSize: '20px',
         color: '#ead8ad',
-        fontFamily: 'Arial Black',
         stroke: '#05070b',
         strokeThickness: 5,
-      }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+      })).setOrigin(0.5).setScrollFactor(0).setDepth(25);
     });
 
     const itemX = this.width - 64;
@@ -151,11 +158,13 @@ class HUD {
         .setScrollFactor(0)
         .setDepth(24)
         .setAlpha(0.86);
-      scene.add.text(itemX, y + 22, label, {
+      const itemLabelStyle = {
         fontSize: label === 'TAB' ? '18px' : (label === '3' ? '24px' : '22px'),
         color: '#05070b',
         fontFamily: 'Arial Black',
-      }).setOrigin(0.5).setScrollFactor(0).setDepth(25);
+      };
+      scene.add.text(itemX, y + 22, label, /[가-힣]/.test(label) ? koreanTextStyle(itemLabelStyle) : itemLabelStyle)
+        .setOrigin(0.5).setScrollFactor(0).setDepth(25);
     });
   }
 
@@ -167,18 +176,16 @@ class HUD {
     const panel = scene.add.nineslice(this.width / 2, 178, 'iw_tutorial_paper', undefined, 620, 130, 24, 24, 20, 20)
       .setScrollFactor(0)
       .setDepth(29);
-    const title = scene.add.text(this.width / 2, 130, TutorialCopy.title, {
+    const title = scene.add.text(this.width / 2, 130, TutorialCopy.title, koreanTextStyle({
       fontSize: '18px',
       color: '#05070b',
-      fontFamily: 'Arial Black',
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(30);
-    const body = scene.add.text(this.width / 2, 164, '', {
+    })).setOrigin(0.5).setScrollFactor(0).setDepth(30);
+    const body = scene.add.text(this.width / 2, 164, '', koreanTextStyle({
       fontSize: '17px',
       color: '#101820',
-      fontFamily: 'Arial',
       align: 'center',
       wordWrap: { width: 560 },
-    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(30);
+    })).setOrigin(0.5, 0).setScrollFactor(0).setDepth(30);
 
     this.tutorialNodes = [inkShadow, panel, title, body];
     this.tutorialTitle = title;
