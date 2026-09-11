@@ -3,3 +3,4 @@ release/
 dist/
 *.exe
 .claude/
+_temp/
