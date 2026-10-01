@@ -1,0 +1,143 @@
+class Enemy extends Phaser.Physics.Arcade.Sprite {
+  constructor(scene, x, y) {
+    const variant = getMonsterVariantForSpawn({ x, y });
+    super(scene, x, y, variant.texture);
+    scene.add.existing(this);
+    scene.physics.add.existing(this);
+    this.monsterVariant = variant;
+
+    this.maxHp = 120;
+    this.hp = 120;
+    this.isTrialElite = false;
+    this.sharkPower = 18 + (Math.abs(Math.floor(x / 120)) % 4) * 3 + variant.powerBonus;
+    this.speed = Math.round(96 * variant.speedMultiplier);
+    this.ATTACK_DAMAGE = this.sharkPower;
+    this.attackRange = 60;
+    this.attackCooldown = 1500;
+    this.attackTimer = 0;
+    this.stunTimer = 0;
+    this.isStunned = false;
+
+    this.setCollideWorldBounds(false);
+    this.setDepth(3);
+    this.setDisplaySize(variant.display.width, variant.display.height);
+    this.setTint(0x1d1b18);
+    this.setTint(variant.tint);
+    this.body.setSize(variant.body.width, variant.body.height);
+    this.body.setOffset(variant.body.offsetX, variant.body.offsetY);
+    this.statLabel = scene.add.text(x, y - 42, '', {
+      fontSize: '13px',
+      color: '#ffffff',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(6);
+  }
+
+  promoteToTrialElite() {
+    if (this.isTrialElite || !this.active) return false;
+    this.isTrialElite = true;
+    this.maxHp = 260;
+    this.hp = 260;
+    this.sharkPower += 14;
+    this.ATTACK_DAMAGE = this.sharkPower;
+    this.speed = Math.max(72, Math.round(this.speed * 0.86));
+    this.setDisplaySize(Math.round(this.displayWidth * 1.24), Math.round(this.displayHeight * 1.24));
+    this.setTint(0x651c16);
+    return true;
+  }
+
+  onHit(damage, attacker) {
+    this.hp -= damage;
+    this.lastHitFacing = attacker?.flipX ? -1 : 1;
+    this.lastHitComboStep = attacker?.comboStep || 1;
+    this.lastHitReaction = getComboHitReaction({
+      comboStep: this.lastHitComboStep,
+      facing: this.lastHitFacing,
+    });
+    this.scene.events.emit('enemyHit', this, {
+      damage,
+      comboStep: this.lastHitComboStep,
+      facing: this.lastHitFacing,
+      reaction: this.lastHitReaction,
+    });
+    this.applyStun(this.lastHitReaction.staggerMs);
+    this._playHitReaction(this.lastHitReaction);
+    this.setTint(0xf4efe3);
+    this.scene.time.delayedCall(80, () => {
+      if (this.active) this.setTint(this.monsterVariant.tint);
+    });
+    if (this.hp <= 0) this.onDeath();
+  }
+
+  _playHitReaction(reaction) {
+    if (!reaction) return;
+    if (this.body && typeof this.setVelocityX === 'function') {
+      this.setVelocityX(reaction.knockbackVelocityX);
+      if (reaction.isFinisher && typeof this.setVelocityY === 'function') this.setVelocityY(-90);
+    }
+    if (!this.scene?.tweens) return;
+    this.scene.tweens.killTweensOf(this);
+    this.scene.tweens.add({
+      targets: this,
+      x: this.x + reaction.knockbackX,
+      y: this.y + reaction.popY,
+      duration: reaction.travelMs,
+      ease: 'Cubic.easeOut',
+    });
+  }
+
+  applyStun(duration) {
+    this.isStunned = true;
+    this.stunTimer = duration;
+  }
+
+  cancelAttack() {
+    this.attackTimer = 0;
+  }
+
+  onDeath() {
+    if (this.statLabel) this.statLabel.destroy();
+    this.scene.events.emit('enemyKilled', this, {
+      facing: this.lastHitFacing || 1,
+      comboStep: this.lastHitComboStep || 1,
+      reaction: this.lastHitReaction,
+      isTrialElite: this.isTrialElite,
+    });
+    this.destroy();
+  }
+
+  destroy(fromScene) {
+    if (this.statLabel && this.statLabel.active) this.statLabel.destroy();
+    super.destroy(fromScene);
+  }
+
+  update(delta, player) {
+    if (!player || !this.active) return;
+
+    if (this.isStunned) {
+      this.stunTimer -= delta;
+      if (this.stunTimer <= 0) this.isStunned = false;
+      this.setVelocityX(0);
+      return;
+    }
+
+    const dx = player.x - this.x;
+    this.setVelocityX(Math.sign(dx) * this.speed);
+    this.setFlipX(dx < 0);
+
+    this.attackTimer += delta;
+    if (this.attackTimer >= this.attackCooldown) {
+      const dist = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+      if (dist <= this.attackRange) {
+        this.attackTimer = 0;
+        SharkCombat.resolveFrontContest(this, player);
+      }
+    }
+
+    if (this.statLabel && this.statLabel.active) {
+      this.statLabel.setPosition(this.x, this.y - 42);
+      this.statLabel.setText(`${this.isTrialElite ? '강적 · ' : ''}${this.sharkPower}/${Math.ceil(this.hp)}`);
+    }
+  }
+}
