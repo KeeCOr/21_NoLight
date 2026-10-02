@@ -1,0 +1,986 @@
+﻿class GameScene extends Phaser.Scene {
+  constructor() {
+    super('GameScene');
+  }
+
+  create() {
+    this.worldWidth = this.scale?.width || this.cameras.main.width;
+    this.worldHeight = this.scale?.height || this.cameras.main.height;
+    this._createBackground();
+    this._createLightGuides();
+
+    this.physics.world.setBounds(-50000, -50000, 100000, 100000);
+    this.cameras.main.setBounds(-50000, -50000, 100000, 100000);
+
+    this.stat = new StatSystem();
+    this.mapGen = new MapGenerator(this);
+
+    const startX = this.worldWidth / 2;
+    const electric = new ElectricCharacter(this, startX, 300, this.stat);
+    const mecha = new MechaArmCharacter(this, startX, 300, this.stat);
+    mecha.setVisible(false);
+
+    this.charManager = new CharacterManager([electric, mecha]);
+    this.pursuer = new Pursuer(this, startX, 860);
+    this.isOnboardingActive = true;
+    this.onboardingStart = { x: startX, y: 300 };
+    [electric, mecha].forEach(character => {
+      character.body.allowGravity = false;
+      character.setVelocity(0, 0);
+    });
+    this.events.on('tutorialCompleted', () => {
+      this.isOnboardingActive = false;
+      [electric, mecha].forEach(character => {
+        character.body.allowGravity = true;
+        character.setPosition(this.onboardingStart.x, this.onboardingStart.y);
+        character.setVelocity(0, 0);
+      });
+      this.pursuer.setPosition(startX, 860);
+      this.pursuer.setVelocity(0, 0);
+    });
+    this.hud = new HUD(this, this.stat, this.charManager);
+    this.trialElitePending = false;
+    this.events.on('combatTrialEliteUnlocked', () => this._promoteTrialElite());
+    this._createBoundaryMarkers();
+
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.keys = this.input.keyboard.addKeys({
+      attack: Phaser.Input.Keyboard.KeyCodes.Z,
+      skill: Phaser.Input.Keyboard.KeyCodes.X,
+      guard: Phaser.Input.Keyboard.KeyCodes.C,
+      swap: Phaser.Input.Keyboard.KeyCodes.TAB,
+    });
+
+    this.cameras.main.startFollow(this.charManager.getActive(), true, 0.1, 0.1);
+    this.projectiles = [];
+    this.healthDrops = this.physics.add.group({ allowGravity: false });
+
+    this.physics.add.collider(electric, this.mapGen.getPlatformGroup(), null, this._platformCollisionProcess, this);
+    this.physics.add.collider(mecha, this.mapGen.getPlatformGroup(), null, this._platformCollisionProcess, this);
+    this.physics.add.collider(electric, this.boundaryWallGroup);
+    this.physics.add.collider(mecha, this.boundaryWallGroup);
+    this.physics.add.overlap(electric, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
+    this.physics.add.overlap(mecha, this.healthDrops, (player, drop) => this._collectHealthDrop(player, drop));
+
+    this.events.on('enemyKilled', (enemy, payload = {}) => {
+      this.stat.onKill();
+      const reaction = payload.reaction || getComboHitReaction({
+        comboStep: payload.comboStep || enemy.lastHitComboStep || 3,
+        facing: payload.facing || enemy.lastHitFacing || 1,
+      });
+      const feedback = getActionFeedback({ type: 'defeat', damage: enemy?.maxHp || 0 });
+      this._comboImpactVfx(enemy, reaction.impactVfx, reaction);
+      this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 16 : 12);
+      this._inkSplatter(enemy.x, enemy.y, 'blood_ink', reaction.isFinisher ? 1.32 : 1.15);
+      this._enemyFinisherPop(enemy, reaction);
+      this._showActionFeedback(enemy.x, enemy.y, feedback);
+      const spawnDrop = () => this._spawnHealthDrop(enemy.x, enemy.y);
+      if (reaction.spawnDropDelayMs > 0) this.time.delayedCall(reaction.spawnDropDelayMs, spawnDrop);
+      else spawnDrop();
+      this._cameraPunch('kill', 1.25, { facing: payload.facing || enemy.lastHitFacing || 1, comboStep: payload.comboStep || 3 });
+    });
+    this.events.on('enemyHit', (enemy, payload = {}) => {
+      const reaction = payload.reaction || getComboHitReaction({
+        comboStep: payload.comboStep || 1,
+        facing: payload.facing || 1,
+      });
+      const feedback = getActionFeedback({
+        type: 'hit',
+        comboStep: payload.comboStep || 1,
+        damage: payload.damage || enemy?.lastDamage || 0,
+      });
+      this._comboImpactVfx(enemy, reaction.impactVfx, reaction);
+      this._impactBurst(enemy.x, enemy.y, 0x05070b, reaction.isFinisher ? 13 : 8);
+      this._inkSplatter(enemy.x, enemy.y, 'ink_splatter', reaction.isFinisher ? 1.08 : 0.85);
+      this._enemyComboSmear(enemy, reaction);
+      this._enemyFinisherPop(enemy, reaction);
+      this._showActionFeedback(enemy.x, enemy.y, feedback);
+      const cameraProfile = reaction.isFinisher
+        ? this._cameraPunch('combo', 1, {
+          facing: payload.facing || 1,
+          comboStep: payload.comboStep || 1,
+        })
+        : this._cameraPunch('hit', 1, {
+          facing: payload.facing || 1,
+          comboStep: payload.comboStep || 1,
+        });
+      this._hitStop(Math.max(cameraProfile.hitStop, reaction.hitStopMs));
+    });
+    this.events.on('mechaDashStart', (char, payload = {}) => {
+      this._dashTrail(char, 0x05070b);
+      const feedback = getActionFeedback({
+        type: 'dodge',
+        staminaBefore: payload.staminaBefore,
+        staminaAfter: payload.staminaAfter,
+      });
+      this._showActionFeedback(char.x, char.y, feedback);
+    });
+
+    this.events.on('electricSwapIn', (char) => {
+      this._skillBurst(char.x, char.y, 0x05070b, 230, char.flipX ? -1 : 1);
+      this.mapGen.getAllEnemies().forEach(e => {
+        const dist = Phaser.Math.Distance.Between(char.x, char.y, e.x, e.y);
+        if (dist <= 200) e.applyStun(800);
+      });
+    });
+
+    this.events.on('pursuerAttack', ({ pursuer, type, player }) => {
+      this._handlePursuerAttack(pursuer, type, player);
+    });
+  }
+
+  _promoteTrialElite() {
+    const active = this.charManager.getActive();
+    const candidates = this.mapGen.getAllEnemies().filter(enemy => enemy.active && !enemy.isTrialElite);
+    const target = candidates.sort((a, b) => {
+      const distanceA = Phaser.Math.Distance.Between(active.x, active.y, a.x, a.y);
+      const distanceB = Phaser.Math.Distance.Between(active.x, active.y, b.x, b.y);
+      return distanceA - distanceB;
+    })[0];
+
+    if (!target) {
+      this.trialElitePending = true;
+      return;
+    }
+    target.promoteToTrialElite();
+  }
+
+  _createBackground() {
+    const cx = this.worldWidth / 2;
+    const cy = this.worldHeight / 2;
+    this.bgFar = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_far').setScrollFactor(0).setDepth(-30);
+    this.bgMid = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_mid').setScrollFactor(0).setDepth(-20).setAlpha(0.54);
+    this.bgFog = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_fog').setScrollFactor(0).setDepth(-10).setAlpha(0.56);
+    this._createInkLandscape();
+    this.paperWash = this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0xf7f1e4, 0.28)
+      .setScrollFactor(0)
+      .setDepth(-7);
+    this.inkGrade = this.add.rectangle(cx, cy, this.worldWidth, this.worldHeight, 0x05070b, 0.16)
+      .setScrollFactor(0)
+      .setDepth(-5);
+    this.edgeVignetteTop = this.add.rectangle(cx, 28, this.worldWidth, 92, 0x05070b, 0.18)
+      .setScrollFactor(0)
+      .setDepth(18);
+    this.edgeVignetteBottom = this.add.rectangle(cx, this.worldHeight - 28, this.worldWidth, 92, 0x05070b, 0.18)
+      .setScrollFactor(0)
+      .setDepth(18);
+    this.scanlines = this.add.tileSprite(cx, cy, this.worldWidth, this.worldHeight, 'bg_scanline')
+      .setScrollFactor(0)
+      .setDepth(19)
+      .setAlpha(0.07)
+      .setTint(0x05070b);
+    this._applyMonochromeTint(this.bgFar, 0xefe6d0, 0.96);
+    this._applyMonochromeTint(this.bgMid, 0x2c2a25, 0.54);
+    this._applyMonochromeTint(this.bgFog, 0xf5f0e4, 0.5);
+  }
+
+  _createInkLandscape() {
+    const mountainY = this.worldHeight * 0.34;
+    this.mountainFar = this.add.image(this.worldWidth / 2, mountainY, 'bg_mountain_generated')
+      .setDisplaySize(this.worldWidth * 1.12, 280)
+      .setScrollFactor(0)
+      .setDepth(-18)
+      .setAlpha(0.44)
+      .setTint(0x28251f);
+    this.mountainNear = this.add.image(this.worldWidth / 2 + 70, this.worldHeight * 0.48, 'bg_mountain_generated')
+      .setDisplaySize(this.worldWidth * 1.28, 360)
+      .setScrollFactor(0)
+      .setDepth(-16)
+      .setAlpha(0.3)
+      .setTint(0x0f0e0c);
+    this.inkWallLeft = this.add.tileSprite(22, this.worldHeight / 2, 96, this.worldHeight, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(-4)
+      .setAlpha(0.16)
+      .setTint(0x05070b);
+    this.inkWallRight = this.add.tileSprite(this.worldWidth - 22, this.worldHeight / 2, 96, this.worldHeight, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(-4)
+      .setAlpha(0.16)
+      .setTint(0x05070b)
+      .setFlipX(true);
+    this.inkForeground = this.add.tileSprite(this.worldWidth / 2, this.worldHeight - 54, this.worldWidth, 128, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(0)
+      .setAlpha(0.24)
+      .setTint(0x05070b);
+  }
+
+  _applyMonochromeTint(target, tint, alpha) {
+    target.setTint(tint);
+    target.setAlpha(alpha);
+  }
+
+  _createLightGuides() {
+    const cx = this.worldWidth / 2;
+    this.topLightGuide = this.add.image(cx, 102, 'light_shard_top')
+      .setDisplaySize(210, 420)
+      .setScrollFactor(0)
+      .setDepth(-2)
+      .setAlpha(0.26)
+      .setTint(0xf4efe3);
+    this.bottomLightGuide = this.add.image(cx, this.worldHeight - 120, 'light_shard_bottom')
+      .setDisplaySize(220, 430)
+      .setScrollFactor(0)
+      .setDepth(-2)
+      .setAlpha(0.22)
+      .setTint(0xf4efe3);
+    this.lightGuidePulse = 0;
+  }
+
+  _syncLightGuides(delta) {
+    if (!this.topLightGuide || !this.bottomLightGuide) return;
+    this.lightGuidePulse += delta;
+    const pulse = Math.sin(this.lightGuidePulse * 0.0022);
+    const active = this.charManager?.getActive?.();
+    const targetX = active ? Phaser.Math.Clamp(active.x, this.worldWidth * 0.28, this.worldWidth * 0.72) : this.worldWidth / 2;
+    this.topLightGuide.x += (targetX - this.topLightGuide.x) * 0.018;
+    this.bottomLightGuide.x += (targetX - this.bottomLightGuide.x) * 0.014;
+    this.topLightGuide.setAlpha(0.22 + pulse * 0.05);
+    this.bottomLightGuide.setAlpha(0.2 - pulse * 0.04);
+    this.topLightGuide.setAngle(pulse * 1.2);
+    this.bottomLightGuide.setAngle(-pulse * 1.4);
+  }
+
+  _syncBackground() {
+    const cam = this.cameras.main;
+    this.bgFar.tilePositionY = cam.scrollY * 0.08;
+    this.bgMid.tilePositionY = cam.scrollY * 0.24;
+    this.bgFog.tilePositionY = cam.scrollY * 0.42;
+    this.bgFog.tilePositionX += 0.12;
+    if (this.mountainFar) this.mountainFar.y = this.worldHeight * 0.34 - cam.scrollY * 0.04;
+    if (this.mountainNear) this.mountainNear.y = this.worldHeight * 0.48 - cam.scrollY * 0.08;
+    if (this.inkWallLeft) this.inkWallLeft.tilePositionY = cam.scrollY * 0.18;
+    if (this.inkWallRight) this.inkWallRight.tilePositionY = cam.scrollY * 0.22;
+    if (this.inkForeground) this.inkForeground.tilePositionY = cam.scrollY * 0.12;
+    this.scanlines.tilePositionY += 0.08;
+  }
+
+  _createBoundaryMarkers() {
+    const margin = this.charManager?.getActive()?.PLAY_AREA_MARGIN || 120;
+    const bounds = getPlayAreaBounds({
+      width: this.worldWidth,
+      margin,
+      physicsHeight: 100000,
+    });
+
+    this.boundaryWallGroup = this.physics.add.staticGroup();
+    this.leftBoundaryWall = this.boundaryWallGroup.create(bounds.leftWallX, 0, 'ink_wall')
+      .setDisplaySize(bounds.wallWidth, bounds.physicsHeight)
+      .setVisible(false)
+      .refreshBody();
+    this.rightBoundaryWall = this.boundaryWallGroup.create(bounds.rightWallX, 0, 'ink_wall')
+      .setDisplaySize(bounds.wallWidth, bounds.physicsHeight)
+      .setVisible(false)
+      .refreshBody();
+
+    this.leftBoundaryMarker = this._createBoundaryWallVisual(bounds, 'left');
+    this.rightBoundaryMarker = this._createBoundaryWallVisual(bounds, 'right');
+  }
+
+  _createBoundaryWallVisual(bounds, side) {
+    const isLeft = side === 'left';
+    const x = isLeft ? bounds.leftVisualX : bounds.rightVisualX;
+    const lineX = isLeft ? bounds.innerLineLeftX : bounds.innerLineRightX;
+    const wall = this.add.tileSprite(x, this.worldHeight / 2, bounds.wallVisualWidth, this.worldHeight, 'ink_wall')
+      .setScrollFactor(0)
+      .setDepth(2)
+      .setAlpha(0.5)
+      .setTint(0x05070b)
+      .setFlipX(!isLeft);
+    const splatter = this.add.tileSprite(x, this.worldHeight / 2, bounds.wallVisualWidth * 0.72, this.worldHeight, 'ink_splatter')
+      .setScrollFactor(0)
+      .setDepth(3)
+      .setAlpha(0.34)
+      .setTint(0x05070b)
+      .setFlipX(!isLeft);
+    const line = this.add.rectangle(lineX, this.worldHeight / 2, 6, this.worldHeight, 0xb88a3a, 0.72)
+      .setScrollFactor(0)
+      .setDepth(4);
+    const shadow = this.add.rectangle(isLeft ? lineX - 18 : lineX + 18, this.worldHeight / 2, 28, this.worldHeight, 0x05070b, 0.22)
+      .setScrollFactor(0)
+      .setDepth(3);
+
+    return { wall, splatter, line, shadow };
+  }
+
+  _platformCollisionProcess(player, platform) {
+    if (!platform.isOneWayPlatform) return true;
+    if (player.dropThroughTimer > 0) return false;
+    if (!player.body || !platform.body) return true;
+    return player.body.velocity.y >= 0 && player.body.bottom <= platform.body.top + 14;
+  }
+
+  _handlePursuerAttack(pursuer, type, player) {
+    if (type === 'projectile') {
+      const proj = this.physics.add.sprite(pursuer.x, pursuer.y, 'projectile').setDepth(4);
+      proj.body.allowGravity = false;
+      proj.body.setCircle(9, 3, 3);
+      const angle = Phaser.Math.Angle.Between(pursuer.x, pursuer.y, player.x, player.y);
+      proj.body.setVelocity(Math.cos(angle) * 300, Math.sin(angle) * 300);
+      proj.damage = 15;
+      this.tweens.add({ targets: proj, angle: 360, duration: 700, repeat: -1 });
+
+      proj.reflect = () => {
+        const backAngle = Phaser.Math.Angle.Between(proj.x, proj.y, pursuer.x, pursuer.y);
+        proj.body.setVelocity(Math.cos(backAngle) * 350, Math.sin(backAngle) * 350);
+        proj.damage = 30;
+        proj.setTint(0xf4efe3);
+        this.physics.add.overlap(proj, pursuer, () => {
+          if (!proj.active) return;
+          pursuer.onHit(proj.damage, proj);
+          this._impactInkBurst(proj.x, proj.y, 'hit', 0.9);
+          this._impactBurst(proj.x, proj.y, 0x05070b, 10);
+          proj.destroy();
+          this.projectiles = this.projectiles.filter(p => p !== proj);
+        });
+      };
+      proj.setSlowed = (factor) => {
+        proj.body.setVelocity(proj.body.velocity.x * factor, proj.body.velocity.y * factor);
+      };
+
+      this.physics.add.overlap(proj, player, () => {
+        player.onHit(proj.damage, proj);
+        const feedback = getActionFeedback({ type: 'stagger', damage: proj.damage });
+        this._impactInkBurst(proj.x, proj.y, 'hit', feedback.intensity);
+        this._impactBurst(proj.x, proj.y, 0x05070b, 9);
+        this._inkSplatter(proj.x, proj.y, feedback.texture, 0.88);
+        this._showActionFeedback(player.x, player.y, feedback);
+        proj.destroy();
+        this.projectiles = this.projectiles.filter(p => p !== proj);
+      });
+
+      this.projectiles.push(proj);
+      this.time.delayedCall(5000, () => {
+        if (proj.active) {
+          proj.destroy();
+          this.projectiles = this.projectiles.filter(p => p !== proj);
+        }
+      });
+    } else if (type === 'shockwave') {
+      const warn = this.add.circle(pursuer.x, pursuer.y, 200, 0x05070b, 0.08)
+        .setStrokeStyle(3, 0x05070b, 0.65)
+        .setDepth(2);
+      this.tweens.add({ targets: warn, scale: 1.12, alpha: 0.35, duration: 760, yoyo: true });
+      this.time.delayedCall(800, () => {
+        warn.destroy();
+        this._skillBurst(pursuer.x, pursuer.y, 0x05070b, 205, pursuer.flipX ? -1 : 1);
+        const dist = Phaser.Math.Distance.Between(pursuer.x, pursuer.y, player.x, player.y);
+        if (dist <= 200) {
+          player.onHit(20, pursuer);
+          const feedback = getActionFeedback({ type: 'stagger', damage: 20 });
+          this._inkSplatter(player.x, player.y, feedback.texture, 0.96);
+          this._showActionFeedback(player.x, player.y, feedback);
+        }
+      });
+    } else if (type === 'dash') {
+      const angle = Phaser.Math.Angle.Between(pursuer.x, pursuer.y, player.x, player.y);
+      pursuer.setVelocity(Math.cos(angle) * 500, Math.sin(angle) * 500);
+      this._dashTrail(pursuer, 0x05070b);
+      this.time.delayedCall(400, () => pursuer.setVelocity(0, 0));
+    } else if (type === 'rush') {
+      this._showAlert('THE HUNTER SURGES');
+      this._cameraPunch('rush', 1.35);
+    }
+  }
+
+  _cameraPunch(kind, power = 1, options = {}) {
+    const cam = this.cameras.main;
+    const profile = getCameraImpactProfile({ kind, power, ...options });
+    cam.shake(profile.duration, profile.intensity);
+    cam.flash(profile.flash, (profile.color >> 16) & 255, (profile.color >> 8) & 255, profile.color & 255, false);
+    this.tweens.killTweensOf(cam);
+    cam.setZoom(profile.zoom);
+    this._cameraNudge(profile);
+    this.tweens.add({
+      targets: cam,
+      zoom: 1,
+      duration: profile.recoverDuration,
+      ease: 'Cubic.easeOut',
+    });
+    return profile;
+  }
+
+  _cameraNudge(profile) {
+    const cam = this.cameras.main;
+    if (!cam.followOffset || !cam.setFollowOffset) return;
+    const baseX = this._cameraBaseFollowOffsetX ?? cam.followOffset.x ?? 0;
+    const baseY = this._cameraBaseFollowOffsetY ?? cam.followOffset.y ?? 0;
+    this._cameraBaseFollowOffsetX = baseX;
+    this._cameraBaseFollowOffsetY = baseY;
+    this.tweens.killTweensOf(cam.followOffset);
+    cam.setFollowOffset(baseX + profile.nudgeX, baseY + profile.nudgeY);
+    this.tweens.add({
+      targets: cam.followOffset,
+      x: baseX,
+      y: baseY,
+      duration: profile.recoverDuration,
+      ease: 'Cubic.easeOut',
+    });
+  }
+
+  _showAlert(text) {
+    const alert = this.add.text(this.worldWidth / 2, 260, text, {
+      fontSize: '30px',
+      color: '#f4efe3',
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 6,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30);
+    this.tweens.add({
+      targets: alert,
+      alpha: 0,
+      y: 232,
+      duration: 900,
+      ease: 'Cubic.easeOut',
+      onComplete: () => alert.destroy(),
+    });
+  }
+
+  _spawnHealthDrop(x, y, lifetime = 8500) {
+    const drop = this.healthDrops.create(x, y - 14, 'life_orb')
+      .setDepth(5)
+      .setScale(1.35);
+    drop.body.allowGravity = false;
+    drop.healAmount = this.stat.HEAL_DROP_RESTORE;
+    this.tweens.add({ targets: drop, y: y - 34, duration: 620, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.time.delayedCall(lifetime, () => {
+      if (drop.active) drop.destroy();
+    });
+    return drop;
+  }
+
+  _collectHealthDrop(player, drop) {
+    if (!player.visible) return;
+    if (!drop || !drop.active) return;
+    this.stat.restoreHp(drop.healAmount);
+    SharkCombat.eatFish(this.stat);
+    this._absorbLightFeedback(player);
+    this._impactBurst(drop.x, drop.y, 0x05070b, 10);
+    this._skillBurst(drop.x, drop.y, 0x05070b, 44);
+    drop.destroy();
+  }
+
+  _hitStop(duration) {
+    if (this._hitStopActive) return;
+    this._hitStopActive = true;
+    this.physics.world.timeScale = 0.18;
+    this.time.delayedCall(duration, () => {
+      this.physics.world.timeScale = 1;
+      this._hitStopActive = false;
+    });
+  }
+
+  _slashArc(char, color, comboStep = 0) {
+    const facing = char.flipX ? -1 : 1;
+    const offset = 36 + comboStep * 10;
+    const slash = this.add.image(char.x + facing * (offset + 28), char.y - 6, 'brush_slash')
+      .setDepth(6)
+      .setAlpha(0.76)
+      .setScale((0.74 + comboStep * 0.16) * facing, 0.68 + comboStep * 0.13)
+      .setAngle(facing * (-10 - comboStep * 6))
+      .setTint(comboStep >= 2 ? 0xf4efe3 : color);
+    if (comboStep > 0) this._comboBrushSmear(char, comboStep);
+    const arc = this.add.image(char.x + facing * offset, char.y, 'impact_brush_ring')
+      .setDepth(5)
+      .setAlpha(0.52 + comboStep * 0.08)
+      .setScale((0.52 + comboStep * 0.14) * facing, 0.34 + comboStep * 0.09)
+      .setAngle(facing * (comboStep >= 2 ? -18 : -12))
+      .setTint(comboStep >= 2 ? 0xf4efe3 : color);
+    if (comboStep >= 2) {
+      this._impactBurst(char.x + facing * 58, char.y, color, 9);
+      this._cameraPunch('combo', 1.1, { facing, comboStep: comboStep + 1 });
+    }
+    this.tweens.add({
+      targets: arc,
+      alpha: 0,
+      scaleX: arc.scaleX * 1.32,
+      scaleY: arc.scaleY * 1.16,
+      duration: 135 + comboStep * 35,
+      onComplete: () => arc.destroy(),
+    });
+    this.tweens.add({
+      targets: slash,
+      alpha: 0,
+      scaleX: slash.scaleX * 1.28,
+      scaleY: slash.scaleY * 1.12,
+      duration: 150 + comboStep * 34,
+      ease: 'Cubic.easeOut',
+      onComplete: () => slash.destroy(),
+    });
+  }
+
+  _electricDischarge(char, comboStep) {
+    const facing = char.flipX ? -1 : 1;
+    const boltCount = comboStep + 1;
+    const baseLength = 130 + comboStep * 22;
+    const spread = 18 + comboStep * 9;
+    for (let i = 0; i < boltCount; i++) {
+      const lane = i - (boltCount - 1) / 2;
+      const startX = char.x + facing * 24;
+      const startY = char.y - 4 + lane * 8;
+      const endX = startX + facing * baseLength;
+      const endY = startY + lane * spread;
+      const midX = (startX + endX) / 2 + facing * Phaser.Math.Between(-10, 14);
+      const midY = (startY + endY) / 2 + Phaser.Math.Between(-18, 18);
+      const bolt = this.add.graphics().setDepth(6);
+      bolt.lineStyle(8 - Math.min(comboStep, 2), 0x05070b, 0.46).beginPath()
+        .moveTo(startX, startY)
+        .lineTo(midX, midY)
+        .lineTo(endX, endY)
+        .strokePath();
+      bolt.lineStyle(2 + comboStep, 0xf4efe3, 0.86).beginPath()
+        .moveTo(startX, startY)
+        .lineTo(midX + facing * 8, midY - lane * 5)
+        .lineTo(endX, endY)
+        .strokePath();
+      this.tweens.add({
+        targets: bolt,
+        alpha: 0,
+        duration: 105 + comboStep * 28,
+        onComplete: () => bolt.destroy(),
+          });
+      if (comboStep > 0) this._comboBrushSmear(char, comboStep);
+      this._impactBurst(endX, endY, 0x05070b, 2 + comboStep);
+    }
+    if (comboStep >= 2) {
+      this._cameraPunch('combo', 1.05, { facing, comboStep: comboStep + 1 });
+    }
+  }
+
+  _skillBurst(x, y, color, radius, facing = 1) {
+    const ring = this.add.circle(x, y, radius, color, 0.06).setStrokeStyle(3, color, 0.74).setDepth(5);
+    this.tweens.add({
+      targets: ring,
+      alpha: 0,
+      scale: 1.25,
+      duration: 360,
+      ease: 'Cubic.easeOut',
+      onComplete: () => ring.destroy(),
+    });
+    this._impactInkBurst(x, y, 'skill', radius >= 180 ? 1.12 : 0.72);
+    this._impactBurst(x, y, color, 14);
+    this._cameraPunch('skill', radius >= 180 ? 1.15 : 0.85, { facing });
+  }
+
+  _absorbLightFeedback(player) {
+    const facing = player.flipX ? -1 : 1;
+    const aura = this.add.image(player.x, player.y, 'absorb_aura')
+      .setDepth(8)
+      .setAlpha(0.72)
+      .setScale(0.42)
+      .setTint(0xf4efe3);
+    const trail = this.add.image(player.x - facing * 42, player.y + 6, 'absorb_trail')
+      .setDepth(7)
+      .setAlpha(0.68)
+      .setScale(-0.52 * facing, 0.46)
+      .setAngle(facing * -9)
+      .setTint(0x05070b);
+    this.tweens.add({
+      targets: aura,
+      alpha: 0,
+      scale: 0.84,
+      angle: 38,
+      duration: 360,
+      ease: 'Cubic.easeOut',
+      onComplete: () => aura.destroy(),
+    });
+    this.tweens.add({
+      targets: trail,
+      alpha: 0,
+      x: player.x,
+      scaleX: trail.scaleX * 0.45,
+      scaleY: trail.scaleY * 0.72,
+      duration: 320,
+      ease: 'Cubic.easeIn',
+      onComplete: () => trail.destroy(),
+    });
+  }
+
+  _comboImpactVfx(enemy, vfx, reaction = {}) {
+    if (!enemy || !vfx) return;
+    const facing = reaction.facing === -1 ? -1 : 1;
+    const power = Number.isFinite(vfx.power) ? vfx.power : 1;
+    const isFinisher = vfx.kind === 'finisher';
+    const x = enemy.x;
+    const y = enemy.y;
+
+    if (vfx.ringTexture) {
+      const ring = this.add.image(x, y, vfx.ringTexture)
+        .setDepth(6)
+        .setAlpha(isFinisher ? 0.74 : 0.54)
+        .setScale((isFinisher ? 0.52 : 0.42) * power)
+        .setAngle(facing * (isFinisher ? -18 : -10))
+        .setTint(isFinisher ? 0xf4efe3 : 0x05070b);
+      this.tweens.add({
+        targets: ring,
+        alpha: 0,
+        scale: (isFinisher ? 1.12 : 0.86) * power,
+        duration: isFinisher ? 270 : 210,
+        ease: 'Cubic.easeOut',
+        onComplete: () => ring.destroy(),
+      });
+    }
+
+    if (vfx.smearTexture) {
+      const smear = this.add.image(x - facing * 18, y + 3, vfx.smearTexture)
+        .setDepth(7)
+        .setAlpha(isFinisher ? 0.68 : 0.5)
+        .setScale(-facing * (0.42 + power * 0.22), 0.36 + power * 0.12)
+        .setAngle(facing * (isFinisher ? 15 : 9))
+        .setTint(0x05070b);
+      this.tweens.add({
+        targets: smear,
+        alpha: 0,
+        x: smear.x - facing * (26 + power * 10),
+        scaleX: smear.scaleX * 1.2,
+        scaleY: smear.scaleY * 1.08,
+        duration: isFinisher ? 250 : 190,
+        ease: 'Cubic.easeOut',
+        onComplete: () => smear.destroy(),
+      });
+    }
+
+    if (vfx.burstTexture) {
+      const burst = this.add.image(x, y, vfx.burstTexture)
+        .setDepth(8)
+        .setAlpha(0.82)
+        .setScale(0.48 * power)
+        .setAngle(Phaser.Math.Between(-32, 32))
+        .setTint(0x05070b);
+      this.tweens.add({
+        targets: burst,
+        alpha: 0,
+        scale: 1.08 * power,
+        duration: 280,
+        ease: 'Cubic.easeOut',
+        onComplete: () => burst.destroy(),
+      });
+    }
+
+    if (vfx.flashTexture) {
+      const flash = this.add.image(x, y - 2, vfx.flashTexture)
+        .setDepth(9)
+        .setAlpha(0.7)
+        .setScale(0.34 * power)
+        .setAngle(Phaser.Math.Between(-14, 14))
+        .setTint(0xf4efe3);
+      this.tweens.add({
+        targets: flash,
+        alpha: 0,
+        scale: 0.84 * power,
+        duration: 120,
+        ease: 'Cubic.easeOut',
+        onComplete: () => flash.destroy(),
+      });
+    }
+  }
+  _impactInkBurst(x, y, kind = 'hit', power = 1) {
+    const isHeavy = kind === 'kill' || kind === 'skill';
+    const burstScale = (isHeavy ? 1.15 : 0.78) * power;
+    const ringScale = (isHeavy ? 1.1 : 0.74) * power;
+    const flashScale = (isHeavy ? 0.9 : 0.52) * power;
+
+    const burst = this.add.image(x, y, 'impact_ink_burst')
+      .setDepth(7)
+      .setAlpha(isHeavy ? 0.86 : 0.66)
+      .setScale(burstScale * 0.55)
+      .setAngle(Phaser.Math.Between(-35, 35))
+      .setTint(0x05070b);
+    const ring = this.add.image(x, y, 'impact_brush_ring')
+      .setDepth(6)
+      .setAlpha(isHeavy ? 0.72 : 0.48)
+      .setScale(ringScale * 0.42)
+      .setAngle(Phaser.Math.Between(-18, 18))
+      .setTint(0x05070b);
+    const flash = this.add.image(x, y, 'heavy_hit_flash')
+      .setDepth(8)
+      .setAlpha(isHeavy ? 0.72 : 0.38)
+      .setScale(flashScale * 0.36)
+      .setAngle(Phaser.Math.Between(-20, 20))
+      .setTint(0xf4efe3);
+
+    this.tweens.add({
+      targets: burst,
+      alpha: 0,
+      scale: burstScale,
+      duration: isHeavy ? 260 : 190,
+      ease: 'Cubic.easeOut',
+      onComplete: () => burst.destroy(),
+    });
+    this.tweens.add({
+      targets: ring,
+      alpha: 0,
+      scale: ringScale,
+      duration: isHeavy ? 310 : 220,
+      ease: 'Cubic.easeOut',
+      onComplete: () => ring.destroy(),
+    });
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      scale: flashScale,
+      duration: isHeavy ? 110 : 70,
+      ease: 'Cubic.easeOut',
+      onComplete: () => flash.destroy(),
+    });
+  }
+
+  _comboBrushSmear(char, comboStep) {
+    const facing = char.flipX ? -1 : 1;
+    const smear = this.add.image(char.x + facing * (70 + comboStep * 18), char.y + 5, 'combo_brush_smear')
+      .setDepth(5)
+      .setAlpha(0.58 + comboStep * 0.1)
+      .setScale((0.55 + comboStep * 0.15) * facing, 0.44 + comboStep * 0.08)
+      .setAngle(facing * (-8 - comboStep * 8))
+      .setTint(comboStep >= 2 ? 0x05070b : 0x1a1714);
+    this.tweens.add({
+      targets: smear,
+      alpha: 0,
+      x: smear.x + facing * (24 + comboStep * 8),
+      scaleX: smear.scaleX * 1.2,
+      scaleY: smear.scaleY * 1.08,
+      duration: 150 + comboStep * 38,
+      ease: 'Cubic.easeOut',
+      onComplete: () => smear.destroy(),
+    });
+  }
+
+  _enemyComboSmear(enemy, reaction) {
+    if (!reaction?.smearTexture) return;
+    const smear = this.add.image(enemy.x - reaction.facing * 22, enemy.y + 4, reaction.smearTexture)
+      .setDepth(6)
+      .setAlpha(0.56)
+      .setScale(reaction.smearScale * -reaction.facing, reaction.smearScale * 0.72)
+      .setAngle(reaction.facing * 10)
+      .setTint(0x05070b);
+    this.tweens.add({
+      targets: smear,
+      alpha: 0,
+      x: smear.x - reaction.facing * 34,
+      scaleX: smear.scaleX * 1.18,
+      scaleY: smear.scaleY * 1.08,
+      duration: 180 + reaction.comboStep * 28,
+      ease: 'Cubic.easeOut',
+      onComplete: () => smear.destroy(),
+    });
+  }
+
+  _enemyFinisherPop(enemy, reaction) {
+    if (!reaction?.flashTexture) return;
+    const flash = this.add.image(enemy.x, enemy.y - 4, reaction.flashTexture)
+      .setDepth(9)
+      .setAlpha(0.66)
+      .setScale(0.62)
+      .setAngle(Phaser.Math.Between(-12, 12))
+      .setTint(0xf4efe3);
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      scale: 1.05,
+      duration: 140,
+      ease: 'Cubic.easeOut',
+      onComplete: () => flash.destroy(),
+    });
+  }
+
+  _playFeedbackSfx(feedback) {
+    if (!feedback?.sfx?.key || !this.sound?.play) return;
+    const existing = this.sound?.get?.(feedback.sfx.key);
+    const config = { volume: feedback.sfx.volume ?? 0.45, rate: feedback.sfx.rate ?? 1 };
+    if (existing?.isPlaying && feedback.sfx.fallback !== 'synth-defeat') return;
+    this.sound.play(feedback.sfx.key, config);
+  }
+
+  _showActionFeedback(x, y, feedback) {
+
+    this._playFeedbackSfx(feedback);
+    const anchorY = Number.isFinite(feedback?.anchor?.offsetY) ? y + feedback.anchor.offsetY : y;
+    const depth = Number.isFinite(feedback?.layer?.depth) ? feedback.layer.depth : 20;
+    const timeline = feedback?.timeline || {};
+    const densityCue = feedback?.densityCue || {};
+    const rise = Number.isFinite(timeline.rise) ? timeline.rise : 42;
+    const duration = Number.isFinite(timeline.duration) ? timeline.duration : (feedback.rule === 'finish' ? 760 : 520);
+    const delay = Number.isFinite(timeline.delay) ? timeline.delay : 0;
+    const pulseScale = Number.isFinite(densityCue.pulseScale) ? densityCue.pulseScale : 1 + feedback.intensity * 0.15;
+    const visualCue = feedback?.visualCue || {};
+    const cueScaleX = Number.isFinite(visualCue.scaleX) ? visualCue.scaleX : 1;
+    const cueScaleY = Number.isFinite(visualCue.scaleY) ? visualCue.scaleY : cueScaleX;
+    const cueAlpha = Number.isFinite(visualCue.alpha) ? visualCue.alpha : 0.3;
+    const cueAngle = Number.isFinite(visualCue.angle) ? visualCue.angle : 0;
+    const cueDuration = Number.isFinite(visualCue.durationMs) ? visualCue.durationMs : 220;
+    const color = feedback.rule === 'finish' ? '#f4dfb2' : feedback.rule === 'evade' ? '#f7ebcf' : '#f4efe3';
+    const cue = this.add.image(x, anchorY, feedback.texture)
+      .setDepth(Math.max(0, depth - 1))
+      .setAlpha(cueAlpha)
+      .setAngle(cueAngle)
+      .setScale(cueScaleX, cueScaleY)
+      .setTint(feedback.rule === 'finish' ? 0xf4dfb2 : 0xf4efe3);
+    this.tweens.add({
+      targets: cue,
+      alpha: 0,
+      scaleX: cueScaleX * 1.18,
+      scaleY: cueScaleY * 1.12,
+      duration: cueDuration,
+      ease: 'Cubic.easeOut',
+      onComplete: () => cue.destroy(),
+    });
+    const text = this.add.text(x, anchorY, feedback.label, {
+      fontSize: feedback.rule === 'finish' ? '24px' : '19px',
+      color,
+      fontFamily: 'Arial Black',
+      stroke: '#05070b',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setDepth(depth);
+    this.tweens.add({
+      targets: text,
+      y: anchorY - rise,
+      alpha: 0,
+      scale: pulseScale,
+      delay,
+      duration,
+      ease: 'Cubic.easeOut',
+      onComplete: () => text.destroy(),
+    });
+  }
+
+  _inkSplatter(x, y, texture = 'ink_splatter', scale = 1) {
+    const splatter = this.add.image(x, y, texture)
+      .setDepth(4)
+      .setAlpha(0.72)
+      .setScale(scale)
+      .setAngle(Phaser.Math.Between(-35, 35));
+    this.tweens.add({
+      targets: splatter,
+      alpha: 0,
+      scaleX: scale * 1.32,
+      scaleY: scale * 1.12,
+      duration: 420,
+      ease: 'Cubic.easeOut',
+      onComplete: () => splatter.destroy(),
+    });
+  }
+
+  _dashTrail(target, color) {
+    const ghost = this.add.image(target.x, target.y, target.texture.key)
+      .setAlpha(0.35)
+      .setTint(color)
+      .setFlipX(target.flipX)
+      .setDepth(1);
+    const glow = this.add.image(target.x, target.y, 'afterimage_glow')
+      .setTint(color)
+      .setAlpha(0.24)
+      .setDepth(0);
+    this.tweens.add({
+      targets: ghost,
+      alpha: 0,
+      scaleX: 1.35,
+      scaleY: 1.12,
+      duration: 240,
+      onComplete: () => ghost.destroy(),
+    });
+    this.tweens.add({
+      targets: glow,
+      alpha: 0,
+      scale: 1.8,
+      duration: 300,
+      onComplete: () => glow.destroy(),
+    });
+  }
+
+  _impactBurst(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+      const spark = this.add.image(x, y, 'spark').setTint(color).setDepth(6).setScale(0.35);
+      const angle = (Math.PI * 2 * i) / count + Phaser.Math.FloatBetween(-0.2, 0.2);
+      const distance = Phaser.Math.Between(18, 58);
+      this.tweens.add({
+        targets: spark,
+        x: x + Math.cos(angle) * distance,
+        y: y + Math.sin(angle) * distance,
+        alpha: 0,
+        scale: 0.05,
+        duration: Phaser.Math.Between(180, 330),
+        ease: 'Cubic.easeOut',
+        onComplete: () => spark.destroy(),
+      });
+    }
+  }
+
+  update(time, delta) {
+    this._syncBackground();
+    this._syncLightGuides(delta);
+
+    if (this.stat.isDead()) {
+      this.scene.start('GameOverScene', { score: this.stat.score, time: this.stat.survivalTime });
+      return;
+    }
+
+    const active = this.charManager.getActive();
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.swap)) {
+      const prev = active;
+      prev.setVisible(false);
+      this.charManager.swap();
+      const next = this.charManager.getActive();
+      next.setPosition(prev.x, prev.y);
+      next.setVisible(true);
+      this.cameras.main.startFollow(next, true, 0.1, 0.1);
+    }
+
+    const current = this.charManager.getActive();
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.attack)) {
+      const comboStep = current.attack(this.mapGen.getAllEnemies());
+      if (comboStep !== null && comboStep !== undefined) {
+        const feedback = getActionFeedback({ type: 'attack', comboStep: comboStep + 1 });
+        this._showActionFeedback(current.x, current.y, feedback);
+        if (current instanceof ElectricCharacter) {
+          this._electricDischarge(current, comboStep);
+        } else {
+          this._slashArc(current, 0x05070b, comboStep);
+        }
+      }
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.skill)) {
+      const staminaBefore = this.stat.stamina;
+      current.skill(this.mapGen.getAllEnemies());
+      if (this.stat.stamina < staminaBefore) {
+        this._skillBurst(current.x, current.y, 0x05070b, 120, current.flipX ? -1 : 1);
+      }
+    }
+
+    if (this.keys.guard.isDown) {
+      current.guard(time);
+      if (current instanceof ElectricCharacter) {
+        current.applyShieldSlow(this.projectiles);
+      }
+    } else {
+      current.stopGuard();
+    }
+
+    if (this.hud.objectiveActive) this.stat.update(delta, current.isGuarding);
+    if (this.hud.objectiveActive) current.update(delta, this.cursors, this.keys);
+    else current.setVelocity(0, 0);
+
+    this.mapGen.update(
+      current,
+      (x, y) => {
+        const e = new Enemy(this, x, y);
+        if (this.trialElitePending) {
+          e.promoteToTrialElite();
+          this.trialElitePending = false;
+        }
+        this.physics.add.collider(e, this.mapGen.getPlatformGroup());
+        return e;
+      },
+      (x, y) => this._spawnHealthDrop(x, y, 24000)
+    );
+
+    if (this.hud.objectiveActive) {
+      this.pursuer.update(delta, current);
+      this.mapGen.getAllEnemies().forEach(e => e.update(delta, current));
+    }
+    this.hud.update(delta);
+  }
+}

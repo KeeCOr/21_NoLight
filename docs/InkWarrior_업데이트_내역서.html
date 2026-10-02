@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InkWarrior 업데이트 내역서</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65;max-width:980px;margin:0 auto;padding:40px 24px;color:#20242a;background:#fafafa}h1{font-size:34px}h2{font-size:24px;margin-top:34px;border-bottom:1px solid #ddd;padding-bottom:6px}h3{font-size:18px}p,li{font-size:15px}li{margin:5px 0}table{border-collapse:collapse;width:100%;margin:12px 0}td{border:1px solid #ddd;padding:8px 12px;vertical-align:top}code{background:#fff;border:1px solid #ddd;border-radius:4px;padding:1px 4px}pre{background:#fff;border:1px solid #ddd;border-radius:8px;padding:12px;white-space:pre-wrap}img{max-width:100%;height:auto;border-radius:8px;object-fit:contain}blockquote{border-left:4px solid #ddd;margin:0 0 16px;padding:8px 16px;background:#fff;color:#555}</style>
+</head>
+<body>
+<h1>InkWarrior 업데이트 내역서</h1>
+<h2>2026-09-23 v0.12.2 강적 해금 수련 규칙</h2>
+<ul><li>일반 적 처치만으로 수련이 완료되던 판정을 수정했다.</li><li>공격·회피 합계 3회 뒤 실제 적 하나를 강적으로 승격하고 강적 처치만 완료로 인정한다.</li><li>남은 시간, 초과 시간, 정시 완료, 초과 완료 상태를 기존 수묵 목표띠에 연결했다.</li><li>튜토리얼 중 조기 사망과 화면 밖 추락을 막고 종료 시 플레이어·추격자 위치를 복원한다.</li><li>예시 화면: <code>docs/design-references/2026-09-23_60초수련_강적해금_목표화면.png</code></li><li>컴포넌트: 수련 상태 모델, 시간 표시, 해금 이벤트, 강적 식별, 완료 피드백.</li><li>검증: Jest 42개 스위트·138개 테스트와 v0.12.2 포터블 빌드 통과. 루트/release SHA 일치. 900×1600 튜토리얼 보호·목표띠 전환·콘솔 오류 없음 확인. 강적 해금 이후 실제 플레이는 미검증이다.</li></ul>
+<h2>2026-06-26 v0.4.1 combat smoke path</h2>
+<ul>
+<li>Added SharkCombat.runSmokeEncounter to cover combat entry, player hit, enemy retaliation, and encounter end with real HP changes.</li>
+<li>Added a Jest smoke test for the full path in tests/SharkCombat.test.js.</li>
+<h2>2026-06-24 v0.3.0 ?꾪닾 ?쇰뱶諛?洹쒖튃 ?듯빀</h2>
+<li>怨듦꺽, ?뚰뵾, ?쇨꺽, 寃쎌쭅, ?⑤같 ?쇰뱶諛깆쓣 `strike / evade / wound / finish` 洹쒖튃?쇰줈 ?뺣━?덈떎.</li>
+<li>`ActionFeedback`??`attack`, `dodge`, `stagger`, `defeat` ??낃낵 ?꾪닾 ?ㅻえ???쒗???⑥닔瑜?異붽??덈떎.</li>
+<li>GameScene??泥섏튂/?뚰뵾/?쇳빐/怨듦꺽 ?쇰뱶諛??몄텧????洹쒖튃 ?대쫫??留욎톬??</li>
+<li>癒?李멸꺽??肄붾뱶 ????곗텧??`impact_brush_ring` bitmap VFX濡?援먯껜?덈떎.</li>
+<li>湲고쉷?쒕? ?섎Ⅴ?뚮굹 ?놁씠 寃뚯엫 ?뚭컻, 二쇱슂 ?쒖뒪?? ?뚮젅???덉떆 以묒떖?쇰줈 ?ㅼ떆 ?뺣━?덈떎.</li>
+<li>寃利??덉젙: `npm test`, `npm run build`, `npm run build` 湲곕컲 portable ?⑦궎吏?</li>
+<h2>2026-06-24 臾몄꽌 援ъ“ ?뺣━</h2>
+<li>湲고쉷?쒖? ?낅뜲?댄듃 ?댁뿭?쒕? 遺꾨━?덈떎.</li>
+<li>蹂寃??대젰, 援ы쁽 濡쒓렇, 寃利?湲곕줉? ??臾몄꽌?먯꽌 愿由ы븳??</li>
+<h2>v0.2.0 移대찓???寃??곗텧</h2>
+<li>`CameraImpactProfile` ?쒖닔 洹쒖튃 異붽?.</li>
+<li>李멸꺽 諛⑺뼢 湲곕컲 移대찓??follow offset ?쏆? 異붽?.</li>
+<li>UI ?붿옄?대꼫 ?묒뾽 紐⑸줉 臾몄꽌 異붽?: `docs/ui-designer-camera-impact-tasks.md`.</li>
+<h2>湲곗〈 ?대젰 ?꾨낫</h2>
+<li>2026-05-18 ?곸뼱 ?꾪닾 ?쒖뒪??議곗젙.</li>
+<li>v0.1.3 ?꾩껜 寃뚯엫 猷⑦봽, 罹먮┃??援먯껜, 臾댄븳 泥?겕 留? HUD, ?앹꽦 ?꾪듃 ?먯뀑, Windows portable 鍮뚮뱶 諛섏쁺.</li>
+<h2>2026-06-26 v0.5.0 image-generated combat VFX refresh</h2>
+<li>Replaced the runtime combat VFX PNGs at the existing `assets/generated/` paths with image-generated sumi-e dieselpunk assets.</li>
+<li>Updated assets: `brush-slash.png`, `impact-brush-ring.png`, `impact-ink-burst.png`, `combo-brush-smear.png`, and `heavy-hit-flash.png`.</li>
+<li>The new assets keep the same runtime filenames and target canvas sizes, so `BootScene.js`, `GameScene.js`, `ActionFeedback`, and `ComboHitReaction` continue using the existing texture keys.</li>
+<li>Source imagegen/chroma-key working files and original backups are stored under `_temp/vfx_imagegen_20260626/`.</li>
+<h2>2026-06-29 v0.6.0 combo impact VFX runtime stack</h2>
+<li>Added combo-specific `impactVfx` metadata to `ComboHitReaction`.</li>
+<li>Updated `GameScene` so enemy hit/kill feedback consumes the metadata-driven brush ring, combo smear, heavy-hit flash, and ink burst layers.</li>
+<li>Preserved existing generated PNG asset paths and texture keys.</li>
+<h2>2026-06-30 Verification Note</h2>
+<li>Reverified the existing combat smoke path and planning consistency after the v0.7.0 package refresh.</li>
+<li>Validation: `npm test` passed 36 suites / 110 tests; current release artifact is `release/InkWarrior_v0.7.0_portable.exe`.</li>
+<li>Remaining follow-up is still visual-language breadth: scene-level attack/dodge/hit/stagger/defeat VFX rules and bitmap replacement for newly touched final-facing combat art.</li>
+<h2>2026-06-30 v0.9.0 grotesque monster variants</h2>
+<li>Added MonsterVariantPlan for maw, spine, many-eyes, and crawler enemy silhouettes.</li>
+<li>Added generated Phaser texture keys for the new monster shapes while preserving the monochrome ink direction.</li>
+<li>Increased non-start chunk enemy spawns from 1~3 to 2~4 to raise combat density.</li>
+<h2>2026-07-02 v0.9.0 Package Metadata Compatibility</h2>
+<li>Changed package distribution metadata to ASCII-safe `description` and `author` values so Node, Jest, and PowerShell audit scripts parse it consistently.</li>
+<li>Added `tests/PackageMetadata.test.js` to lock the package name, version, description, author, and ASCII compatibility.</li>
+<li>Validation: `npm test -- --runInBand` passed 39 suites / 122 tests.</li>
+<li>Build/release: `npm run build` produced `release/21NL_v0.9.0_portable.exe`; the same file was copied to the project root and Google Drive execution folder.</li>
+<section><h2>2026-07-15 / v0.10.0</h2><ul><li>전투 콜아웃에 density cue를 추가해 공격/회피/피격/처치의 60초 리듬을 명확히 분리했다.</li><li>GameScene이 ActionFeedback의 anchor/layer/timeline/pulse scale을 소비하도록 정리했다.</li><li>검증: npm test 39 suites / 124 tests 통과.</li></ul></section>
+<h2>2026-09-22 v0.12.1 60초 수묵 수련 목표띠</h2><ul><li>전투 이벤트를 초기·단련·강적·완료 상태로 변환한다.</li><li>기존 HUD 비트맵 패널에 현재·다음 목표와 3단계 경로를 표시한다.</li><li>목표 화면: <code>docs/design-references/2026-09-22_60초수묵수련_목표화면.png</code></li></ul>
+</body>
+</html>
