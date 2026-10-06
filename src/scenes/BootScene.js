@@ -11,6 +11,7 @@
     this.load.audio('sfx_enemy_defeat', 'assets/audio/kenney/sfx_enemy_defeat.ogg');
     this.load.audio('sfx_stage_fail', 'assets/audio/kenney/sfx_stage_fail.ogg');
     this.load.image('electric_char', 'assets/generated/electric-char.png');
+    this.load.image('title_logo', 'assets/brand/title-logo.png');
     this.load.image('absorber_char', 'assets/generated/absorber-char.png');
     this.load.image('mecha_char', 'assets/generated/mecha-char.png');
     this.load.image('enemy', 'assets/generated/enemy.png');

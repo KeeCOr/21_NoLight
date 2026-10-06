@@ -20,13 +20,14 @@ class MainMenuScene extends Phaser.Scene {
     this.add.image(width / 2 + 210, height / 2 + 22, 'mecha_char').setScale(2.05).setAlpha(0.95).setTint(0x2a2823).setDepth(1);
     this.add.image(width / 2, height / 2 + 42, 'pursuer').setScale(1.55).setAlpha(0.42).setTint(0x05070b).setDepth(0);
 
+    this.add.image(width / 2, 142, 'title_logo').setDisplaySize(360, 95).setDepth(2);
     this.add.text(width / 2, 142, '21 NL', {
       fontSize: '86px',
       color: '#f2efe3',
       fontFamily: 'Arial Black',
       stroke: '#05070b',
       strokeThickness: 8,
-    }).setOrigin(0.5).setDepth(2);
+    }).setOrigin(0.5).setDepth(2).setVisible(false);
 
     this.add.text(width / 2, 218, TutorialCopy.goal, {
       fontSize: '24px',
