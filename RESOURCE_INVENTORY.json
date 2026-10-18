@@ -1,0 +1,13 @@
+{
+  "project": "21_NL",
+  "resources": [],
+  "bgmIntegration": {
+    "date": "2026-10-18",
+    "source": "public/audio/bgm_main_loop.ogg",
+    "runtimeAsset": "assets/audio/bgm_main_loop.ogg",
+    "runtime": "assets/audio/bgm-player.js",
+    "entry": "index.html",
+    "license": "Existing project procedural synthesis; no new media",
+    "reason": "기존 미연결 BGM을 런타임에 연결. 원본 보존."
+  }
+}
